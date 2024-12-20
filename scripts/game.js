@@ -1,11 +1,35 @@
-import MainMenuScene from './scenes/MainMenuScene.js';
-import GameScene from './scenes/GameScene.js';
+import { auth, googleProvider } from './firebase.js';
+import { signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
-const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    scene: [MainMenuScene, GameScene],
-};
+console.log("Firebase Auth initialized:", auth);
 
-const game = new Phaser.Game(config);
+// Example logic for managing authentication
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log("User is logged in:", user);
+        // Proceed to main game logic or main menu scene
+    } else {
+        console.log("No user logged in. Show login UI.");
+        // Show login form or other login handling
+    }
+});
+
+// Example login function
+async function loginWithEmail(email, password) {
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        console.log("User logged in successfully");
+    } catch (error) {
+        console.error("Error logging in:", error.message);
+    }
+}
+
+// Example Google login function
+async function loginWithGoogle() {
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        console.log("Google login successful:", result.user);
+    } catch (error) {
+        console.error("Error with Google login:", error.message);
+    }
+}

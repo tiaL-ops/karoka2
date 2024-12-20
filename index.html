@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KarokaGame</title>
-  <link rel="stylesheet" href="styles/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KarokaGame</title>
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-  <h1>Welcome to KarokaGame!</h1>
+    <h1>Welcome to KarokaGame!</h1>
 
-  <!-- Include Phaser.js from the CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.0/dist/phaser.js"></script>
-  
-  <!-- Include your game script -->
-  <script src="env.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
-  <script type="module" src="scripts/firebase.js"></script>
-  <script type="module" src="scripts/game.js"></script>
-  
+    <!-- Include Phaser -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.0/dist/phaser.js"></script>
 
-  
+    <script src="env.js"></script>
+
+    <!-- Include Firebase logic -->
+    <script type="module" src="scripts/firebase.js"></script>
+
+    <!-- Include Game logic -->
+    <script type="module" src="scripts/game.js"></script>
 </body>
 </html>

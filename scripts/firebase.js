@@ -1,11 +1,16 @@
-// Your web app's Firebase configuration
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+// Import the required Firebase SDKs
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-analytics.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Ensure `window.env` is defined
+if (!window.env) {
+    console.error("Environment variables are not defined! Make sure env.js is included in index.html before firebase.js.");
+    throw new Error("Missing environment variables: window.env is not defined.");
+}
+
+// Use environment variables from `window.env`
 const firebaseConfig = {
     apiKey: window.env.FIREBASE_API_KEY,
     authDomain: window.env.FIREBASE_AUTH_DOMAIN,
@@ -19,7 +24,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-
 const db = getFirestore(app);
 const auth = getAuth(app);
-export { db, auth };
+const googleProvider = new GoogleAuthProvider();
+
+// Export Firebase services
+export { db, auth, googleProvider };
