@@ -1,57 +1,45 @@
 import { auth } from './firebase.js';
 import { createAuthForm } from './authform.js';
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+import MainMenuScene from './scenes/MainMenuScene.js';
 
-// Function to load the main menu or game
-function loadMainMenu() {
-    console.log('Main menu loaded!');
+// Phaser Game Configuration
+const config = {
+    type: Phaser.AUTO,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    scene: [], // No initial scene
+    scale: {
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+    },
+    backgroundColor: '#000000',
+};
 
-    // Clear the body (if needed)
-    document.body.innerHTML = '';
+// Initialize Phaser Game
+const game = new Phaser.Game(config);
 
-    // Add a logout button
-    const logoutButton = document.createElement('button');
-    logoutButton.innerText = 'Logout';
-    logoutButton.style.position = 'absolute';
-    logoutButton.style.top = '10px';
-    logoutButton.style.right = '10px';
-    logoutButton.style.padding = '10px 20px';
-    logoutButton.style.backgroundColor = '#ff4d4f';
-    logoutButton.style.color = '#fff';
-    logoutButton.style.border = 'none';
-    logoutButton.style.borderRadius = '5px';
-    logoutButton.style.cursor = 'pointer';
-
-    // Add logout functionality
-    logoutButton.addEventListener('click', async () => {
-        try {
-            await signOut(auth);
-            console.log('User logged out successfully!');
-            document.body.innerHTML = ''; // Clear the screen after logout
-            createAuthForm(loadMainMenu); // Show login/signup form again
-        } catch (error) {
-            console.error('Logout failed:', error.message);
-        }
-    });
-
-    document.body.appendChild(logoutButton);
-
-    // Add other main menu content here
-    const mainMenuContent = document.createElement('h1');
-    mainMenuContent.innerText = 'Welcome to the Main Menu!';
-    mainMenuContent.style.textAlign = 'center';
-    mainMenuContent.style.marginTop = '50px';
-
-    document.body.appendChild(mainMenuContent);
+// Function to load the MainMenuScene
+function loadMainMenuScene() {
+    if (!game.scene.keys['MainMenuScene']) {
+        game.scene.add('MainMenuScene', MainMenuScene, true); // Add and start MainMenuScene
+    } else {
+        game.scene.start('MainMenuScene'); // Start MainMenuScene if already added
+    }
 }
 
-// Monitor authentication state
+// Monitor Authentication State
 onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log('User is logged in:', user);
-        loadMainMenu(); // Proceed to the main menu
+        loadMainMenuScene(); // Load the MainMenuScene
     } else {
         console.log('No user logged in. Showing auth form.');
-        createAuthForm(loadMainMenu); // Show the login/signup form
+        createAuthForm(() => loadMainMenuScene()); // Show the login/signup form
     }
+});
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    game.scale.resize(window.innerWidth, window.innerHeight);
 });
