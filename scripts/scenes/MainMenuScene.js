@@ -1,6 +1,7 @@
 import { auth } from '../firebase.js';
 import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 import WorldScene from './WorldScene.js';
+import Player from './Player.js';
 import game from '../game.js'; // Import game to use game.loadScene
 
 export default class MainMenuScene extends Phaser.Scene {

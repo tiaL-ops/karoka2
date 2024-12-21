@@ -4,7 +4,6 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/fi
 import MainMenuScene from './scenes/MainMenuScene.js';
 import WorldScene from './scenes/WorldScene.js'; // Import WorldScene
 
-// Phaser Game Configuration
 const config = {
     type: Phaser.AUTO,
     width: window.innerWidth,
@@ -15,6 +14,13 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     backgroundColor: '#000000',
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 0 },
+            debug: true,
+        },
+    },
 };
 
 // Initialize Phaser Game
