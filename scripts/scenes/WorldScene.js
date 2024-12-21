@@ -4,20 +4,26 @@ export default class WorldScene extends Phaser.Scene {
     }
 
     preload() {
-        // Preload assets if needed
+        this.load.image('ktilestest', 'assets/maps/ktilestest.png'); // Load the tileset image
+        this.load.tilemapTiledJSON('Kmap', 'assets/maps/kMapTest.json'); // Load the map JSON
+        
+
     }
 
     create() {
-        console.log("WorldScene created!");
+        // 👌 sanity check by displaying the entire tileset image
+	    //this.add.image(0, 0, 'ktilestest')
+        const map = this.make.tilemap({ key: 'Kmap' })
 
-        // Add a solid color background using a rectangle
-        this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0x0000ff)
-            .setOrigin(0, 0); // Set origin to the top-left corner
+        // add the tileset image we are using
+	    const tileset = map.addTilesetImage('ktilestest')
 
-        // Add "Hello World" text to the scene
-        this.add.text(100, 100, 'Hello World', {
-            font: '32px Arial',
-            fill: '#ffffff'
-        });
+        // create the layers we want in the right order
+	    map.createLayer('Background', tileset)
+
+	    // "Ground" layer will be on top of "Background" layer
+	    map.createLayer('Tree', tileset)
+       
+        
     }
 }
