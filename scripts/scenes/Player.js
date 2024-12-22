@@ -67,13 +67,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.setFrame(0); // down1
                     break;
                 case "left":
-                    this.setFrame(4); // left1
+                    this.setFrame(1); // left1
                     break;
                 case "up":
-                    this.setFrame(8); // up1
+                    this.setFrame(2); // up1
                     break;
                 case "right":
-                    this.setFrame(12); // right1
+                    this.setFrame(3); // right1
                     break;
             }
         }
