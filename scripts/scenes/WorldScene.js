@@ -171,7 +171,7 @@ export default class WorldScene extends Phaser.Scene {
       riddle.setOrigin(0);
       riddle.body.setSize(obj.width, obj.height).setOffset(0, 0);
       // Store riddle name for logging
-      riddle.name = obj.name; // Assuming "name" is set in Tiled for each riddle
+      riddle.name = obj.name; 
     });
 
     // Collision with Chest:
@@ -183,7 +183,7 @@ export default class WorldScene extends Phaser.Scene {
       chest.setOrigin(0);
       chest.body.setSize(obj.width, obj.height).setOffset(0, 0);
       // Store chest name for logging
-      chest.name = obj.name; // Assuming "name" is set in Tiled for each chest
+      chest.name = obj.name; 
     });
 
     // Add collision handling for riddles
