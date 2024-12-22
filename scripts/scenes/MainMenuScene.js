@@ -1,8 +1,8 @@
 import { auth } from '../firebase.js';
 import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 import WorldScene from './WorldScene.js';
-import Player from './Player.js';
-import game from '../game.js'; // Import game to use game.loadScene
+import game from '../game.js'; 
+import AvatarScene from './AvatarScene.js';
 
 export default class MainMenuScene extends Phaser.Scene {
     constructor() {
@@ -47,11 +47,16 @@ export default class MainMenuScene extends Phaser.Scene {
 
             return button;
         };
-
+       
         // Start Game Button (Loads WorldScene)
         createButton(height * 0.4, 'Start Game', () => {
             console.log('Start Game clicked!');
-            game.loadScene('WorldScene', WorldScene); // Use game.loadScene for dynamic transition
+            game.loadScene('WorldScene', WorldScene); 
+        });
+        createButton(height * 0.5, 'Choose Avatar', () => {
+            
+            game.loadScene('AvatarScene', AvatarScene);
+            console.log('Chose clicked!');
         });
 
         // Logout Button

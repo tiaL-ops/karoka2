@@ -31,6 +31,7 @@ game.loadScene = function (sceneKey, sceneClass = null) {
     if (!this.scene.keys[sceneKey]) {
         if (sceneClass) {
             this.scene.add(sceneKey, sceneClass); // Dynamically add the scene if class provided
+            this.scene.stop('MainMenuScene'); // Stop the current scene
         } else {
             console.error(`Scene class for "${sceneKey}" is not provided.`);
             return;

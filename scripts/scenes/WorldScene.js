@@ -125,7 +125,6 @@ export default class WorldScene extends Phaser.Scene {
       return;
     }
 
-
     // Create static groups for trees and rocks
     const objectsBodies = this.physics.add.staticGroup();
     const holeBodies = this.physics.add.staticGroup();
@@ -163,35 +162,47 @@ export default class WorldScene extends Phaser.Scene {
       console.log(" Can't walk!");
     });
 
-   // Collision with Riddles:
-const riddleObjectLayer = map.getObjectLayer("Riddles");
-const riddleGroup = this.physics.add.staticGroup();
+    // Collision with Riddles:
+    const riddleObjectLayer = map.getObjectLayer("Riddles");
+    const riddleGroup = this.physics.add.staticGroup();
 
-riddleObjectLayer.objects.forEach((obj) => {
-  const riddle = riddleGroup.create(obj.x, obj.y, null);
-  riddle.setOrigin(0);
-  riddle.body.setSize(obj.width, obj.height).setOffset(0, 0);
-});
+    riddleObjectLayer.objects.forEach((obj) => {
+      const riddle = riddleGroup.create(obj.x, obj.y, null);
+      riddle.setOrigin(0);
+      riddle.body.setSize(obj.width, obj.height).setOffset(0, 0);
+      // Store riddle name for logging
+      riddle.name = obj.name; // Assuming "name" is set in Tiled for each riddle
+    });
 
-// Collision with Chest:
-const chestObjectLayer = map.getObjectLayer("Chests"); 
-const chestGroup = this.physics.add.staticGroup();
+    // Collision with Chest:
+    const chestObjectLayer = map.getObjectLayer("Chests");
+    const chestGroup = this.physics.add.staticGroup();
 
-chestObjectLayer.objects.forEach((obj) => {
-  const chest = chestGroup.create(obj.x, obj.y, null);
-  chest.setOrigin(0);
-  chest.body.setSize(obj.width, obj.height).setOffset(0, 0);
-});
+    chestObjectLayer.objects.forEach((obj) => {
+      const chest = chestGroup.create(obj.x, obj.y, null);
+      chest.setOrigin(0);
+      chest.body.setSize(obj.width, obj.height).setOffset(0, 0);
+      // Store chest name for logging
+      chest.name = obj.name; // Assuming "name" is set in Tiled for each chest
+    });
 
-// Add collision handling for riddles
-this.physics.add.collider(this.player, riddleGroup, () => {
-  console.log("Riddle encountered");
-});
+    // Add collision handling for riddles
+    this.physics.add.collider(this.player, riddleGroup, (player, riddle) => {
+      if (riddle.name) {
+        console.log(`${riddle.name} encountered`);
+      } else {
+        console.log("A mysterious riddle encountered");
+      }
+    });
 
-// Add collision handling for chests
-this.physics.add.collider(this.player, chestGroup, () => {
-  console.log("The secret to open me");
-});
+    // Add collision handling for chests
+    this.physics.add.collider(this.player, chestGroup, (player, chest) => {
+      if (chest.name) {
+        console.log(`${chest.name} encountered`);
+      } else {
+        console.log("A mysterious chest encountered");
+      }
+    });
 
     // Camera setup
     const camera = this.cameras.main;
@@ -199,7 +210,6 @@ this.physics.add.collider(this.player, chestGroup, () => {
     camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-
 
     this.player.setCollideWorldBounds(true);
 
