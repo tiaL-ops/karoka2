@@ -1,3 +1,6 @@
+import game from '../game.js';
+import WorldScene from './WorldScene.js';
+
 export default class AvatarScene extends Phaser.Scene {
     constructor() {
         super({ key: 'AvatarScene' });
@@ -42,11 +45,11 @@ export default class AvatarScene extends Phaser.Scene {
         });
 
         // Add avatars to the scene
-        this.avatars.boi = this.add.sprite(300, 250, 'boi').setScale(2).play('boi_turn');
-        this.avatars.girl = this.add.sprite(500, 250, 'girl').setScale(2).setVisible(false);
+        this.avatars.boi = this.add.sprite(300, 250, 'boi').setScale(4).play('boi_turn');
+        this.avatars.girl = this.add.sprite(500, 250, 'girl').setScale(4).setVisible(false);
 
         // Add instructions for switching avatars
-        this.add.text(400, 150, 'Press G or B to Switch', {
+        this.add.text(400, 150, 'Press C to Switch', {
             fontSize: '20px',
             fill: '#fff',
             fontStyle: 'bold'
@@ -75,8 +78,7 @@ export default class AvatarScene extends Phaser.Scene {
             .on('pointerdown', () => this.confirmSelection());
 
         // Add keyboard input for avatar switching
-        this.input.keyboard.on('keydown-G', () => this.changeAvatar(-1));
-        this.input.keyboard.on('keydown-B', () => this.changeAvatar(1));
+        this.input.keyboard.on('keydown-C', () => this.changeAvatar(-1));
 
         this.updateSelection();
     }
@@ -105,6 +107,7 @@ export default class AvatarScene extends Phaser.Scene {
 
     confirmSelection() {
         localStorage.setItem('selectedAvatar', this.currentAvatar); // Save selection to local storage
+        game.loadScene('WorldScene', WorldScene); 
         console.log(`Confirmed selection: ${this.currentAvatar}`);
     }
 }

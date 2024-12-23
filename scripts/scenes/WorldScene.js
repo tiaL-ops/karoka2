@@ -1,16 +1,28 @@
 import Player from "./Player.js";
+import AvatarScene from "./AvatarScene.js";
 
 export default class WorldScene extends Phaser.Scene {
   constructor() {
     super({ key: "WorldScene" });
   }
-
+  
   preload() {
     // Load the spritesheet for the player and the tilesets
-    this.load.spritesheet("boitest", "assets/maps/boiTest.png", {
+    const selectedAvatar = localStorage.getItem('selectedAvatar');
+  
+
+    if (selectedAvatar === "boi") {
+    this.load.spritesheet("player", "assets/maps/boiTest.png", {
       frameWidth: 48,
       frameHeight: 48,
     });
+  } else {
+    this.load.spritesheet("player", "assets/maps/girl.png", {
+      frameWidth: 48,
+      frameHeight: 48,
+    });
+
+  }
 
     this.load.image("chest2", "assets/maps/chest2.png");
     this.load.image("forest_tiles", "assets/maps/forest_tiles.png");
@@ -54,10 +66,10 @@ export default class WorldScene extends Phaser.Scene {
     this.anims.create({
       key: "walk_down",
       frames: [
-        { key: "boitest", frame: 0 },
-        { key: "boitest", frame: 4 },
-        { key: "boitest", frame: 8 },
-        { key: "boitest", frame: 12 },
+        { key: "player", frame: 0 },
+        { key: "player", frame: 4 },
+        { key: "player", frame: 8 },
+        { key: "player", frame: 12 },
       ],
       frameRate: 10,
       repeat: -1,
@@ -66,10 +78,10 @@ export default class WorldScene extends Phaser.Scene {
     this.anims.create({
       key: "walk_left",
       frames: [
-        { key: "boitest", frame: 1 },
-        { key: "boitest", frame: 5 },
-        { key: "boitest", frame: 9 },
-        { key: "boitest", frame: 13 },
+        { key: "player", frame: 1 },
+        { key: "player", frame: 5 },
+        { key: "player", frame: 9 },
+        { key: "player", frame: 13 },
       ],
       frameRate: 10,
       repeat: -1,
@@ -78,10 +90,10 @@ export default class WorldScene extends Phaser.Scene {
     this.anims.create({
       key: "walk_up",
       frames: [
-        { key: "boitest", frame: 2 },
-        { key: "boitest", frame: 6 },
-        { key: "boitest", frame: 10 },
-        { key: "boitest", frame: 14 },
+        { key: "player", frame: 2 },
+        { key: "player", frame: 6 },
+        { key: "player", frame: 10 },
+        { key: "player", frame: 14 },
       ],
       frameRate: 10,
       repeat: -1,
@@ -90,10 +102,10 @@ export default class WorldScene extends Phaser.Scene {
     this.anims.create({
       key: "walk_right",
       frames: [
-        { key: "boitest", frame: 3 },
-        { key: "boitest", frame: 7 },
-        { key: "boitest", frame: 11 },
-        { key: "boitest", frame: 15 },
+        { key: "player", frame: 3 },
+        { key: "player", frame: 7 },
+        { key: "player", frame: 11 },
+        { key: "player", frame: 15 },
       ],
       frameRate: 10,
       repeat: -1,
@@ -107,12 +119,12 @@ export default class WorldScene extends Phaser.Scene {
 
     if (playerSpawn) {
       console.log("Bf Player");
-      console.log(this.textures.exists("boitest"));
+      console.log(this.textures.exists("player"));
       this.player = new Player(
         this,
         playerSpawn.x,
         playerSpawn.y,
-        "boitest",
+        "player",
         0
       ); // Use frame 0 for the player
       console.log("Player created:", this.player);
