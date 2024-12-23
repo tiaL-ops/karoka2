@@ -2,15 +2,19 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
+    width: 100%;
+    overflow: hidden;
     background: linear-gradient(180deg, #1a237e 0%, #4caf50 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 canvas {
     display: block;
-    margin: auto;
+    margin: 0;
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

@@ -2,23 +2,20 @@ import { auth } from './firebase.js';
 import { createAuthForm } from './authform.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 import MainMenuScene from './scenes/MainMenuScene.js';
-import WorldScene from './scenes/WorldScene.js'; // Import WorldScene
+import WorldScene from './scenes/WorldScene.js'; 
 
+// Phaser Game Configuration
 const config = {
     type: Phaser.AUTO,
-    width: window.innerWidth,
-    height: window.innerHeight,
-    scene: [], // No initial scene
-    scale: {
-        mode: Phaser.Scale.RESIZE,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
-    },
+    width: 778, // Base width of your game
+    height: 725, // Base height of your game
     backgroundColor: '#000000',
+    scene: [MainMenuScene], // Include your scenes
     physics: {
         default: 'arcade',
         arcade: {
             gravity: { y: 0 },
-            debug: true,
+            debug: false,
         },
     },
 };
@@ -40,6 +37,29 @@ game.loadScene = function (sceneKey, sceneClass = null) {
     this.scene.start(sceneKey); // Start the scene
 };
 
+// Resize the canvas dynamically while maintaining the aspect ratio
+function resizeGame() {
+    const canvas = document.querySelector("canvas");
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const windowRatio = windowWidth / windowHeight;
+    const gameRatio = config.width / config.height;
+
+    if (windowRatio < gameRatio) {
+        // Screen is narrower than the game's aspect ratio
+        canvas.style.width = `${windowWidth}px`;
+        canvas.style.height = `${windowWidth / gameRatio}px`;
+    } else {
+        // Screen is wider than the game's aspect ratio
+        canvas.style.width = `${windowHeight * gameRatio}px`;
+        canvas.style.height = `${windowHeight}px`;
+    }
+}
+
+// Attach the resize event listener
+window.addEventListener('resize', resizeGame);
+resizeGame(); // Initial call to adjust the canvas size
+
 // Monitor Authentication State
 onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -49,11 +69,6 @@ onAuthStateChanged(auth, (user) => {
         console.log('No user logged in. Showing auth form.');
         createAuthForm(() => game.loadScene('MainMenuScene', MainMenuScene)); // Show login form and load MainMenuScene
     }
-});
-
-// Handle window resize
-window.addEventListener('resize', () => {
-    game.scale.resize(window.innerWidth, window.innerHeight);
 });
 
 // Export the game instance
