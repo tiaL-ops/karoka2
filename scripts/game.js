@@ -10,12 +10,12 @@ const config = {
     width: 778, // Base width of your game
     height: 725, // Base height of your game
     backgroundColor: '#000000',
-    scene: [MainMenuScene], // Include your scenes
+    scene: [], // Include your scenes
     physics: {
         default: 'arcade',
         arcade: {
             gravity: { y: 0 },
-            debug: false,
+            debug: true,
         },
     },
 };
