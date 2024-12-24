@@ -7,10 +7,10 @@ import WorldScene from './scenes/WorldScene.js';
 // Phaser Game Configuration
 const config = {
     type: Phaser.AUTO,
-    width: 778, // Base width of your game
-    height: 725, // Base height of your game
-    backgroundColor: '#000000',
-    scene: [], 
+    width: 778,
+    height: 725,
+    backgroundColor: '#ffffff',
+    scene: [],
     physics: {
         default: 'arcade',
         arcade: {
@@ -18,10 +18,10 @@ const config = {
             debug: true,
         },
     },
-    dom:{
-        createContainer: true,
-    },
-      
+    dom: {
+        createContainer: true // Enable DOM containers
+    }
+   
 };
 
 // Initialize Phaser Game

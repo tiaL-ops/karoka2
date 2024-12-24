@@ -1,3 +1,4 @@
+/* General reset and body styling */
 html, body {
     margin: 0;
     padding: 0;
@@ -8,6 +9,7 @@ html, body {
     font-family: 'Poppins', sans-serif;
 }
 
+/* Game canvas */
 canvas {
     display: block;
     margin: 0;
@@ -20,82 +22,15 @@ canvas {
     max-width: none;
     max-height: none;
     box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5); /* A stronger shadow for more focus */
-}
-
-.dom-container input {
-    display: block !important;
-    visibility: visible !important;
-    position: absolute !important;
-    background-color: red !important; /* To make it visually obvious */
+    z-index: 0; /* Place canvas below DOM elements */
+    pointer-events: none; /* Allow DOM interactions above the canvas */
 }
 
 
 
-input[type="text"] {
-    pointer-events: auto; /* Enable interaction with input fields */
-    font-size: 16px;
-    padding: 10px;
-    width: 300px;
-    border: 2px solid #007BFF;
-    border-radius: 5px;
-    background-color: #ffffff;
-    color: #000000;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3); /* Slight shadow for focus */
-}
-
-input[type="text"]:focus {
-    outline: none;
-    border-color: #0056b3; /* Change border color when focused */
-    box-shadow: 0px 0px 10px rgba(0, 91, 187, 0.5); /* Glow effect on focus */
-}
 
 
-/* Animated clouds for depth */
-#clouds {
-    position: fixed;
-    top: 10%;
-    left: -20%;
-    width: 150%;
-    height: 50%;
-    background: repeating-linear-gradient(
-        -45deg,
-        rgba(255, 255, 255, 0.8),
-        rgba(255, 255, 255, 0.8) 10px,
-        transparent 10px,
-        transparent 20px
-    );
-    opacity: 0.5;
-    animation: moveClouds 20s linear infinite;
-    z-index: -1; /* Behind the game */
-}
 
-@keyframes moveClouds {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(100%);
-    }
-}
 
-/* Grass waves at the bottom */
-#grass {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 20%;
-    background: linear-gradient(180deg, #2b6b4e 0%, #3b8756 100%);
-    clip-path: polygon(0% 80%, 20% 70%, 40% 85%, 60% 70%, 80% 80%, 100% 70%, 100% 100%, 0% 100%);
-    animation: sway 5s infinite alternate ease-in-out;
-    z-index: -1; /* Behind the game */
-}
 
-@keyframes sway {
-    0% {
-        transform: translateX(0%);
-    }
-    100% {
-        transform: translateX(-2%);
-    }
-}
+

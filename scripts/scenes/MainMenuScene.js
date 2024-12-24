@@ -4,6 +4,7 @@ import WorldScene from './WorldScene.js';
 import game from '../game.js'; 
 import AvatarScene from './AvatarScene.js';
 import TestScene from './TestScene.js';
+import ProfileScene from './ProfileScene.js';
 
 export default class MainMenuScene extends Phaser.Scene {
     constructor() {
@@ -31,11 +32,11 @@ export default class MainMenuScene extends Phaser.Scene {
 
         // Create Buttons
         this.buttons = [];
-        const buttonLabels = ['Start Game', 'Choose Avatar','TestScene', 'Logout'];
+        const buttonLabels = ['Start Game', 'Choose Avatar','ProfileScene', 'Logout'];
         const buttonActions = [
             () => game.loadScene('WorldScene', WorldScene),
             () => game.loadScene('AvatarScene', AvatarScene),
-            () => game.loadScene('TestScene', TestScene),
+            () => game.loadScene('ProfileScene', ProfileScene),
             async () => {
                 try {
                     await signOut(auth);
