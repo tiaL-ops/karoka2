@@ -10,7 +10,7 @@ const config = {
     width: 778, // Base width of your game
     height: 725, // Base height of your game
     backgroundColor: '#000000',
-    scene: [], // Include your scenes
+    scene: [], 
     physics: {
         default: 'arcade',
         arcade: {
@@ -18,6 +18,10 @@ const config = {
             debug: true,
         },
     },
+    dom:{
+        createContainer: true,
+    },
+      
 };
 
 // Initialize Phaser Game
@@ -28,14 +32,23 @@ game.loadScene = function (sceneKey, sceneClass = null) {
     if (!this.scene.keys[sceneKey]) {
         if (sceneClass) {
             this.scene.add(sceneKey, sceneClass); // Dynamically add the scene if class provided
-            this.scene.stop('MainMenuScene'); // Stop the current scene
         } else {
             console.error(`Scene class for "${sceneKey}" is not provided.`);
             return;
         }
     }
-    this.scene.start(sceneKey); // Start the scene
+
+    // Stop all currently active scenes
+    Object.keys(this.scene.keys).forEach(activeSceneKey => {
+        if (this.scene.isActive(activeSceneKey)) {
+            this.scene.stop(activeSceneKey);
+        }
+    });
+
+    // Start the new scene
+    this.scene.start(sceneKey);
 };
+
 
 // Resize the canvas dynamically while maintaining the aspect ratio
 function resizeGame() {
@@ -55,6 +68,8 @@ function resizeGame() {
         canvas.style.height = `${windowHeight}px`;
     }
 }
+
+
 
 // Attach the resize event listener
 window.addEventListener('resize', resizeGame);

@@ -3,6 +3,7 @@ import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth
 import WorldScene from './WorldScene.js';
 import game from '../game.js'; 
 import AvatarScene from './AvatarScene.js';
+import TestScene from './TestScene.js';
 
 export default class MainMenuScene extends Phaser.Scene {
     constructor() {
@@ -30,10 +31,11 @@ export default class MainMenuScene extends Phaser.Scene {
 
         // Create Buttons
         this.buttons = [];
-        const buttonLabels = ['Start Game', 'Choose Avatar', 'Logout'];
+        const buttonLabels = ['Start Game', 'Choose Avatar','TestScene', 'Logout'];
         const buttonActions = [
             () => game.loadScene('WorldScene', WorldScene),
             () => game.loadScene('AvatarScene', AvatarScene),
+            () => game.loadScene('TestScene', TestScene),
             async () => {
                 try {
                     await signOut(auth);

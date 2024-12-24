@@ -22,6 +22,34 @@ canvas {
     box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5); /* A stronger shadow for more focus */
 }
 
+.dom-container input {
+    display: block !important;
+    visibility: visible !important;
+    position: absolute !important;
+    background-color: red !important; /* To make it visually obvious */
+}
+
+
+
+input[type="text"] {
+    pointer-events: auto; /* Enable interaction with input fields */
+    font-size: 16px;
+    padding: 10px;
+    width: 300px;
+    border: 2px solid #007BFF;
+    border-radius: 5px;
+    background-color: #ffffff;
+    color: #000000;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3); /* Slight shadow for focus */
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #0056b3; /* Change border color when focused */
+    box-shadow: 0px 0px 10px rgba(0, 91, 187, 0.5); /* Glow effect on focus */
+}
+
+
 /* Animated clouds for depth */
 #clouds {
     position: fixed;
