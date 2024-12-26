@@ -6,24 +6,22 @@ export default class WorldScene extends Phaser.Scene {
   constructor() {
     super({ key: "WorldScene" });
   }
-  
+
   preload() {
     // Load the spritesheet for the player and the tilesets
-    const selectedAvatar = localStorage.getItem('selectedAvatar');
-  
+    const selectedAvatar = localStorage.getItem("selectedAvatar");
 
     if (selectedAvatar === "boi") {
-    this.load.spritesheet("player", "assets/maps/boiTest.png", {
-      frameWidth: 48,
-      frameHeight: 48,
-    });
-  } else {
-    this.load.spritesheet("player", "assets/maps/girl.png", {
-      frameWidth: 48,
-      frameHeight: 48,
-    });
-
-  }
+      this.load.spritesheet("player", "assets/maps/boiTest.png", {
+        frameWidth: 48,
+        frameHeight: 48,
+      });
+    } else {
+      this.load.spritesheet("player", "assets/maps/girl.png", {
+        frameWidth: 48,
+        frameHeight: 48,
+      });
+    }
 
     this.load.image("chest2", "assets/maps/chest2.png");
     this.load.image("forest_tiles", "assets/maps/forest_tiles.png");
@@ -35,29 +33,98 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   create() {
-    const panelWidth = 200; // Width of the panel
-const panelHeight = this.scale.height; // Full height of the game
+    // Create a toggle button
+    const toggleButton = this.add
+      .text(
+        10, // X position (adjust as needed)
+        10, // Y position (adjust as needed)
+        "Pause", // Button text
+        {
+          font: "16px Arial",
+          fill: "#ffffff",
+          backgroundColor: "#0000ff", // Blue background for visibility
+          padding: { left: 10, right: 10, top: 5, bottom: 5 },
+        }
+      )
+      .setInteractive()
+      .on("pointerdown", () => {
+        
+        isVisible = !isVisible; // Toggle the visibility flag
+        panelContainer.setVisible(isVisible); // Show/hide the panel
+        console.log(`Panel visibility: ${isVisible ? "visible" : "hidden"}`);
+      })
+      .setDepth(9); // Ensure it appears above other elements
 
-// Create a rectangle for the panel
-const backgroundPanel = this.add.rectangle(
-  this.cameras.main.width - panelWidth / 2, // Initial X position relative to the camera
-  panelHeight / 2, // Initial Y position relative to the camera
-  panelWidth, // Width of the rectangle
-  panelHeight, // Height of the rectangle
-  0x000000 // Background color (black)
-);
+    // Fix the toggle button to the camera
+    toggleButton.setScrollFactor(0);
+    let isVisible = true;
+    const panelWidth = Math.min(200, this.cameras.main.width * 0.3); // 30% of camera width or 200px max
+    const panelHeight = this.cameras.main.height; // Full height of the camera
 
-// Fix the rectangle to the camera by setting the scroll factor
-backgroundPanel.setScrollFactor(0);
+    // Create the container to hold the panel
+    const panelContainer = this.add
+      .container(
+        this.cameras.main.width - panelWidth, // Position on the right edge
+        0 // Top of the camera
+      )
+      .setDepth(10);
 
-// Set depth so it renders below other elements
-backgroundPanel.setDepth(999);
+    // Fix the container to the camera
+    panelContainer.setScrollFactor(0);
 
-    
+    // Add the panel background
+    const panelBackground = this.add
+      .rectangle(
+        0,
+        0, // Relative to the container
+        panelWidth,
+        panelHeight,
+        0x000000,
+        0.8
+      )
+      .setOrigin(0, 0);
+    panelContainer.add(panelBackground);
 
-    
-    
-    
+    // Add example content to the panel
+    const usernameText = this.add.text(10, 10, "Username: Player", {
+      font: "16px Arial",
+      fill: "#ffffff",
+    });
+    panelContainer.add(usernameText);
+
+    // Adjust button or text content positions dynamically
+    const logoutButton = this.add
+      .text(
+        10,
+        panelHeight - 40, // Align to the bottom of the panel
+        "Logout",
+        {
+          font: "16px Arial",
+          fill: "#ff0000",
+        }
+      )
+      .setInteractive()
+      .on("pointerdown", () => {
+        console.log("Logged out!");
+      });
+    panelContainer.add(logoutButton);
+
+    // Handle dynamic resizing if the game window changes size
+    this.scale.on("resize", (gameSize) => {
+      const { width, height } = gameSize;
+
+      // Update panel dimensions and position
+      const newPanelWidth = Math.min(200, width * 0.3);
+      const newPanelHeight = height;
+
+      panelBackground.width = newPanelWidth;
+      panelBackground.height = newPanelHeight;
+
+      panelContainer.x = width - newPanelWidth;
+      panelContainer.y = 0;
+
+      logoutButton.y = newPanelHeight - 40; // Realign the logout button
+    });
 
     const map = this.make.tilemap({ key: "WPMap" });
     const chestTileset = map.addTilesetImage("chest2", "chest2");
@@ -145,13 +212,7 @@ backgroundPanel.setDepth(999);
     if (playerSpawn) {
       console.log("Bf Player");
       console.log(this.textures.exists("player"));
-      this.player = new Player(
-        this,
-        playerSpawn.x,
-        playerSpawn.y,
-        "player",
-        0
-      ); // Use frame 0 for the player
+      this.player = new Player(this, playerSpawn.x, playerSpawn.y, "player", 0); // Use frame 0 for the player
       console.log("Player created:", this.player);
     }
 
@@ -208,7 +269,7 @@ backgroundPanel.setDepth(999);
       riddle.setOrigin(0);
       riddle.body.setSize(obj.width, obj.height).setOffset(0, 0);
       // Store riddle name for logging
-      riddle.name = obj.name; 
+      riddle.name = obj.name;
     });
 
     // Collision with Chest:
@@ -220,7 +281,7 @@ backgroundPanel.setDepth(999);
       chest.setOrigin(0);
       chest.body.setSize(obj.width, obj.height).setOffset(0, 0);
       // Store chest name for logging
-      chest.name = obj.name; 
+      chest.name = obj.name;
     });
 
     // Add collision handling for riddles
