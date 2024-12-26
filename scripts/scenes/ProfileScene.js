@@ -85,15 +85,13 @@ export default class ProfileScene extends Phaser.Scene {
   
     // Style the input element
     inputElement.style.position = 'absolute';
-    inputElement.style.width = `${rect.width}px`;
-    inputElement.style.height = '30px';
     inputElement.style.padding = '5px';
     inputElement.style.fontSize = '16px';
     inputElement.style.border = '1px solid #ccc';
     inputElement.style.borderRadius = '5px';
   
-    // Function to update position
-    const updateInputPosition = () => {
+    // Function to update position and size
+    const updateInputPositionAndSize = () => {
       const canvasBounds = this.sys.game.canvas.getBoundingClientRect();
       const rectWorldPosition = this.cameras.main.worldView;
       const scaleX = canvasBounds.width / this.sys.game.scale.width;
@@ -103,13 +101,20 @@ export default class ProfileScene extends Phaser.Scene {
       const domX = canvasBounds.left + (x - rectWorldPosition.x) * scaleX;
       const domY = canvasBounds.top + (y - rectWorldPosition.y) * scaleY;
   
+      // Adjust size dynamically based on screen width
+      const maxWidth = Math.min(window.innerWidth, 300); // Cap the width at 300px
+      const inputWidth = maxWidth * scaleX;
+      const inputHeight = 30 * scaleY;
+  
+      inputElement.style.width = `${inputWidth}px`;
+      inputElement.style.height = `${inputHeight}px`;
       inputElement.style.left = `${domX}px`;
       inputElement.style.top = `${domY}px`;
       inputElement.style.transform = 'translate(-50%, -50%)'; // Center on rect
     };
   
     // Initial update
-    updateInputPosition();
+    updateInputPositionAndSize();
   
     // Append the input element to the document body
     document.body.appendChild(inputElement);
@@ -117,15 +122,16 @@ export default class ProfileScene extends Phaser.Scene {
     // Store the input for cleanup
     this.inputs[key] = inputElement;
   
-    // Recalculate position on resize
-    window.addEventListener('resize', updateInputPosition);
+    // Recalculate position and size on resize
+    window.addEventListener('resize', updateInputPositionAndSize);
   
     // Clean up on scene shutdown
     this.events.on('shutdown', () => {
       inputElement.remove();
-      window.removeEventListener('resize', updateInputPosition);
+      window.removeEventListener('resize', updateInputPositionAndSize);
     });
   }
+  
   
   
 }
