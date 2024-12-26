@@ -40,8 +40,8 @@ export default class ProfileScene extends Phaser.Scene {
       this.createInputField(centerX, centerY + yOffset, label, key);
     });
 
-    // Create a logout button
-    const logoutButton = this.add.text(centerX, centerY + 150, 'Logout', {
+    // Create a submit button
+    const submitButton = this.add.text(centerX, centerY + 150, 'Submit', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#d9534f',
@@ -51,7 +51,17 @@ export default class ProfileScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setInteractive();
 
-    logoutButton.on('pointerdown', () => {
+      const returnButton = this.add.text(centerX, centerY + 200, 'Return', {
+        fontSize: '24px',
+        color: '#ffffff',
+        backgroundColor: '#d9534f',
+        padding: { x: 10, y: 5 },
+        borderRadius: 5,
+      })
+        .setOrigin(0.5)
+        .setInteractive();
+
+    submitButton.on('pointerdown', () => {
       const profileData = {
         username: this.inputs.username.value || '',
         fieldOfStudy: this.inputs.fieldOfStudy.value || '',
@@ -60,10 +70,14 @@ export default class ProfileScene extends Phaser.Scene {
       };
 
       console.log('Logging out with Profile Data:', profileData);
-
-      // Transition back to the main menu
-      game.loadScene('MainMenuScene', MainMenuScene);
+      
     });
+
+    returnButton.on('pointerdown', () => {
+      game.loadScene('MainMenuScene', MainMenuScene);
+      
+    });
+    
   }
 
   createInputField(x, y, label, key) {
@@ -76,7 +90,7 @@ export default class ProfileScene extends Phaser.Scene {
     }).setOrigin(1, 0.5);
   
     // Add a rectangle for alignment reference
-    const rect = this.add.rectangle(x + 50, y, 300, 20, 0xff0000).setOrigin(0.5);
+    
   
     // Create the input element
     const inputElement = document.createElement('input');

@@ -4,13 +4,13 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/fi
 import MainMenuScene from './scenes/MainMenuScene.js';
 import WorldScene from './scenes/WorldScene.js'; 
 
-// Phaser Game Configuration
 const config = {
     type: Phaser.AUTO,
-    width: 778,
-    height: 725,
+    width: 778, // Match the CSS width
+    height: 725, // Match the CSS height
+   
     backgroundColor: '#ffffff',
-    scene: [],
+    scene: [WorldScene],
     physics: {
         default: 'arcade',
         arcade: {
@@ -21,8 +21,8 @@ const config = {
     dom: {
         createContainer: true // Enable DOM containers
     }
-   
 };
+
 
 // Initialize Phaser Game
 const game = new Phaser.Game(config);
