@@ -1,0 +1,35 @@
+[
+    {
+      "level": 1,
+      "input": 2,
+      "riddle": "What do you get when you add me to me?",
+      "solution": "4",
+      "length": 1,
+      "point": 20
+    },
+    {
+      "level": 2,
+      "input": "Wnulxvn cx Kjaxtj",
+      "riddle": "From ancient Rome to modern days,\nCaesar taught me secret ways.\nA turn I take to hide the key,\nThe answer lies in K for thee.",
+      "solution": "9",
+      "length": null,
+      "point": 30
+    },
+    {
+      "level": 3,
+      "input": "0x0aa39fd10e",
+      "riddle": "I speak in 16 tongues, my digits sing true,\nTo learn my secret, flip my view.\nI’m the binary behind your ex,\nBut only the first 7—you’ll find the text.",
+      "solution": "1010101",
+      "length": 7,
+      "point": 30
+    },
+    {
+      "level": 4,
+      "input": "Wnulxvn cx Kjaxtj",
+      "riddle": "My name is aCuteFunction, and here’s what I do:\nI take an array and a target from you.\nI start with nothing called ans, that’s bare,\nAnd two kids: low = 0 and high = len(arr) - 1, a pair.\n\nWhile low is small and high is grand,\nI find the middle, where values stand:\nmid = (low + high) // 2 is my guide,\nI take my arr[mid] and to my ans, I add it inside.\nI ask the middle, \"Are you the one?\"\nIf yes, my journey is done.\nIf mid is too small, I move high down,\nIf it’s too big, I push low around.\n\nI keep on searching, adjusting my view,\nUntil I’ve done all that I can do.\nThen I return my ans, the clues I’ve found,\nA map of the journey, where steps abound.",
+      "solution": "5",
+      "length": null,
+      "point": 40
+    }
+  ]
+  
