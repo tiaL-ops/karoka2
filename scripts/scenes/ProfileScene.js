@@ -59,7 +59,7 @@ export default class ProfileScene extends Phaser.Scene {
       .setInteractive();
 
     submitButton.on('pointerdown', async () => {
-      localStorage.setItem('Kname', this.inputs.kname.value);
+    
       const profileData = {
         kname: this.inputs.kname.value || this.inputs.kname.placeholder,
         fieldOfStudy: this.inputs.fieldOfStudy.value || this.inputs.fieldOfStudy.placeholder,
@@ -68,9 +68,12 @@ export default class ProfileScene extends Phaser.Scene {
       };
 
       try {
+        localStorage.setItem('Kname', this.inputs.kname.value || this.inputs.kname.placeholder);
         const docRef = doc(db, 'profiles', this.currentUserId); // Use user ID as document ID
         await setDoc(docRef, profileData, { merge: true }); // Merge updates
         console.log('Profile updated successfully:', profileData);
+        console.log("Kname"+localStorage.getItem('Kname'));
+
 
         this.add.text(centerX, centerY + 200, 'Profile updated successfully!', {
           fontSize: '18px',

@@ -367,4 +367,37 @@ export default class WorldScene extends Phaser.Scene {
       this.player.update();
     }
   }
+
+  //levels yupdate
+  async updateLevelProgress(levelKey, solved, points) {
+    try {
+        // Get the current profile data
+        const docRef = doc(db, 'profiles', this.currentUserId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const profileData = docSnap.data();
+
+            // Update the levels data
+            const levels = profileData.levels || {}; // Fallback to empty object if levels is missing
+            levels[levelKey] = { solved, points }; // Update the specific level
+
+            // Recalculate total points
+            const totalPoints = Object.values(levels).reduce((sum, level) => {
+                return level.solved ? sum + level.points : sum;
+            }, 0);
+
+            // Save updated data back to Firestore
+            await setDoc(docRef, { levels, totalPoints }, { merge: true });
+
+            console.log(`Level ${levelKey} updated:`, { solved, points });
+            console.log('Total Points:', totalPoints);
+        } else {
+            console.error('No profile found for user ID:', this.currentUserId);
+        }
+    } catch (error) {
+        console.error('Error updating level progress:', error);
+    }
+}
+
 }
