@@ -1,6 +1,8 @@
 import Player from "./Player.js";
 import AvatarScene from "./AvatarScene.js";
 import config from "../game.js";
+import ProfileScene from "./ProfileScene.js";
+
 
 export default class WorldScene extends Phaser.Scene {
   constructor() {
@@ -32,7 +34,7 @@ export default class WorldScene extends Phaser.Scene {
     this.load.tilemapTiledJSON("WPMap", "assets/maps/WPMAP.json");
   }
 
-  create() {
+  async create() {
     // Create a toggle button
     let isVisible = true;
     const toggleButton = this.add
@@ -85,9 +87,12 @@ export default class WorldScene extends Phaser.Scene {
       )
       .setOrigin(0, 0);
     panelContainer.add(panelBackground);
+   
+
+    const Kname = localStorage.getItem("Kname") || localStorage.getItem("Name");
 
     // Add example content to the panel
-    const usernameText = this.add.text(10, 10, "Username: Player", {
+    const usernameText = this.add.text(10, 10, "Username: " + Kname, {
       font: "16px Arial",
       fill: "#ffffff",
     });

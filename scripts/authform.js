@@ -1,5 +1,11 @@
 import { auth, googleProvider } from './firebase.js';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+import { 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, 
+    signInWithPopup 
+} from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+import { db } from './firebase.js'; // Ensure you have db initialized
 
 export function createAuthForm(loadMainMenu) {
     const container = document.createElement('div');
@@ -19,6 +25,17 @@ export function createAuthForm(loadMainMenu) {
     title.innerText = 'Welcome!';
     title.style.marginBottom = '20px';
     container.appendChild(title);
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.placeholder = 'Name (for Sign Up)';
+    nameInput.style.display = 'block';
+    nameInput.style.width = '100%';
+    nameInput.style.marginBottom = '10px';
+    nameInput.style.padding = '10px';
+    nameInput.style.border = '1px solid #ccc';
+    nameInput.style.borderRadius = '5px';
+    container.appendChild(nameInput);
 
     const emailInput = document.createElement('input');
     emailInput.type = 'email';
@@ -92,8 +109,8 @@ export function createAuthForm(loadMainMenu) {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             console.log('Login successful');
-            container.remove(); // Remove the form after login
-            loadMainMenu(); // Proceed to main menu
+            container.remove();
+            loadMainMenu();
         } catch (error) {
             console.error('Login failed:', error.message);
             errorMessage.style.display = 'block';
@@ -103,14 +120,24 @@ export function createAuthForm(loadMainMenu) {
 
     // Signup with Email and Password
     signupButton.addEventListener('click', async () => {
+        const name = nameInput.value;
         const email = emailInput.value;
         const password = passwordInput.value;
 
         try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            console.log('Signup successful');
-            container.remove(); // Remove the form after signup
-            loadMainMenu(); // Proceed to main menu
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Save user details in Firestore
+            await setDoc(doc(db, 'profiles', user.uid), {
+                name,
+                email,
+                uid: user.uid,
+            });
+
+            console.log('Signup successful and user saved:', user);
+            container.remove();
+            loadMainMenu();
         } catch (error) {
             console.error('Signup failed:', error.message);
             errorMessage.style.display = 'block';
@@ -122,9 +149,18 @@ export function createAuthForm(loadMainMenu) {
     googleButton.addEventListener('click', async () => {
         try {
             const result = await signInWithPopup(auth, googleProvider);
-            console.log('Google login successful:', result.user);
-            container.remove(); // Remove the form after login
-            loadMainMenu(); // Proceed to main menu
+            const user = result.user;
+
+            // Save user details in Firestore
+            await setDoc(doc(db, 'profiles', user.uid), {
+                name: user.displayName, // Name from Google profile
+                email: user.email,
+                uid: user.uid,
+            });
+
+            console.log('Google login successful and user saved:', user);
+            container.remove();
+            loadMainMenu();
         } catch (error) {
             console.error('Google login failed:', error.message);
             errorMessage.style.display = 'block';
