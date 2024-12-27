@@ -8,9 +8,8 @@ const config = {
     type: Phaser.AUTO,
     width: 778, // Match the CSS width
     height: 725, // Match the CSS height
-   
     backgroundColor: '#ffffff',
-    scene: [WorldScene],
+    scene: [],
     physics: {
         default: 'arcade',
         arcade: {
@@ -74,6 +73,7 @@ function resizeGame() {
 // Attach the resize event listener
 window.addEventListener('resize', resizeGame);
 resizeGame(); // Initial call to adjust the canvas size
+
 
 // Monitor Authentication State
 onAuthStateChanged(auth, (user) => {

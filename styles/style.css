@@ -4,7 +4,6 @@ html, body {
     height: 100%;
     width: 100%;
     overflow: hidden; /* Prevent scrolling */
-    /*background: linear-gradient(180deg, #4ca1af 0%, #c4e0e5 100%); /* A soothing sky-like gradient */
     font-family: 'Poppins', sans-serif;
 }
 
@@ -16,11 +15,13 @@ html, body {
 
 canvas {
     display: block;
-    margin: 0 auto; /* Center horizontally */
-    position: relative; /* Avoid absolute positioning */
-    width: 778px; /* Match Phaser's game width */
-    height: 725px; /* Match Phaser's game height */
-    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5); /* A stronger shadow for more focus */
-    z-index: 0; /* Place canvas below DOM elements */
-    pointer-events: none; /* Allow DOM interactions above the canvas */
+    margin: 0 auto;
+    position: relative;
+    width: 100%; /* Scale canvas dynamically */
+    height: 100%;
+    max-width: 778px; /* Match Phaser's game width */
+    max-height: 725px; /* Match Phaser's game height */
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
+    z-index: 0;
+    pointer-events: auto; /* Allow interaction */
 }

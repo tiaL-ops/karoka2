@@ -56,7 +56,7 @@ export default class MainMenuScene extends Phaser.Scene {
         });
 
         // Handle resizing
-        this.scale.on('resize', this.resizeGame, this);
+        //this.scale.on('resize', this.resizeGame, this);
     }
 
     createButton(y, label, onClick) {
@@ -80,7 +80,8 @@ export default class MainMenuScene extends Phaser.Scene {
         return { button, buttonText };
     }
 
-    resizeGame(gameSize) {
+   resizeGame(gameSize) {
+     /*
         const { width, height } = gameSize;
 
         // Resize background
@@ -95,5 +96,6 @@ export default class MainMenuScene extends Phaser.Scene {
             btn.button.setDisplaySize(width * 0.4, height * 0.1).setPosition(width / 2, y);
             btn.buttonText.setFontSize(Math.floor(height * 0.035)).setPosition(width / 2, y);
         });
-    }
+    */
+}
 }
