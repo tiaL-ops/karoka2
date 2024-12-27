@@ -34,6 +34,7 @@ export default class WorldScene extends Phaser.Scene {
 
   create() {
     // Create a toggle button
+    let isVisible = true;
     const toggleButton = this.add
       .text(
         10, // X position (adjust as needed)
@@ -57,7 +58,7 @@ export default class WorldScene extends Phaser.Scene {
 
     // Fix the toggle button to the camera
     toggleButton.setScrollFactor(0);
-    let isVisible = true;
+    
     const panelWidth = Math.min(200, this.cameras.main.width * 0.3); // 30% of camera width or 200px max
     const panelHeight = this.cameras.main.height; // Full height of the camera
 
@@ -92,39 +93,77 @@ export default class WorldScene extends Phaser.Scene {
     });
     panelContainer.add(usernameText);
 
-    // Adjust button or text content positions dynamically
-    const logoutButton = this.add
-      .text(
+    // Add points text
+    const pointsText = this.add.text(
+      10,
+      40,
+      `Points: 0`,
+      {
+        font: "16px Arial",
+        fill: "#ffffff",
+      }
+    );
+    panelContainer.add(pointsText);
+    
+    // Add levels header
+    const levelsText = this.add.text(
+      10,
+      70,
+      `Levels:`,
+      {
+        font: "16px Arial",
+        fill: "#ffffff",
+      }
+    );
+    panelContainer.add(levelsText);
+    
+    // Add clickable levels
+    const levels = ["Level 1", "Level 2", "Level 3", "Level 4"];
+    levels.forEach((level, index) => {
+      const levelText = this.add.text(
         10,
-        panelHeight - 40, // Align to the bottom of the panel
-        "Logout",
+        100 + index * 30, // Spaced within the container
+        level,
         {
-          font: "16px Arial",
-          fill: "#ff0000",
+          font: "14px Arial",
+          fill: "#00ff00",
         }
       )
+        .setInteractive()
+        .on("pointerdown", () => {
+          console.log(`${level} clicked`);
+        });
+      panelContainer.add(levelText);
+      levelText.setScrollFactor(0);
+    });
+    
+    
+    // Add a logout button
+    const logoutButton = this.add.text(
+      10,
+      panelHeight - 40, // Align to the bottom within the container
+      "Logout",
+      {
+        font: "16px Arial",
+        fill: "#ff0000",
+      }
+    )
       .setInteractive()
       .on("pointerdown", () => {
-        console.log("Logged out!");
+        console.log("Logged out");
+       
+        
       });
     panelContainer.add(logoutButton);
-
-    // Handle dynamic resizing if the game window changes size
-    this.scale.on("resize", (gameSize) => {
-      const { width, height } = gameSize;
-
-      // Update panel dimensions and position
-      const newPanelWidth = Math.min(200, width * 0.3);
-      const newPanelHeight = height;
-
-      panelBackground.width = newPanelWidth;
-      panelBackground.height = newPanelHeight;
-
-      panelContainer.x = width - newPanelWidth;
-      panelContainer.y = 0;
-
-      logoutButton.y = newPanelHeight - 40; // Realign the logout button
+    logoutButton.setScrollFactor(0);
+    
+    // Dynamically update points
+    this.events.on("updatePoints", (newPoints) => {
+      pointsText.setText(`Points: ${newPoints}`);
     });
+
+
+ 
 
     const map = this.make.tilemap({ key: "WPMap" });
     const chestTileset = map.addTilesetImage("chest2", "chest2");
