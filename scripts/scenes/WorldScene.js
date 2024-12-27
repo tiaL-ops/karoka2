@@ -2,6 +2,8 @@ import Player from "./Player.js";
 import AvatarScene from "./AvatarScene.js";
 import config from "../game.js";
 import ProfileScene from "./ProfileScene.js";
+import game from "../game.js";
+import MainMenuScene from "./MainMenuScene.js";
 
 
 export default class WorldScene extends Phaser.Scene {
@@ -37,11 +39,13 @@ export default class WorldScene extends Phaser.Scene {
   async create() {
     // Create a toggle button
     let isVisible = true;
+    
+
     const toggleButton = this.add
       .text(
-        10, // X position (adjust as needed)
-        10, // Y position (adjust as needed)
-        "Pause", // Button text
+        10, // X position
+        10, // Y position
+        "Hide Panel", // Initial button text
         {
           font: "16px Arial",
           fill: "#ffffff",
@@ -51,15 +55,19 @@ export default class WorldScene extends Phaser.Scene {
       )
       .setInteractive()
       .on("pointerdown", () => {
-        
         isVisible = !isVisible; // Toggle the visibility flag
         panelContainer.setVisible(isVisible); // Show/hide the panel
+    
+        // Update the button text based on the new state
+        toggleButton.setText(isVisible ? "Hide Panel" : "Show Panel");
+    
         console.log(`Panel visibility: ${isVisible ? "visible" : "hidden"}`);
       })
       .setDepth(9); // Ensure it appears above other elements
-
+    
     // Fix the toggle button to the camera
     toggleButton.setScrollFactor(0);
+    
     
     const panelWidth = Math.min(200, this.cameras.main.width * 0.3); // 30% of camera width or 200px max
     const panelHeight = this.cameras.main.height; // Full height of the camera
@@ -123,7 +131,7 @@ export default class WorldScene extends Phaser.Scene {
     panelContainer.add(levelsText);
     
     // Add clickable levels
-    const levels = ["Level 1", "Level 2", "Level 3", "Level 4"];
+    const levels = ["Level 1 🔒", "Level 2🔒", "Level 3🔒", "Level 4🔒"];
     levels.forEach((level, index) => {
       const levelText = this.add.text(
         10,
@@ -141,7 +149,24 @@ export default class WorldScene extends Phaser.Scene {
       panelContainer.add(levelText);
       levelText.setScrollFactor(0);
     });
-    
+  //Retrun to Main Menu
+  const mainMenuButton = this.add.text(
+    10,
+    panelHeight - 80, // Align to the bottom within the container
+    "Main Menu",
+    {
+      font: "16px Arial",
+      fill: "#ff0000",
+    }
+  )
+    .setInteractive()
+    .on("pointerdown", () => {
+      game.loadScene('MainMenuScene', MainMenuScene);
+     
+      
+    });
+  panelContainer.add(mainMenuButton);
+  mainMenuButton.setScrollFactor(0);
     
     // Add a logout button
     const logoutButton = this.add.text(
