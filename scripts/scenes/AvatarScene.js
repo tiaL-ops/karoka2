@@ -25,8 +25,6 @@ export default class AvatarScene extends Phaser.Scene {
 
     create() {
         console.log("Avatar created!");
-
-    
     
 
         // Add animations for both avatars
@@ -106,13 +104,17 @@ export default class AvatarScene extends Phaser.Scene {
     }
 
     confirmSelection() {
-        localStorage.setItem('selectedAvatar', this.currentAvatar); // Save selection to local storage
+        localStorage.setItem('selectedAvatar', this.currentAvatar); // Save to local storage
         console.log(`Confirmed selection: ${this.currentAvatar}`);
+    
+        // Emit an event for other scenes to update the avatar
+        this.events.emit("avatarChanged", this.currentAvatar);
     
         // Add a delay before loading the new scene
         setTimeout(() => {
-            game.loadScene('WorldScene', WorldScene); 
+            game.loadScene("WorldScene", WorldScene);
         }, 2000); // Delay of 500ms (adjust as needed)
     }
+    
     
 }

@@ -11,23 +11,12 @@ export default class WorldScene extends Phaser.Scene {
     super({ key: "WorldScene" });
     this.panelContainer = null; // Define the panel container here
     this.isVisible = false; 
+    this.player = null;
   }
 
   preload() {
     const selectedAvatar = localStorage.getItem("selectedAvatar") || "boi"; // Default to 'boi'
-
-    // Dynamically load the player sprite based on the selection
-    if (selectedAvatar === "boi") {
-      this.load.spritesheet("player", "assets/maps/boiTest.png", {
-        frameWidth: 48,
-        frameHeight: 48,
-      });
-    } else {
-      this.load.spritesheet("player", "assets/maps/girl.png", {
-        frameWidth: 48,
-        frameHeight: 48,
-      });
-    }
+    this.loadAvatar(selectedAvatar);
 
     this.load.image("chest2", "assets/maps/chest2.png");
     this.load.image("forest_tiles", "assets/maps/forest_tiles.png");
@@ -44,7 +33,6 @@ export default class WorldScene extends Phaser.Scene {
 
   async create() {
     // Create a toggle button
-   
     this.panelContainer = null;
     const toggleButton = this.add
     .text(
@@ -78,15 +66,11 @@ export default class WorldScene extends Phaser.Scene {
       console.log(`Panel visibility: ${this.isVisible ? "visible" : "hidden"}`);
     })
     .setDepth(1000);
-
-    // Fix the toggle button to the camera
     toggleButton.setScrollFactor(0);
 
     
 
-    // Create the container to hold the panel
   
-
     const map = this.make.tilemap({ key: "WPMap" });
     const chestTileset = map.addTilesetImage("chest2", "chest2");
     const forestTilesTileset = map.addTilesetImage(
@@ -115,54 +99,8 @@ export default class WorldScene extends Phaser.Scene {
     map.createLayer("Resolved", allTilesets, 0, 0);
     map.createLayer("Hint", allTilesets, 0, 0);
 
-    // Create animations for the player
-    this.anims.create({
-      key: "walk_down",
-      frames: [
-        { key: "player", frame: 0 },
-        { key: "player", frame: 4 },
-        { key: "player", frame: 8 },
-        { key: "player", frame: 12 },
-      ],
-      frameRate: 10,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "walk_left",
-      frames: [
-        { key: "player", frame: 1 },
-        { key: "player", frame: 5 },
-        { key: "player", frame: 9 },
-        { key: "player", frame: 13 },
-      ],
-      frameRate: 10,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "walk_up",
-      frames: [
-        { key: "player", frame: 2 },
-        { key: "player", frame: 6 },
-        { key: "player", frame: 10 },
-        { key: "player", frame: 14 },
-      ],
-      frameRate: 10,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "walk_right",
-      frames: [
-        { key: "player", frame: 3 },
-        { key: "player", frame: 7 },
-        { key: "player", frame: 11 },
-        { key: "player", frame: 15 },
-      ],
-      frameRate: 10,
-      repeat: -1,
-    });
+   
+    
 
     // Get the default spawn point from the "Spawn" layer
     const playerObjectLayer = map.getObjectLayer("Spawn");
@@ -179,7 +117,17 @@ export default class WorldScene extends Phaser.Scene {
       const startX = playerSpawn.x;
       const startY = playerSpawn.y;
 
-      this.player = new Player(this, startX, startY, "player", 0);
+      const selectedAvatar = localStorage.getItem("selectedAvatar") || "boi";
+
+        // Create the player with the current avatar
+        this.player = new Player(this, 100, 100, selectedAvatar); // Example start position
+        this.player.cursors = this.input.keyboard.createCursorKeys();
+
+        // Handle avatar updates
+        this.events.on("avatarChanged", (newAvatar) => {
+            this.player.updateTexture(newAvatar);
+        });
+        this.createPlayerAnimations(selectedAvatar);
       console.log("Player created at:", { x: startX, y: startY });
     } else {
       console.error("No valid spawn point found for the player.");
@@ -296,69 +244,81 @@ export default class WorldScene extends Phaser.Scene {
 
   update() {
     if (this.player && this.player.body) {
-      // Only update the player's velocity if it exists
-      this.player.update();
-    } else {
-      this.player.setVelocity(0);
+      this.player.update(); // Update the player (e.g., movement)
     }
   }
 
-  //levels yupdate
-  async updateLevelProgress(levelKey, solved, points) {
-    try {
-      // Get the current profile data
-      const docRef = doc(db, "profiles", this.currentUserId);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const profileData = docSnap.data();
-
-        // Update the levels data
-        const levels = profileData.levels || {}; // Fallback to empty object if levels is missing
-        levels[levelKey] = { solved, points }; // Update the specific level
-
-        // Recalculate total points
-        const totalPoints = Object.values(levels).reduce((sum, level) => {
-          return level.solved ? sum + level.points : sum;
-        }, 0);
-
-        // Save updated data back to Firestore
-        await setDoc(docRef, { levels, totalPoints }, { merge: true });
-
-        console.log(`Level ${levelKey} updated:`, { solved, points });
-        console.log("Total Points:", totalPoints);
-      } else {
-        console.error("No profile found for user ID:", this.currentUserId);
-      }
-    } catch (error) {
-      console.error("Error updating level progress:", error);
+   loadAvatar(avatarKey) {
+        if (avatarKey === "boi") {
+            this.load.spritesheet("boi", "assets/maps/boiTest.png", {
+                frameWidth: 48,
+                frameHeight: 48,
+            });
+        } else {
+            this.load.spritesheet("girl", "assets/maps/girl.png", {
+                frameWidth: 48,
+                frameHeight: 48,
+            });
+        }
     }
-  }
-  loadPlayerSprite() {
-    const selectedAvatar = localStorage.getItem("selectedAvatar");
+ 
+   
 
-    if (selectedAvatar === "boi") {
-      this.load.spritesheet("player", "assets/maps/boiTest.png", {
-        frameWidth: 48,
-        frameHeight: 48,
+  
+
+    createPlayerAnimations(textureKey) {
+      const prefix = textureKey; // Use the texture key as a prefix for unique animation keys
+  
+      this.anims.create({
+          key: `${prefix}_walk_down`,
+          frames: [
+              { key: textureKey, frame: 0 },
+              { key: textureKey, frame: 4 },
+              { key: textureKey, frame: 8 },
+              { key: textureKey, frame: 12 },
+          ],
+          frameRate: 10,
+          repeat: -1,
       });
-    } else {
-      this.load.spritesheet("player", "assets/maps/girl.png", {
-        frameWidth: 48,
-        frameHeight: 48,
+  
+      this.anims.create({
+          key: `${prefix}_walk_left`,
+          frames: [
+              { key: textureKey, frame: 1 },
+              { key: textureKey, frame: 5 },
+              { key: textureKey, frame: 9 },
+              { key: textureKey, frame: 13 },
+          ],
+          frameRate: 10,
+          repeat: -1,
       });
-    }
+  
+      this.anims.create({
+          key: `${prefix}_walk_up`,
+          frames: [
+              { key: textureKey, frame: 2 },
+              { key: textureKey, frame: 6 },
+              { key: textureKey, frame: 10 },
+              { key: textureKey, frame: 14 },
+          ],
+          frameRate: 10,
+          repeat: -1,
+      });
+  
+      this.anims.create({
+          key: `${prefix}_walk_right`,
+          frames: [
+              { key: textureKey, frame: 3 },
+              { key: textureKey, frame: 7 },
+              { key: textureKey, frame: 11 },
+              { key: textureKey, frame: 15 },
+          ],
+          frameRate: 10,
+          repeat: -1,
+      });
   }
-
-  checkAvatarChange() {
-    const currentAvatar = localStorage.getItem("selectedAvatar");
-
-    // Reload player sprite if the avatar has changed
-    if (currentAvatar !== this.currentAvatar) {
-      this.currentAvatar = currentAvatar; // Update the tracked avatar
-      this.scene.restart(); // Restart the scene to apply changes
-    }
-  }
+  
+  
 
   createPanel() {
     const panelWidth = Math.min(200, this.cameras.main.width * 0.3); // 30% of camera width or 200px max
