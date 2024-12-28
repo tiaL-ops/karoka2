@@ -3,13 +3,14 @@ import { createAuthForm } from './authform.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 import MainMenuScene from './scenes/MainMenuScene.js';
 import WorldScene from './scenes/WorldScene.js'; 
+import TestScene from './scenes/TestScene.js';
 
 const config = {
     type: Phaser.AUTO,
     width: 778, // Match the CSS width
     height: 725, // Match the CSS height
     backgroundColor: '#000000',
-    scene: [],
+    scene: [TestScene],
     physics: {
         default: 'arcade',
         arcade: {
@@ -28,9 +29,10 @@ const game = new Phaser.Game(config);
 
 // Attach the `loadScene` function to the `game` object
 game.loadScene = function (sceneKey, sceneClass = null) {
+    // Dynamically add the scene if not already added
     if (!this.scene.keys[sceneKey]) {
         if (sceneClass) {
-            this.scene.add(sceneKey, sceneClass); // Dynamically add the scene if class provided
+            this.scene.add(sceneKey, sceneClass);
         } else {
             console.error(`Scene class for "${sceneKey}" is not provided.`);
             return;
@@ -44,9 +46,10 @@ game.loadScene = function (sceneKey, sceneClass = null) {
         }
     });
 
-    // Start the new scene
+    // Start the new scene and pass the data
     this.scene.start(sceneKey);
 };
+
 
 
 // Resize the canvas dynamically while maintaining the aspect ratio

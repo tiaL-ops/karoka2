@@ -4,6 +4,7 @@ import config from "../game.js";
 import ProfileScene from "./ProfileScene.js";
 import game from "../game.js";
 import MainMenuScene from "./MainMenuScene.js";
+import TestScene from "./TestScene.js";
 
 
 export default class WorldScene extends Phaser.Scene {
@@ -358,8 +359,12 @@ export default class WorldScene extends Phaser.Scene {
       if (riddle.name) {
         console.log(`${riddle.name} encountered`);
         this.currentRiddle = riddle.name;
+        //this.physics.world.colliders.destroy();
+        //this.player.destroy();
         console.log("Thise is current riddle", this.currentRiddle);
-
+        
+        this.scene.start('TestScene', { currentRiddle: riddle.name });
+      
       } else {
         console.log("A mysterious riddle encountered");
       }
@@ -369,6 +374,7 @@ export default class WorldScene extends Phaser.Scene {
     this.physics.add.collider(this.player, chestGroup, (player, chest) => {
       if (chest.name) {
         console.log(`${chest.name} encountered`);
+        
       } else {
         console.log("A mysterious chest encountered");
       }
@@ -391,9 +397,12 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   update() {
-    if (this.player) {
+    if (this.player && this.player.body) {
+      // Only update the player's velocity if it exists
       this.player.update();
-    }
+  }else{
+    this.player.setVelocity(0);
+  }
   }
 
   //levels yupdate
