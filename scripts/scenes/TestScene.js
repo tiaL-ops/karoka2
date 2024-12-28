@@ -6,14 +6,25 @@ export default class TestScene extends Phaser.Scene {
         super({ key: "TestScene" });
         this.riddles = []; // Store riddles from JSON
         this.currentRiddle = null; // Store the passed riddle name
+       
     }
 
     // Receive data from the previous scene
     init(data) {
         if (data.currentRiddle) {
-            this.currentRiddle = data.currentRiddle;
+            this.currentRiddle = data.currentRiddle; // Store the passed riddle
         }
+    
+        if (data.playerPosition) {
+            this.playerPosition = { ...data.playerPosition }; // Store player position
+        } else {
+            this.playerPosition = { x: 0, y: 0 }; // Fallback to a default position
+        }
+    
+        console.log("Initialized player position in TestScene:", this.playerPosition);
     }
+    
+    
 
     preload() {
         this.load.image("paper", "assets/oldpaper.png");
@@ -97,10 +108,15 @@ export default class TestScene extends Phaser.Scene {
       returnText.setStyle({ color: "#6a1f1f" }); // Revert text color on hover out
     });
 
-    // Add click event to switch scene
     returnText.on("pointerdown", () => {
-      game.loadScene("WorldScene", WorldScene);
+        // Use the stored player position to pass back to WorldScene
+        if (this.playerPosition) {
+            this.scene.start("WorldScene", { playerPosition: this.playerPosition });
+        } else {
+            console.error("Player position is undefined. Cannot return to WorldScene.");
+        }
     });
+    
   }
 
   showInputField() {

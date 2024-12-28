@@ -36,6 +36,11 @@ export default class WorldScene extends Phaser.Scene {
 
     this.load.tilemapTiledJSON("WPMap", "assets/maps/WPMAP.json");
   }
+  init(data) {
+    this.playerPosition = data?.playerPosition || null; // Use passed position or null
+    console.log("Player position received:", this.playerPosition);
+}
+
 
   async create() {
     // Create a toggle button
@@ -273,18 +278,26 @@ export default class WorldScene extends Phaser.Scene {
       repeat: -1,
     });
 
-    // Process PlayerObject layer to get the player spawn point
-    const playerObjectLayer = map.getObjectLayer("Spawn");
-    const playerSpawn = playerObjectLayer.objects.find(
-      (obj) => obj.name === "Starting"
-    );
+   
 
-    if (playerSpawn) {
-      console.log("Bf Player");
-      console.log(this.textures.exists("player"));
-      this.player = new Player(this, playerSpawn.x, playerSpawn.y, "player", 0); // Use frame 0 for the player
-      console.log("Player created:", this.player);
-    }
+       // Get the default spawn point from the "Spawn" layer
+       const playerObjectLayer = map.getObjectLayer("Spawn");
+       const defaultSpawn = playerObjectLayer.objects.find((obj) => obj.name === "Starting");
+   
+       // Use passed position or fallback to default spawn point
+       const playerSpawn = this.playerPosition || defaultSpawn;
+   
+       if (playerSpawn) {
+           console.log("Player spawning at:", playerSpawn);
+   
+           const startX = playerSpawn.x;
+           const startY = playerSpawn.y;
+   
+           this.player = new Player(this, startX, startY, "player", 0);
+           console.log("Player created at:", { x: startX, y: startY });
+       } else {
+           console.error("No valid spawn point found for the player.");
+       }
 
     // Process Block layer to get the objects
     const gameObjectLayer = map.getObjectLayer("Block");
@@ -359,11 +372,11 @@ export default class WorldScene extends Phaser.Scene {
       if (riddle.name) {
         console.log(`${riddle.name} encountered`);
         this.currentRiddle = riddle.name;
-        //this.physics.world.colliders.destroy();
-        //this.player.destroy();
-        console.log("Thise is current riddle", this.currentRiddle);
-        
-        this.scene.start('TestScene', { currentRiddle: riddle.name });
+        const playerPosition = { x: this.player.x, y: this.player.y }; // Save the player's current position
+
+        this.scene.start('TestScene', { currentRiddle: riddle.name, playerPosition });
+       
+      
       
       } else {
         console.log("A mysterious riddle encountered");

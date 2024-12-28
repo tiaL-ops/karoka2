@@ -10,7 +10,7 @@ const config = {
     width: 778, // Match the CSS width
     height: 725, // Match the CSS height
     backgroundColor: '#000000',
-    scene: [TestScene],
+    scene: [TestScene,WorldScene],
     physics: {
         default: 'arcade',
         arcade: {
