@@ -12,19 +12,19 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   preload() {
-    // Load the spritesheet for the player and the tilesets
-    const selectedAvatar = localStorage.getItem("selectedAvatar");
+    const selectedAvatar = localStorage.getItem('selectedAvatar') || 'boi'; // Default to 'boi'
 
-    if (selectedAvatar === "boi") {
-      this.load.spritesheet("player", "assets/maps/boiTest.png", {
-        frameWidth: 48,
-        frameHeight: 48,
-      });
+    // Dynamically load the player sprite based on the selection
+    if (selectedAvatar === 'boi') {
+        this.load.spritesheet('player', 'assets/maps/boiTest.png', {
+            frameWidth: 48,
+            frameHeight: 48,
+        });
     } else {
-      this.load.spritesheet("player", "assets/maps/girl.png", {
-        frameWidth: 48,
-        frameHeight: 48,
-      });
+        this.load.spritesheet('player', 'assets/maps/girl.png', {
+            frameWidth: 48,
+            frameHeight: 48,
+        });
     }
 
     this.load.image("chest2", "assets/maps/chest2.png");
@@ -357,6 +357,9 @@ export default class WorldScene extends Phaser.Scene {
     this.physics.add.collider(this.player, riddleGroup, (player, riddle) => {
       if (riddle.name) {
         console.log(`${riddle.name} encountered`);
+        this.currentRiddle = riddle.name;
+        console.log("Thise is current riddle", this.currentRiddle);
+
       } else {
         console.log("A mysterious riddle encountered");
       }
@@ -423,6 +426,31 @@ export default class WorldScene extends Phaser.Scene {
     } catch (error) {
         console.error('Error updating level progress:', error);
     }
+}
+loadPlayerSprite() {
+  const selectedAvatar = localStorage.getItem("selectedAvatar");
+
+  if (selectedAvatar === "boi") {
+      this.load.spritesheet("player", "assets/maps/boiTest.png", {
+          frameWidth: 48,
+          frameHeight: 48,
+      });
+  } else {
+      this.load.spritesheet("player", "assets/maps/girl.png", {
+          frameWidth: 48,
+          frameHeight: 48,
+      });
+  }
+}
+
+checkAvatarChange() {
+  const currentAvatar = localStorage.getItem("selectedAvatar");
+
+  // Reload player sprite if the avatar has changed
+  if (currentAvatar !== this.currentAvatar) {
+      this.currentAvatar = currentAvatar; // Update the tracked avatar
+      this.scene.restart(); // Restart the scene to apply changes
+  }
 }
 
 }

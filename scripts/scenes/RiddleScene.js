@@ -1,19 +1,21 @@
 //this is clearly not working lool to fix 
+import MainMenuScene from "./MainMenuScene";
+import WorldScene from "./WorldScene";
 class RiddleScene extends Phaser.Scene {
     constructor() {
       super({ key: 'RiddleScene' });
     }
   
     preload() {
-      // Preload assets such as images for paper, chest, and buttons
-      this.load.image('paper', 'assets/paper.png');
-      this.load.image('chest', 'assets/chest.png');
-      this.load.json('riddles', 'assets/riddles.json');
+
+      this.load.image('paper', 'assets/oldpaper.png');
+      //this.load.riddleJSON("WPMap", "assets/riddles/riddles.json");
     }
   
     create() {
       this.riddles = this.cache.json.get('riddles'); // Load riddles from JSON
-      this.currentLevel = 1; // Start with level 1
+      this.currentLevel = WorldScene.riddle.name; 
+      console.log(this.currentLevel);
   
       // Add background, paper, chest, and other visuals
       this.add.image(400, 300, 'paper').setScale(0.8);
