@@ -4,13 +4,14 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/fi
 import MainMenuScene from './scenes/MainMenuScene.js';
 import WorldScene from './scenes/WorldScene.js'; 
 import TestScene from './scenes/TestScene.js';
+import RiddleScene from './scenes/RiddleScene.js';
 
 const config = {
     type: Phaser.AUTO,
     width: 778, // Match the CSS width
     height: 725, // Match the CSS height
     backgroundColor: '#000000',
-    scene: [TestScene,WorldScene],
+    scene: [TestScene,WorldScene,RiddleScene],
     physics: {
         default: 'arcade',
         arcade: {
