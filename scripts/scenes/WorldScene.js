@@ -103,35 +103,38 @@ export default class WorldScene extends Phaser.Scene {
     
 
     // Get the default spawn point from the "Spawn" layer
-    const playerObjectLayer = map.getObjectLayer("Spawn");
-    const defaultSpawn = playerObjectLayer.objects.find(
-      (obj) => obj.name === "Starting"
-    );
+const playerObjectLayer = map.getObjectLayer("Spawn");
+const defaultSpawn = playerObjectLayer.objects.find(
+  (obj) => obj.name === "Starting"
+);
 
-    // Use passed position or fallback to default spawn point
-    const playerSpawn = this.playerPosition || defaultSpawn;
+// Use passed position or fallback to default spawn point
+const playerSpawn = this.playerPosition || defaultSpawn;
 
-    if (playerSpawn) {
-      console.log("Player spawning at:", playerSpawn);
+if (playerSpawn) {
+  console.log("Player spawning at:", playerSpawn);
 
-      const startX = playerSpawn.x;
-      const startY = playerSpawn.y;
+  const startX = playerSpawn.x; // Spawn X coordinate
+  const startY = playerSpawn.y; // Spawn Y coordinate
 
-      const selectedAvatar = localStorage.getItem("selectedAvatar") || "boi";
+  const selectedAvatar = localStorage.getItem("selectedAvatar") || "boi";
 
-        // Create the player with the current avatar
-        this.player = new Player(this, 100, 100, selectedAvatar); // Example start position
-        this.player.cursors = this.input.keyboard.createCursorKeys();
+  // Create the player with the current avatar at the determined position
+  this.player = new Player(this, startX, startY, selectedAvatar); 
+  this.player.cursors = this.input.keyboard.createCursorKeys();
 
-        // Handle avatar updates
-        this.events.on("avatarChanged", (newAvatar) => {
-            this.player.updateTexture(newAvatar);
-        });
-        this.createPlayerAnimations(selectedAvatar);
-      console.log("Player created at:", { x: startX, y: startY });
-    } else {
-      console.error("No valid spawn point found for the player.");
-    }
+  // Create animations specific to the selected avatar
+  this.createPlayerAnimations(selectedAvatar);
+
+  // Handle avatar updates dynamically
+  this.events.on("avatarChanged", (newAvatar) => {
+    this.player.updateTexture(newAvatar);
+  });
+
+  console.log("Player created at:", { x: startX, y: startY });
+} else {
+  console.error("No valid spawn point found for the player.");
+}
 
     // Process Block layer to get the objects
     const gameObjectLayer = map.getObjectLayer("Block");
