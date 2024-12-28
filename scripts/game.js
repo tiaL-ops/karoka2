@@ -8,7 +8,7 @@ const config = {
     type: Phaser.AUTO,
     width: 778, // Match the CSS width
     height: 725, // Match the CSS height
-    backgroundColor: '#ffffff',
+    backgroundColor: '#000000',
     scene: [],
     physics: {
         default: 'arcade',

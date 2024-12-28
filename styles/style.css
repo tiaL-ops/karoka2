@@ -7,11 +7,7 @@ html, body {
     font-family: 'Poppins', sans-serif;
 }
 
-#game-container {
-    position: relative; /* Allows layering for DOM elements */
-    width: 100%;
-    height: 100%;
-}
+
 
 canvas {
     display: block;

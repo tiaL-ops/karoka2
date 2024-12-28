@@ -1,6 +1,7 @@
 //this is clearly not working lool to fix 
 import MainMenuScene from "./MainMenuScene";
 import WorldScene from "./WorldScene";
+import game from "../game";
 class RiddleScene extends Phaser.Scene {
     constructor() {
       super({ key: 'RiddleScene' });
@@ -44,35 +45,84 @@ class RiddleScene extends Phaser.Scene {
         wordWrap: { width: 300 }
       }).setOrigin(0.5);
     }
-  
     showInputField() {
+      // Clean up previous input and button
       if (this.inputField) {
-        this.inputField.destroy();
+          this.inputField.remove();
+      }
+      if (this.submitButton) {
+          this.submitButton.remove();
       }
   
       const riddleData = this.riddles.find(r => r.level === this.currentLevel);
   
-      // Create input field and submit button
-      this.inputField = this.add.dom(400, 350).createFromHTML(
-        `<input type="text" id="answer" placeholder="Enter your answer" style="width: 200px; font-size: 16px;" />`
-      );
+      // Reference the canvas
+      const canvas = this.sys.game.canvas;
+      const canvasBounds = canvas.getBoundingClientRect(); // Get canvas size and position
   
-      if (this.submitButton) {
-        this.submitButton.destroy();
-      }
+      // Create input field dynamically
+      this.inputField = document.createElement('input');
+      this.inputField.type = 'text';
+      this.inputField.id = 'answer';
+      this.inputField.placeholder = 'Enter your answer';
+      this.inputField.style.position = 'absolute';
+      this.inputField.style.width = '80%';
+      this.inputField.style.maxWidth = '300px';
+      this.inputField.style.fontSize = '16px';
+      this.inputField.style.padding = '10px';
+      this.inputField.style.border = '2px solid #a67b5b';
+      this.inputField.style.borderRadius = '6px';
+      this.inputField.style.backgroundColor = '#f0e6d6';
+      this.inputField.style.color = '#333';
+      this.inputField.style.textAlign = 'center';
+      this.inputField.style.left = `${canvasBounds.left + canvasBounds.width / 2 - 150}px`; // Center horizontally
+      this.inputField.style.top = `${canvasBounds.top + canvasBounds.height * 0.5}px`; // Position in middle
   
-      this.submitButton = this.add.text(400, 400, 'Submit', {
-        fontSize: '20px',
-        backgroundColor: '#00ff00',
-        color: '#000',
-        padding: { x: 10, y: 5 },
-        align: 'center'
-      }).setInteractive();
+      document.body.appendChild(this.inputField);
   
-      this.submitButton.on('pointerdown', () => {
-        this.validateAnswer(riddleData.solution);
+      // Create submit button dynamically
+      this.submitButton = document.createElement('button');
+      this.submitButton.textContent = 'Submit';
+      this.submitButton.style.position = 'absolute';
+      this.submitButton.style.width = '80%';
+      this.submitButton.style.maxWidth = '150px';
+      this.submitButton.style.fontSize = '16px';
+      this.submitButton.style.padding = '10px';
+      this.submitButton.style.border = 'none';
+      this.submitButton.style.borderRadius = '6px';
+      this.submitButton.style.backgroundColor = '#8c6354';
+      this.submitButton.style.color = '#fff';
+      this.submitButton.style.cursor = 'pointer';
+      this.submitButton.style.left = `${canvasBounds.left + canvasBounds.width / 2 - 75}px`; // Center horizontally
+      this.submitButton.style.top = `${canvasBounds.top + canvasBounds.height * 0.6}px`; // Position below input
+  
+      document.body.appendChild(this.submitButton);
+  
+      // Add click handler for the submit button
+      this.submitButton.addEventListener('click', () => {
+          this.validateAnswer(riddleData.solution);
       });
-    }
+  
+      // Update positions on window resize
+      const resizeHandler = () => {
+          const newBounds = canvas.getBoundingClientRect();
+          this.inputField.style.left = `${newBounds.left + newBounds.width / 2 - 150}px`;
+          this.inputField.style.top = `${newBounds.top + newBounds.height * 0.5}px`;
+          this.submitButton.style.left = `${newBounds.left + newBounds.width / 2 - 75}px`;
+          this.submitButton.style.top = `${newBounds.top + newBounds.height * 0.6}px`;
+      };
+  
+      window.addEventListener('resize', resizeHandler);
+  
+      // Clean up on scene shutdown
+      this.events.once('shutdown', () => {
+          this.inputField.remove();
+          this.submitButton.remove();
+          window.removeEventListener('resize', resizeHandler);
+      });
+  }
+  
+  
   
     validateAnswer(solution) {
       const userInput = document.getElementById('answer').value;
@@ -97,21 +147,12 @@ class RiddleScene extends Phaser.Scene {
   
       if (isSuccess) {
         this.time.delayedCall(2000, () => {
-          this.nextLevel();
+          console.log('You solved the riddle!');
         });
       }
     }
   
-    nextLevel() {
-      this.currentLevel++;
-      if (this.currentLevel > this.riddles.length) {
-        this.scene.start('GameOverScene');
-      } else {
-        this.displayRiddle();
-        if (this.inputField) this.inputField.destroy();
-        if (this.submitButton) this.submitButton.destroy();
-      }
-    }
+ 
   }
   
   export default RiddleScene;
