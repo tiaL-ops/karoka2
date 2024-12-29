@@ -223,6 +223,13 @@ if (playerSpawn) {
     // Add collision handling for chests
     this.physics.add.collider(this.player, chestGroup, (player, chest) => {
       if (chest.name) {
+        this.currentChest= chest.name;
+        const playerPosition = { x: this.player.x, y: this.player.y }; // Save the player's current position
+
+        this.scene.start("RiddleScene", {
+          currentRiddle: chest.name,
+          playerPosition,})
+      
         console.log(`${chest.name} encountered`);
       } else {
         console.log("A mysterious chest encountered");
