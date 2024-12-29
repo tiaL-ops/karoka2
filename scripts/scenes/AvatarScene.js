@@ -111,9 +111,9 @@ export default class AvatarScene extends Phaser.Scene {
         this.events.emit("avatarChanged", this.currentAvatar);
     
         // Add a delay before loading the new scene
-        setTimeout(() => {
-            game.loadScene("WorldScene", WorldScene);
-        }, 2000); // Delay of 500ms (adjust as needed)
+    
+        game.loadScene("WorldScene", WorldScene);
+      
     }
     
     
