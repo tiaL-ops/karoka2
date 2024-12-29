@@ -42,7 +42,7 @@ export default class ProfileScene extends Phaser.Scene {
     });
 
     // Create input fields
-    this.createInputField(centerX, centerY - 100, 'Name:', 'kname');
+    this.createInputField(centerX, centerY - 100, 'KName:', 'kname');
     this.createInputField(centerX, centerY - 50, 'Field of Study:', 'fieldOfStudy');
     this.createInputField(centerX, centerY, 'Programming Level (B/I/A):', 'programmingLevel');
     this.createInputField(centerX, centerY + 50, 'Bio:', 'bio');

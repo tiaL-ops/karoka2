@@ -5,12 +5,12 @@ export default class BackgroundScene extends Phaser.Scene {
   
     preload() {
       // Load any assets if necessary (e.g., glow sprite or stars)
-      this.load.image("star", "path/to/star.png"); // Replace with your star asset
+      //this.load.image("star", "path/to/star.png"); // Replace with your star asset
     }
   
     create() {
       // Set up the starfield effect
-      this.createStarfield();
+     
   
       // Add the sweeping glow effect
       this.createSearchingGlow();

@@ -33,7 +33,7 @@ export default class MainMenuScene extends Phaser.Scene {
 
         // Create Buttons
         this.buttons = [];
-        const buttonLabels = ['Start Game', 'Choose Avatar','ProfileScene','Your feedback','Logout'];
+        const buttonLabels = ['Start Game', 'Choose Avatar','About you','Your feedback','Logout'];
         const buttonActions = [
             () => this.scene.start("WorldScene"),
             () => game.loadScene('AvatarScene', AvatarScene),
