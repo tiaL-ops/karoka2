@@ -200,15 +200,19 @@ export default class RiddleScene extends Phaser.Scene {
     });
   }
 
-  validateAnswer(solution, userInput) {
+  async validateAnswer(solution, userInput) {
     if (userInput.trim() === solution.trim()) {
       this.sendToDatabase(this.currentLevel, 1);
       this.isSolved = true;
       this.displayMessage("Success! You solved the riddle.", true);
+      this.scene.start("WorldScene", { playerPosition: this.playerPosition });
     } else {
+
+      await this.logIncorrectAttempt(this.currentLevel, userInput);
       this.displayMessage("Incorrect! Try again.", false);
     }
   }
+
   async loadProfileData(userId) {
     try {
       const docRef = doc(db, "profiles", userId);
@@ -252,9 +256,13 @@ export default class RiddleScene extends Phaser.Scene {
         const existingData = docSnap.data();
         const solvedLevels = new Set(existingData.solvedLevels || []);
         solvedLevels.add(level); // Mark the current level as solved
-
+        const riddleData = this.riddles.find((r) => r.level === this.currentLevel);
+    if (!riddleData) {
+      console.error("Riddle data not found for level:", this.currentLevel);
+      return;
+    }
         const updatedData = {
-          points: (existingData.points || 0) + point,
+          points: (existingData.points || 0) + riddleData.point,
           solvedLevels: Array.from(solvedLevels), // Store as an array
         };
         await setDoc(docRef, updatedData, { merge: true });
@@ -304,14 +312,20 @@ export default class RiddleScene extends Phaser.Scene {
     }
     
     this.ressourceText = this.add
-      .text(400, 200, riddleData.textSources, {
-        fontSize: "20px",
-        color: "#000",
-        align: "center",
-        fontFamily: "Morris Roman, serif",
-        wordWrap: { width: 300 },
-      })
-      .setOrigin(0.5);
+  .text(
+    400,
+    300,
+    `Here is a link to a website that \n may help you! :) \n\n 📖 ${riddleData.textSources} 📖`,
+    {
+      fontSize: "20px",
+      color: "#000",
+      align: "center",
+      fontFamily: "Morris Roman, serif",
+      wordWrap: { width: 300 },
+    }
+  )
+  .setOrigin(0.5)
+
     
     this.ressourceText.setInteractive({ useHandCursor: true });
     
@@ -324,11 +338,13 @@ export default class RiddleScene extends Phaser.Scene {
     });
     
     this.ressourceText.on("pointerdown", () => {
-      const link = riddleData.ressources;
-      this.add.dom(350, 250).createFromHTML(
-        `<iframe width="560" height="315" src="${link}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
-      );
+      const link = riddleData.ressources; // Make sure this is a valid URL
+      console.log(link);
+    
+      // Open the link in a new tab or window
+      window.open(link, "_blank");
     });
+    
          
     const returnText = this.add
       .text(400, 440, "Return", {
@@ -380,5 +396,44 @@ export default class RiddleScene extends Phaser.Scene {
       });
     }
   }
+
+  async logIncorrectAttempt(level, attemptedAnswer) {
+    try {
+      const docRef = doc(db, "profiles", this.currentUserId);
+      const docSnap = await getDoc(docRef);
+  
+      if (docSnap.exists()) {
+        const existingData = docSnap.data();
+        const incorrectAttempts = existingData.incorrectAttempts || {};
+  
+        // Ensure there is an array for the current level
+        incorrectAttempts[level] = incorrectAttempts[level] || [];
+        incorrectAttempts[level].push({
+          answer: attemptedAnswer,
+          timestamp: new Date().toISOString(),
+        });
+  
+        await setDoc(docRef, { incorrectAttempts }, { merge: true });
+      } else {
+        // Create a new profile with incorrect attempts
+        const newData = {
+          incorrectAttempts: {
+            [level]: [
+              {
+                answer: attemptedAnswer,
+                timestamp: new Date().toISOString(),
+              },
+            ],
+          },
+        };
+        await setDoc(docRef, newData);
+      }
+      console.log("Incorrect attempt logged successfully.");
+    } catch (error) {
+      console.error("Error logging incorrect attempt:", error);
+    }
+  }
+  
+  
 
 }

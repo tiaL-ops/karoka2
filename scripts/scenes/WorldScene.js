@@ -6,6 +6,16 @@ import game from "../game.js";
 import MainMenuScene from "./MainMenuScene.js";
 import RiddleScene from "./RiddleScene.js";
 
+
+import { db, auth } from "../firebase.js"; // Import Firebase configuration and auth
+import {
+  doc,
+  setDoc,
+  getDoc,
+  onSnapshot,
+} from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+
 export default class WorldScene extends Phaser.Scene {
   constructor() {
     super({ key: "WorldScene" });
@@ -32,6 +42,17 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   async create() {
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        this.currentUserId = user.uid; // Use Firebase Auth UID
+     
+      } else {
+        console.error("User not logged in.");
+      }
+    });
+
+
     // Create a toggle button
     this.panelContainer = null;
     const toggleButton = this.add
@@ -330,7 +351,8 @@ if (playerSpawn) {
   
   
 
-  createPanel() {
+  async createPanel() {
+    console.log("They arecalling ");
     const panelWidth = Math.min(200, this.cameras.main.width * 0.3); // 30% of camera width or 200px max
     const panelHeight = this.cameras.main.height; // Full height of the camera
     this.panelContainer = this.add
@@ -340,10 +362,10 @@ if (playerSpawn) {
       )
       .setDepth(10)
       .setVisible(false); // Initially hidden
-
+  
     // Fix the container to the camera
     this.panelContainer.setScrollFactor(0);
-
+  
     // Add the panel background
     const panelBackground = this.add
       .rectangle(
@@ -356,51 +378,88 @@ if (playerSpawn) {
       )
       .setOrigin(0, 0);
     this.panelContainer.add(panelBackground);
-
+  
     const Kname = localStorage.getItem("Kname") || localStorage.getItem("Name");
-
-    // Add example content to the panel
+  
+    // Add username
     const usernameText = this.add.text(10, 10, "Username: " + Kname, {
       font: "16px Arial",
       fill: "#ffffff",
     });
     this.panelContainer.add(usernameText);
-
+  
     // Add points text
     const pointsText = this.add.text(10, 40, `Points: 0`, {
       font: "16px Arial",
       fill: "#ffffff",
     });
     this.panelContainer.add(pointsText);
-
+  
     // Add levels header
     const levelsText = this.add.text(10, 70, `Levels:`, {
       font: "16px Arial",
       fill: "#ffffff",
     });
     this.panelContainer.add(levelsText);
+  
+    // Placeholder for levels
+    const levelTexts = [];
+    const totalLevels = 4; // Number of levels to display
+  
+    console.log("hey");
+    // Fetch Firestore data
+    const docRef = doc(db, "profiles",this.currentUserId);
+   
+  
+   // Listen for Firestore updates in real-time
+onSnapshot(docRef, (doc) => {
+  if (doc.exists()) {
+    const data = doc.data();
+    console.log(data);
 
-    // Add clickable levels
-    const levels = ["Level 1 🔒", "Level 2🔒", "Level 3🔒", "Level 4🔒"];
-    levels.forEach((level, index) => {
-      const levelText = this.add
-        .text(
-          10,
-          100 + index * 30, // Spaced within the container
-          level,
-          {
-            font: "14px Arial",
-            fill: "#00ff00",
-          }
-        )
-        .setInteractive()
-        .on("pointerdown", () => {
-          console.log(`${level} clicked`);
-        });
-      this.panelContainer.add(levelText);
-      levelText.setScrollFactor(0);
-    });
+    // Safely handle solvedLevels
+    const solvedLevels = new Set(Array.isArray(data.solvedLevels) ? data.solvedLevels : []);
+    
+    // Update points
+    pointsText.setText(`Points: ${data.points || 0}`);
 
+    // Update levels
+    for (let i = 1; i <= totalLevels; i++) {
+      const isUnlocked = solvedLevels.has(i);
+      const levelTextContent = isUnlocked ? `Level ${i} ✅` : `Level ${i} 🔒`;
+
+      // If levelText exists, update it; otherwise, create it
+      if (levelTexts[i - 1]) {
+        levelTexts[i - 1].setText(levelTextContent);
+      } else {
+        const levelText = this.add
+          .text(
+            10,
+            100 + (i - 1) * 30, // Spaced within the container
+            levelTextContent,
+            {
+              font: "14px Arial",
+              fill: isUnlocked ? "#00ff00" : "#ff0000",
+            }
+          )
+          .setInteractive()
+          .on("pointerdown", () => {
+            if (isUnlocked) {
+              console.log(`Level ${i} clicked`);
+            } else {
+              console.log(`Level ${i} is locked.`);
+            }
+          });
+        this.panelContainer.add(levelText);
+        levelTexts.push(levelText);
+      }
+    }
+  } else {
+    console.error("Profile data not found!");
+  }
+});
+
+  
     // Return to Main Menu
     const mainMenuButton = this.add
       .text(
@@ -418,7 +477,7 @@ if (playerSpawn) {
       });
     this.panelContainer.add(mainMenuButton);
     mainMenuButton.setScrollFactor(0);
-
+  
     // Add a logout button
     const logoutButton = this.add
       .text(
@@ -436,10 +495,7 @@ if (playerSpawn) {
       });
     this.panelContainer.add(logoutButton);
     logoutButton.setScrollFactor(0);
-
-    // Dynamically update points
-    this.events.on("updatePoints", (newPoints) => {
-      pointsText.setText(`Points: ${newPoints}`);
-    });
   }
+  
+  
 }
