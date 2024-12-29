@@ -33,12 +33,12 @@ export default class MainMenuScene extends Phaser.Scene {
 
         // Create Buttons
         this.buttons = [];
-        const buttonLabels = ['Start Game', 'Choose Avatar','ProfileScene','TestScene','Logout'];
+        const buttonLabels = ['Start Game', 'Choose Avatar','ProfileScene','Your feedback','Logout'];
         const buttonActions = [
             () => this.scene.start("WorldScene"),
             () => game.loadScene('AvatarScene', AvatarScene),
             () => game.loadScene('ProfileScene', ProfileScene),
-            () => game.loadScene('TestScene', TestScene),
+            () => this.goToLink(),
             async () => {
                 try {
                     await signOut(auth);
@@ -80,6 +80,14 @@ export default class MainMenuScene extends Phaser.Scene {
         button.on('pointerdown', onClick); // Attach the click handler
 
         return { button, buttonText };
+    }
+
+    goToLink(){
+        const link = 'https://forms.gle/8kGtzRigsrYeV3LF7'; // Make sure this is a valid URL
+        console.log(link);
+      
+        // Open the link in a new tab or window
+        window.open(link, "_blank");
     }
 
    resizeGame(gameSize) {

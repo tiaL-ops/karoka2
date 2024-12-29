@@ -22,7 +22,7 @@
     {
       "level": 3,
       "input": "0x0aa39fd10e",
-      "riddle": "I speak in 16 tongues, my digits sing true,\nTo learn my secret, flip my view.\nI’m the binary behind your ex,\nBut only the first 7—you’ll find the text.",
+      "riddle": "I speak in 16 tongues, my digits sing true,To learn my secret, flip my view.\nI’m the binary behind your ex,\nBut only the first 7—you’ll find the text.",
       "textSources":"Hexadecimal to binary",
       "ressources":"https://byjus.com/maths/convert-hexadecimal-to-binary/",
       "solution": "1010101",

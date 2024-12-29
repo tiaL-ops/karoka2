@@ -86,7 +86,7 @@ export default class RiddleScene extends Phaser.Scene {
 
     if (!this.isSolved) {
       this.riddleText = this.add
-        .text(400, 200, riddleData.riddle, {
+        .text(400, 150, ` ${riddleData.input} ✍`, {
           fontSize: "20px",
           color: "#000",
           align: "center",
@@ -94,6 +94,19 @@ export default class RiddleScene extends Phaser.Scene {
           wordWrap: { width: 300 },
         })
         .setOrigin(0.5);
+
+
+      this.riddleText = this.add
+        .text(400, 250, riddleData.riddle, {
+          fontSize: "20px",
+          color: "#000",
+          align: "center",
+          fontFamily: "Morris Roman, serif",
+          wordWrap: { width: 300 },
+        })
+        .setOrigin(0.5);
+
+
     } else {
       this.riddleText = this.add
         .text(400, 200, "Solved!", {
@@ -205,11 +218,14 @@ export default class RiddleScene extends Phaser.Scene {
       this.sendToDatabase(this.currentLevel, 1);
       this.isSolved = true;
       this.displayMessage("Success! You solved the riddle.", true);
+      this.showOverlaySuccess();
       this.scene.start("WorldScene", { playerPosition: this.playerPosition });
     } else {
 
       await this.logIncorrectAttempt(this.currentLevel, userInput);
       this.displayMessage("Incorrect! Try again.", false);
+      this.showOverlayFailure();
+
     }
   }
 
@@ -396,6 +412,48 @@ export default class RiddleScene extends Phaser.Scene {
       });
     }
   }
+  // Success (green overlay)
+showOverlaySuccess() {
+  const overlay = this.add.rectangle(
+    this.cameras.main.centerX,
+    this.cameras.main.centerY,
+    this.cameras.main.width,
+    this.cameras.main.height,
+    0x00ff00 // Green color
+  )
+    .setAlpha(0.5) // Semi-transparent
+    .setDepth(100); // Ensure it's on top of other elements
+
+  // Fade out the overlay after a short delay
+  this.tweens.add({
+    targets: overlay,
+    alpha: 0,
+    duration: 1000, // 1 second
+    onComplete: () => overlay.destroy(),
+  });
+}
+
+// Failure (red overlay)
+showOverlayFailure() {
+  const overlay = this.add.rectangle(
+    this.cameras.main.centerX,
+    this.cameras.main.centerY,
+    this.cameras.main.width,
+    this.cameras.main.height,
+    0xff0000 // Red color
+  )
+    .setAlpha(0.5) // Semi-transparent
+    .setDepth(100); // Ensure it's on top of other elements
+
+  // Fade out the overlay after a short delay
+  this.tweens.add({
+    targets: overlay,
+    alpha: 0,
+    duration: 1000, // 1 second
+    onComplete: () => overlay.destroy(),
+  });
+}
+
 
   async logIncorrectAttempt(level, attemptedAnswer) {
     try {

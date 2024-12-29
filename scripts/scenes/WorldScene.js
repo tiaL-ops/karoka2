@@ -5,7 +5,7 @@ import ProfileScene from "./ProfileScene.js";
 import game from "../game.js";
 import MainMenuScene from "./MainMenuScene.js";
 import RiddleScene from "./RiddleScene.js";
-
+import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
 import { db, auth } from "../firebase.js"; // Import Firebase configuration and auth
 import {
@@ -20,7 +20,7 @@ export default class WorldScene extends Phaser.Scene {
   constructor() {
     super({ key: "WorldScene" });
     this.panelContainer = null; // Define the panel container here
-    this.isVisible = false; 
+    this.isVisible = false;
     this.player = null;
   }
 
@@ -42,56 +42,52 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   async create() {
-
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         this.currentUserId = user.uid; // Use Firebase Auth UID
-     
       } else {
         console.error("User not logged in.");
       }
     });
 
-
     // Create a toggle button
     this.panelContainer = null;
     const toggleButton = this.add
-    .text(
-      10, // X position
-      10, // Y position
-      "Show Panel", // Initial button text
-      {
-        font: "16px Arial",
-        fill: "#ffffff",
-        backgroundColor: "#0000ff", // Blue background for visibility
-        padding: { left: 10, right: 10, top: 5, bottom: 5 },
-      }
-    )
-    .setInteractive()
-    .on("pointerdown", () => {
-      this.isVisible = !this.isVisible; // Toggle the visibility flag
-
-      if (this.isVisible) {
-        if (!this.panelContainer) {
-          this.createPanel(); // Create the panel if it doesn't exist
+      .text(
+        10, // X position
+        10, // Y position
+        "Show Panel", // Initial button text
+        {
+          font: "16px Arial",
+          fill: "#ffffff",
+          backgroundColor: "#0000ff", // Blue background for visibility
+          padding: { left: 10, right: 10, top: 5, bottom: 5 },
         }
-        this.panelContainer.setVisible(true); // Show the panel immediately
-        toggleButton.setText("Hide Panel");
-      } else {
-        if (this.panelContainer) {
-          this.panelContainer.setVisible(false); // Hide the panel
-        }
-        toggleButton.setText("Show Panel");
-      }
+      )
+      .setInteractive()
+      .on("pointerdown", () => {
+        this.isVisible = !this.isVisible; // Toggle the visibility flag
 
-      console.log(`Panel visibility: ${this.isVisible ? "visible" : "hidden"}`);
-    })
-    .setDepth(1000);
+        if (this.isVisible) {
+          if (!this.panelContainer) {
+            this.createPanel(); // Create the panel if it doesn't exist
+          }
+          this.panelContainer.setVisible(true); // Show the panel immediately
+          toggleButton.setText("Hide Panel");
+        } else {
+          if (this.panelContainer) {
+            this.panelContainer.setVisible(false); // Hide the panel
+          }
+          toggleButton.setText("Show Panel");
+        }
+
+        console.log(
+          `Panel visibility: ${this.isVisible ? "visible" : "hidden"}`
+        );
+      })
+      .setDepth(1000);
     toggleButton.setScrollFactor(0);
 
-    
-
-  
     const map = this.make.tilemap({ key: "WPMap" });
     const chestTileset = map.addTilesetImage("chest2", "chest2");
     const forestTilesTileset = map.addTilesetImage(
@@ -120,42 +116,39 @@ export default class WorldScene extends Phaser.Scene {
     map.createLayer("Resolved", allTilesets, 0, 0);
     map.createLayer("Hint", allTilesets, 0, 0);
 
-   
-    
-
     // Get the default spawn point from the "Spawn" layer
-const playerObjectLayer = map.getObjectLayer("Spawn");
-const defaultSpawn = playerObjectLayer.objects.find(
-  (obj) => obj.name === "Starting"
-);
+    const playerObjectLayer = map.getObjectLayer("Spawn");
+    const defaultSpawn = playerObjectLayer.objects.find(
+      (obj) => obj.name === "Starting"
+    );
 
-// Use passed position or fallback to default spawn point
-const playerSpawn = this.playerPosition || defaultSpawn;
+    // Use passed position or fallback to default spawn point
+    const playerSpawn = this.playerPosition || defaultSpawn;
 
-if (playerSpawn) {
-  console.log("Player spawning at:", playerSpawn);
+    if (playerSpawn) {
+      console.log("Player spawning at:", playerSpawn);
 
-  const startX = playerSpawn.x; // Spawn X coordinate
-  const startY = playerSpawn.y; // Spawn Y coordinate
+      const startX = playerSpawn.x; // Spawn X coordinate
+      const startY = playerSpawn.y; // Spawn Y coordinate
 
-  const selectedAvatar = localStorage.getItem("selectedAvatar") || "boi";
+      const selectedAvatar = localStorage.getItem("selectedAvatar") || "boi";
 
-  // Create the player with the current avatar at the determined position
-  this.player = new Player(this, startX, startY, selectedAvatar); 
-  this.player.cursors = this.input.keyboard.createCursorKeys();
+      // Create the player with the current avatar at the determined position
+      this.player = new Player(this, startX, startY, selectedAvatar);
+      this.player.cursors = this.input.keyboard.createCursorKeys();
 
-  // Create animations specific to the selected avatar
-  this.createPlayerAnimations(selectedAvatar);
+      // Create animations specific to the selected avatar
+      this.createPlayerAnimations(selectedAvatar);
 
-  // Handle avatar updates dynamically
-  this.events.on("avatarChanged", (newAvatar) => {
-    this.player.updateTexture(newAvatar);
-  });
+      // Handle avatar updates dynamically
+      this.events.on("avatarChanged", (newAvatar) => {
+        this.player.updateTexture(newAvatar);
+      });
 
-  console.log("Player created at:", { x: startX, y: startY });
-} else {
-  console.error("No valid spawn point found for the player.");
-}
+      console.log("Player created at:", { x: startX, y: startY });
+    } else {
+      console.error("No valid spawn point found for the player.");
+    }
 
     // Process Block layer to get the objects
     const gameObjectLayer = map.getObjectLayer("Block");
@@ -163,6 +156,13 @@ if (playerSpawn) {
       console.error("Object layer not found!");
       return;
     }
+    const graphics = this.add.graphics();
+    graphics.fillStyle(0x000000, 0); // Transparent fill
+    graphics.fillRect(0, 0, 50, 50); // Adjust size to your needs
+
+    const textureKey = "invisibleCollider";
+    graphics.generateTexture(textureKey, 50, 50); // Creates a texture from the graphics
+    graphics.destroy();
 
     // Create static groups for trees and rocks
     const objectsBodies = this.physics.add.staticGroup();
@@ -173,17 +173,17 @@ if (playerSpawn) {
     gameObjectLayer.objects.forEach((obj) => {
       if (obj.name === "Hole_Stupid") {
         // Create a physics body for the hole
-        const hole = holeBodies.create(obj.x, obj.y, null);
+        const hole = holeBodies.create(obj.x, obj.y, textureKey);
         hole.setOrigin(0);
         hole.body.setSize(obj.width, obj.height).setOffset(0, 0);
       } else if (obj.name === "Stupid") {
         // Create a physics body for the water
-        const water = waterBodies.create(obj.x, obj.y, null);
+        const water = waterBodies.create(obj.x, obj.y, textureKey);
         water.setOrigin(0);
         water.body.setSize(obj.width, obj.height).setOffset(0, 0);
       } else {
         // Create a physics body for any left objects
-        const object = objectsBodies.create(obj.x, obj.y, null);
+        const object = objectsBodies.create(obj.x, obj.y, textureKey);
         object.setOrigin(0);
         object.body.setSize(obj.width, obj.height).setOffset(0, 0);
       }
@@ -206,7 +206,7 @@ if (playerSpawn) {
     const riddleGroup = this.physics.add.staticGroup();
 
     riddleObjectLayer.objects.forEach((obj) => {
-      const riddle = riddleGroup.create(obj.x, obj.y, null);
+      const riddle = riddleGroup.create(obj.x, obj.y, textureKey);
       riddle.setOrigin(0);
       riddle.body.setSize(obj.width, obj.height).setOffset(0, 0);
       // Store riddle name for logging
@@ -218,7 +218,7 @@ if (playerSpawn) {
     const chestGroup = this.physics.add.staticGroup();
 
     chestObjectLayer.objects.forEach((obj) => {
-      const chest = chestGroup.create(obj.x, obj.y, null);
+      const chest = chestGroup.create(obj.x, obj.y, textureKey);
       chest.setOrigin(0);
       chest.body.setSize(obj.width, obj.height).setOffset(0, 0);
       // Store chest name for logging
@@ -244,13 +244,14 @@ if (playerSpawn) {
     // Add collision handling for chests
     this.physics.add.collider(this.player, chestGroup, (player, chest) => {
       if (chest.name) {
-        this.currentChest= chest.name;
+        this.currentChest = chest.name;
         const playerPosition = { x: this.player.x, y: this.player.y }; // Save the player's current position
 
         this.scene.start("RiddleScene", {
           currentRiddle: chest.name,
-          playerPosition,})
-      
+          playerPosition,
+        });
+
         console.log(`${chest.name} encountered`);
       } else {
         console.log("A mysterious chest encountered");
@@ -267,7 +268,6 @@ if (playerSpawn) {
     this.player.setCollideWorldBounds(true);
 
     // Debug camera width and height if necessary
-    console.log(camera.width, camera.height);
 
     // Pass input keys to the player
     this.player.cursors = this.input.keyboard.createCursorKeys();
@@ -279,77 +279,71 @@ if (playerSpawn) {
     }
   }
 
-   loadAvatar(avatarKey) {
-        if (avatarKey === "boi") {
-            this.load.spritesheet("boi", "assets/maps/boiTest.png", {
-                frameWidth: 48,
-                frameHeight: 48,
-            });
-        } else {
-            this.load.spritesheet("girl", "assets/maps/girl.png", {
-                frameWidth: 48,
-                frameHeight: 48,
-            });
-        }
+  loadAvatar(avatarKey) {
+    if (avatarKey === "boi") {
+      this.load.spritesheet("boi", "assets/maps/boiTest.png", {
+        frameWidth: 48,
+        frameHeight: 48,
+      });
+    } else {
+      this.load.spritesheet("girl", "assets/maps/girl.png", {
+        frameWidth: 48,
+        frameHeight: 48,
+      });
     }
- 
-   
-
-  
-
-    createPlayerAnimations(textureKey) {
-      const prefix = textureKey; // Use the texture key as a prefix for unique animation keys
-  
-      this.anims.create({
-          key: `${prefix}_walk_down`,
-          frames: [
-              { key: textureKey, frame: 0 },
-              { key: textureKey, frame: 4 },
-              { key: textureKey, frame: 8 },
-              { key: textureKey, frame: 12 },
-          ],
-          frameRate: 10,
-          repeat: -1,
-      });
-  
-      this.anims.create({
-          key: `${prefix}_walk_left`,
-          frames: [
-              { key: textureKey, frame: 1 },
-              { key: textureKey, frame: 5 },
-              { key: textureKey, frame: 9 },
-              { key: textureKey, frame: 13 },
-          ],
-          frameRate: 10,
-          repeat: -1,
-      });
-  
-      this.anims.create({
-          key: `${prefix}_walk_up`,
-          frames: [
-              { key: textureKey, frame: 2 },
-              { key: textureKey, frame: 6 },
-              { key: textureKey, frame: 10 },
-              { key: textureKey, frame: 14 },
-          ],
-          frameRate: 10,
-          repeat: -1,
-      });
-  
-      this.anims.create({
-          key: `${prefix}_walk_right`,
-          frames: [
-              { key: textureKey, frame: 3 },
-              { key: textureKey, frame: 7 },
-              { key: textureKey, frame: 11 },
-              { key: textureKey, frame: 15 },
-          ],
-          frameRate: 10,
-          repeat: -1,
-      });
   }
-  
-  
+
+  createPlayerAnimations(textureKey) {
+    const prefix = textureKey; // Use the texture key as a prefix for unique animation keys
+
+    this.anims.create({
+      key: `${prefix}_walk_down`,
+      frames: [
+        { key: textureKey, frame: 0 },
+        { key: textureKey, frame: 4 },
+        { key: textureKey, frame: 8 },
+        { key: textureKey, frame: 12 },
+      ],
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: `${prefix}_walk_left`,
+      frames: [
+        { key: textureKey, frame: 1 },
+        { key: textureKey, frame: 5 },
+        { key: textureKey, frame: 9 },
+        { key: textureKey, frame: 13 },
+      ],
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: `${prefix}_walk_up`,
+      frames: [
+        { key: textureKey, frame: 2 },
+        { key: textureKey, frame: 6 },
+        { key: textureKey, frame: 10 },
+        { key: textureKey, frame: 14 },
+      ],
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: `${prefix}_walk_right`,
+      frames: [
+        { key: textureKey, frame: 3 },
+        { key: textureKey, frame: 7 },
+        { key: textureKey, frame: 11 },
+        { key: textureKey, frame: 15 },
+      ],
+      frameRate: 10,
+      repeat: -1,
+    });
+  }
 
   async createPanel() {
     console.log("They arecalling ");
@@ -362,10 +356,10 @@ if (playerSpawn) {
       )
       .setDepth(10)
       .setVisible(false); // Initially hidden
-  
+
     // Fix the container to the camera
     this.panelContainer.setScrollFactor(0);
-  
+
     // Add the panel background
     const panelBackground = this.add
       .rectangle(
@@ -378,88 +372,90 @@ if (playerSpawn) {
       )
       .setOrigin(0, 0);
     this.panelContainer.add(panelBackground);
-  
+
     const Kname = localStorage.getItem("Kname") || localStorage.getItem("Name");
-  
+
     // Add username
     const usernameText = this.add.text(10, 10, "Username: " + Kname, {
       font: "16px Arial",
       fill: "#ffffff",
     });
     this.panelContainer.add(usernameText);
-  
+
     // Add points text
     const pointsText = this.add.text(10, 40, `Points: 0`, {
       font: "16px Arial",
       fill: "#ffffff",
     });
     this.panelContainer.add(pointsText);
-  
+
     // Add levels header
     const levelsText = this.add.text(10, 70, `Levels:`, {
       font: "16px Arial",
       fill: "#ffffff",
     });
     this.panelContainer.add(levelsText);
-  
+
     // Placeholder for levels
     const levelTexts = [];
     const totalLevels = 4; // Number of levels to display
-  
+
     console.log("hey");
     // Fetch Firestore data
-    const docRef = doc(db, "profiles",this.currentUserId);
-   
-  
-   // Listen for Firestore updates in real-time
-onSnapshot(docRef, (doc) => {
-  if (doc.exists()) {
-    const data = doc.data();
-    console.log(data);
+    const docRef = doc(db, "profiles", this.currentUserId);
 
-    // Safely handle solvedLevels
-    const solvedLevels = new Set(Array.isArray(data.solvedLevels) ? data.solvedLevels : []);
-    
-    // Update points
-    pointsText.setText(`Points: ${data.points || 0}`);
+    // Listen for Firestore updates in real-time
+    onSnapshot(docRef, (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        console.log(data);
 
-    // Update levels
-    for (let i = 1; i <= totalLevels; i++) {
-      const isUnlocked = solvedLevels.has(i);
-      const levelTextContent = isUnlocked ? `Level ${i} ✅` : `Level ${i} 🔒`;
+        // Safely handle solvedLevels
+        const solvedLevels = new Set(
+          Array.isArray(data.solvedLevels) ? data.solvedLevels : []
+        );
 
-      // If levelText exists, update it; otherwise, create it
-      if (levelTexts[i - 1]) {
-        levelTexts[i - 1].setText(levelTextContent);
+        // Update points
+        pointsText.setText(`Points: ${data.points || 0}`);
+
+        // Update levels
+        for (let i = 1; i <= totalLevels; i++) {
+          const isUnlocked = solvedLevels.has(i);
+          const levelTextContent = isUnlocked
+            ? `Level ${i} ✅`
+            : `Level ${i} 🔒`;
+
+          // If levelText exists, update it; otherwise, create it
+          if (levelTexts[i - 1]) {
+            levelTexts[i - 1].setText(levelTextContent);
+          } else {
+            const levelText = this.add
+              .text(
+                10,
+                100 + (i - 1) * 30, // Spaced within the container
+                levelTextContent,
+                {
+                  font: "14px Arial",
+                  fill: isUnlocked ? "#00ff00" : "#ff0000",
+                }
+              )
+              .setInteractive()
+              .on("pointerdown", () => {
+                if (isUnlocked) {
+                  console.log(`Level ${i} clicked`);
+                } else {
+                  console.log(`Level ${i} is locked.`);
+                }
+              });
+            this.panelContainer.add(levelText);
+            levelTexts.push(levelText);
+          }
+        }
       } else {
-        const levelText = this.add
-          .text(
-            10,
-            100 + (i - 1) * 30, // Spaced within the container
-            levelTextContent,
-            {
-              font: "14px Arial",
-              fill: isUnlocked ? "#00ff00" : "#ff0000",
-            }
-          )
-          .setInteractive()
-          .on("pointerdown", () => {
-            if (isUnlocked) {
-              console.log(`Level ${i} clicked`);
-            } else {
-              console.log(`Level ${i} is locked.`);
-            }
-          });
-        this.panelContainer.add(levelText);
-        levelTexts.push(levelText);
+        console.error("Profile data not found!");
       }
-    }
-  } else {
-    console.error("Profile data not found!");
-  }
-});
+    });
 
-  
     // Return to Main Menu
     const mainMenuButton = this.add
       .text(
@@ -477,7 +473,7 @@ onSnapshot(docRef, (doc) => {
       });
     this.panelContainer.add(mainMenuButton);
     mainMenuButton.setScrollFactor(0);
-  
+
     // Add a logout button
     const logoutButton = this.add
       .text(
@@ -490,12 +486,17 @@ onSnapshot(docRef, (doc) => {
         }
       )
       .setInteractive()
-      .on("pointerdown", () => {
-        console.log("Logged out");
+      .on("pointerdown", async () => {
+        try {
+          await signOut(auth);
+          console.log("User logged out successfully!");
+          document.body.innerHTML = ""; // Clear the screen
+          location.reload(); // Reload to reset to login form
+        } catch (error) {
+          console.error("Logout failed:", error.message);
+        }
       });
     this.panelContainer.add(logoutButton);
     logoutButton.setScrollFactor(0);
   }
-  
-  
 }
