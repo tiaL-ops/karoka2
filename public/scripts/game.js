@@ -6,13 +6,13 @@ import WorldScene from './scenes/WorldScene.js';
 import TestScene from './scenes/TestScene.js';
 import RiddleScene from './scenes/RiddleScene.js';
 import BackgroundScene from './scenes/BackgroundScene.js';
-
+import InstructionsScene from './scenes/InstructionScene.js'
 const config = {
     type: Phaser.AUTO,
     width: 778, // Match the CSS width
     height: 725, // Match the CSS height
     backgroundColor: '#000000',
-    scene: [BackgroundScene,WorldScene,RiddleScene],
+    scene: [WorldScene,RiddleScene],
     physics: {
         default: 'arcade',
         arcade: {

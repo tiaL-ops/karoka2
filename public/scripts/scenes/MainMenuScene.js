@@ -5,6 +5,7 @@ import game from '../game.js';
 import AvatarScene from './AvatarScene.js';
 import TestScene from './TestScene.js';
 import ProfileScene from './ProfileScene.js';
+import InstructionsScene from './InstructionScene.js';
 
 
 export default class MainMenuScene extends Phaser.Scene {
@@ -33,11 +34,12 @@ export default class MainMenuScene extends Phaser.Scene {
 
         // Create Buttons
         this.buttons = [];
-        const buttonLabels = ['Start Game', 'Choose Avatar','About you','Your feedback','Logout'];
+        const buttonLabels = ['Start Game', 'Choose Avatar','About you','InstructionsScene','Your feedback','Logout'];
         const buttonActions = [
             () => this.scene.start("WorldScene"),
             () => game.loadScene('AvatarScene', AvatarScene),
             () => game.loadScene('ProfileScene', ProfileScene),
+            () => game.loadScene('InstructionsScene',InstructionsScene),
             () => this.goToLink(),
             async () => {
                 try {
