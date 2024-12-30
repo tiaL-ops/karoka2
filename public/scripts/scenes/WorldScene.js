@@ -34,7 +34,7 @@ export default class WorldScene extends Phaser.Scene {
     this.load.image("terrain_atlas", "assets/maps/terrain_atlas.png");
     this.load.image("terrain", "assets/maps/terrain.png");
 
-    this.load.tilemapTiledJSON("WPMap", "/assets/maps/WPMap.json");
+    this.load.tilemapTiledJSON("WPMap", "assets/maps/WPMap.json");
   }
   init(data) {
     if (!data) {
@@ -42,9 +42,18 @@ export default class WorldScene extends Phaser.Scene {
       data = {};
     }
   
-    this.playerPosition = data.playerPosition || { x: 0, y: 0 }; // Default position if none provided
+    // Check if player position is invalid
+    const isInvalidPosition =
+      !data.playerPosition ||
+      (data.playerPosition.x === 0 && data.playerPosition.y === 0);
+  
+    // Use default spawn point if position is invalid
+    this.playerPosition = isInvalidPosition ? { x: 558, y: 202 } : data.playerPosition;
+  
     console.log("Player position received:", this.playerPosition);
   }
+  
+  
   
 
   async create() {
@@ -170,7 +179,7 @@ console.log(playerObjectLayer?.objects);
     graphics.fillRect(0, 0, 50, 50); // Adjust size to your needs
 
     const textureKey = "invisibleCollider";
-    graphics.generateTexture(textureKey, 50, 50); // Creates a texture from the graphics
+    graphics.generateTexture(textureKey, 1, 1); // Creates a texture from the graphics
     graphics.destroy();
 
     // Create static groups for trees and rocks
