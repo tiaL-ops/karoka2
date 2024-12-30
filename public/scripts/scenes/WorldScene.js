@@ -34,7 +34,7 @@ export default class WorldScene extends Phaser.Scene {
     this.load.image("terrain_atlas", "assets/maps/terrain_atlas.png");
     this.load.image("terrain", "assets/maps/terrain.png");
 
-    this.load.tilemapTiledJSON("WPMap", "assets/maps/WPMAP.json");
+    this.load.tilemapTiledJSON("WPMap", "/assets/maps/WPMap.json");
   }
   init(data) {
     if (!data) {

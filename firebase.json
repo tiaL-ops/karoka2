@@ -10,7 +10,26 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "headers": [
+      {
+        "source": "**/*.json",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      }
+    ],
     "rewrites": [
+      {
+        "source": "/assets/**",
+        "destination": "/assets"
+      },
       {
         "source": "**",
         "destination": "/index.html"
