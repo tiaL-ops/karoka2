@@ -37,9 +37,15 @@ export default class WorldScene extends Phaser.Scene {
     this.load.tilemapTiledJSON("WPMap", "assets/maps/WPMAP.json");
   }
   init(data) {
-    this.playerPosition = data?.playerPosition || null; // Use passed position or null
+    if (!data) {
+      console.warn("No data passed to init. Falling back to default.");
+      data = {};
+    }
+  
+    this.playerPosition = data.playerPosition || { x: 0, y: 0 }; // Default position if none provided
     console.log("Player position received:", this.playerPosition);
   }
+  
 
   async create() {
     onAuthStateChanged(auth, async (user) => {
@@ -118,6 +124,9 @@ export default class WorldScene extends Phaser.Scene {
 
     // Get the default spawn point from the "Spawn" layer
     const playerObjectLayer = map.getObjectLayer("Spawn");
+    console.log(playerObjectLayer);
+console.log(playerObjectLayer?.objects);
+
     const defaultSpawn = playerObjectLayer.objects.find(
       (obj) => obj.name === "Starting"
     );
