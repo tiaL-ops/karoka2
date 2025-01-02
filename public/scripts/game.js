@@ -84,7 +84,7 @@ resizeGame(); // Initial call to adjust the canvas size
 // Monitor Authentication State
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        console.log('User is logged in:', user);
+        //console.log('User is logged in:', user);
         game.loadScene('MainMenuScene', MainMenuScene); // Load MainMenuScene
     } else {
         console.log('No user logged in. Showing auth form.');

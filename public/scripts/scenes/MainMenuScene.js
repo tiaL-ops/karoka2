@@ -25,7 +25,7 @@ export default class MainMenuScene extends Phaser.Scene {
         this.background = this.add.image(0, 0, 'background').setOrigin(0).setDisplaySize(width, height);
 
         // Title text
-        this.titleText = this.add.text(width / 2, height * 0.2, 'KarokaGame', {
+        this.titleText = this.add.text(width / 2, height * 0.2, 'Karoka 🔎', {
             fontSize: `${Math.floor(height * 0.06)}px`,
             fill: '#ffffff',
             fontFamily: 'Poppins, Arial, sans-serif',
@@ -34,7 +34,7 @@ export default class MainMenuScene extends Phaser.Scene {
 
         // Create Buttons
         this.buttons = [];
-        const buttonLabels = ['Start Game', 'Choose Avatar','About you','InstructionsScene','Your feedback','Logout'];
+        const buttonLabels = ['Start Game', 'Choose Avatar','About you','Instructions','Your feedback','Logout'];
         const buttonActions = [
             () => this.scene.start("WorldScene"),
             () => game.loadScene('AvatarScene', AvatarScene),
@@ -58,6 +58,7 @@ export default class MainMenuScene extends Phaser.Scene {
             const button = this.createButton(height * (0.4 + index * 0.1), label, buttonActions[index]);
             this.buttons.push(button);
         });
+ 
 
         // Handle resizing
         //this.scale.on('resize', this.resizeGame, this);
@@ -83,10 +84,11 @@ export default class MainMenuScene extends Phaser.Scene {
 
         return { button, buttonText };
     }
+    
 
     goToLink(){
         const link = 'https://forms.gle/8kGtzRigsrYeV3LF7'; // Make sure this is a valid URL
-        console.log(link);
+        
       
         // Open the link in a new tab or window
         window.open(link, "_blank");

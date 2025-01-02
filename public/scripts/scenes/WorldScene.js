@@ -34,7 +34,7 @@ export default class WorldScene extends Phaser.Scene {
     this.load.image("terrain_atlas", "assets/maps/terrain_atlas.png");
     this.load.image("terrain", "assets/maps/terrain.png");
 
-    this.load.tilemapTiledJSON("WPMap", "assets/maps/WPMap.json");
+    this.load.tilemapTiledJSON("WPMap", "/assets/maps/WPMap.json");
   }
   init(data) {
     if (!data) {
@@ -50,13 +50,15 @@ export default class WorldScene extends Phaser.Scene {
     // Use default spawn point if position is invalid
     this.playerPosition = isInvalidPosition ? { x: 558, y: 202 } : data.playerPosition;
   
-    console.log("Player position received:", this.playerPosition);
+   // console.log("Player position received:", this.playerPosition);
   }
   
   
   
 
   async create() {
+  
+  
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         this.currentUserId = user.uid; // Use Firebase Auth UID
@@ -96,9 +98,7 @@ export default class WorldScene extends Phaser.Scene {
           toggleButton.setText("Show Panel");
         }
 
-        console.log(
-          `Panel visibility: ${this.isVisible ? "visible" : "hidden"}`
-        );
+       
       })
       .setDepth(1000);
     toggleButton.setScrollFactor(0);
@@ -133,8 +133,7 @@ export default class WorldScene extends Phaser.Scene {
 
     // Get the default spawn point from the "Spawn" layer
     const playerObjectLayer = map.getObjectLayer("Spawn");
-    console.log(playerObjectLayer);
-console.log(playerObjectLayer?.objects);
+
 
     const defaultSpawn = playerObjectLayer.objects.find(
       (obj) => obj.name === "Starting"
@@ -144,7 +143,7 @@ console.log(playerObjectLayer?.objects);
     const playerSpawn = this.playerPosition || defaultSpawn;
 
     if (playerSpawn) {
-      console.log("Player spawning at:", playerSpawn);
+    
 
       const startX = playerSpawn.x; // Spawn X coordinate
       const startY = playerSpawn.y; // Spawn Y coordinate
@@ -163,7 +162,7 @@ console.log(playerObjectLayer?.objects);
         this.player.updateTexture(newAvatar);
       });
 
-      console.log("Player created at:", { x: startX, y: startY });
+     
     } else {
       console.error("No valid spawn point found for the player.");
     }
@@ -418,7 +417,7 @@ console.log(playerObjectLayer?.objects);
     const levelTexts = [];
     const totalLevels = 4; // Number of levels to display
 
-    console.log("hey");
+   
     // Fetch Firestore data
     const docRef = doc(db, "profiles", this.currentUserId);
 
@@ -426,7 +425,7 @@ console.log(playerObjectLayer?.objects);
     onSnapshot(docRef, (doc) => {
       if (doc.exists()) {
         const data = doc.data();
-        console.log(data);
+        
 
         // Safely handle solvedLevels
         const solvedLevels = new Set(
