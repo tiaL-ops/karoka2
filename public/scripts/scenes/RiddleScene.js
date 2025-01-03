@@ -236,7 +236,7 @@ export default class RiddleScene extends Phaser.Scene {
 
       if (docSnap.exists()) {
         this.profileData = docSnap.data();
-        console.log("Profile data loaded:", this.profileData);
+        //console.log("Profile data loaded:", this.profileData);
       } else {
         // Initialize profile if not found
         this.profileData = { points: 0, disabledLevels: [] };
@@ -355,7 +355,7 @@ export default class RiddleScene extends Phaser.Scene {
     
     this.ressourceText.on("pointerdown", () => {
       const link = riddleData.ressources; // Make sure this is a valid URL
-      console.log(link);
+      //console.log(link);
     
       // Open the link in a new tab or window
       window.open(link, "_blank");
