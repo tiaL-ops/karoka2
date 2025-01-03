@@ -4,7 +4,7 @@
       "input": 2,
       "riddle": "I’m a little calculation, can you see?\nAdd me to me, what will it be?",
       "textSources": "Introduction to basic math operations in coding",
-      "resources": "https://www.khanacademy.org/computing/computer-programming/intro-to-programming/a/intro-to-variables",
+      "resources": "https://www.w3schools.com/python/gloss_python_arithmetic_operators.asp",
       "solution": "4",
       "length": 1,
       "point": 10
@@ -34,7 +34,7 @@
       "input": ["apple", "banana", "cherry"],
       "riddle": "I hold many words, one by one,\nFind the longest—now you’re done!",
       "textSources": "Introduction to lists and finding elements",
-      "resources": "https://www.programiz.com/python-programming/list",
+      "resources": "https://www.geeksforgeeks.org/program-to-find-largest-element-in-an-array/",
       "solution": "banana",
       "length": null,
       "point": 40
