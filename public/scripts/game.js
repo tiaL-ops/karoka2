@@ -9,8 +9,8 @@ import BackgroundScene from './scenes/BackgroundScene.js';
 import InstructionsScene from './scenes/InstructionScene.js'
 const config = {
     type: Phaser.AUTO,
-    width: 778, // Match the CSS width
-    height: 725, // Match the CSS height
+    width: 1200, // Match the CSS width
+    height: 1025, // Match the CSS height
     backgroundColor: '#000000',
     scene: [WorldScene,RiddleScene],
     physics: {
