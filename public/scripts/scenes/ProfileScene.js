@@ -71,7 +71,7 @@ export default class ProfileScene extends Phaser.Scene {
         localStorage.setItem('Kname', this.inputs.kname.value || this.inputs.kname.placeholder);
         const docRef = doc(db, 'profiles', this.currentUserId); // Use user ID as document ID
         await setDoc(docRef, profileData, { merge: true }); // Merge updates
-        console.log('Profile updated successfully:', profileData);
+        //console.log('Profile updated successfully:', profileData);
         console.log("Kname"+localStorage.getItem('Kname'));
 
 
@@ -126,9 +126,9 @@ export default class ProfileScene extends Phaser.Scene {
         this.inputs.programmingLevel.value = '';
         this.inputs.bio.value = '';
 
-        console.log('Profile data loaded:', data);
+        //console.log('Profile data loaded:', data);
       } else {
-        console.log('No profile found for user ID:', userId);
+        //console.log('No profile found for user ID:', userId);
       }
     } catch (error) {
       console.error('Error loading profile:', error);

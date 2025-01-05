@@ -89,8 +89,8 @@ KarokaGame is a fun and educational 2D game built with **Phaser.js**. It is desi
 
 ## Authors
 
-- [Your Name] - Lead Developer
-- [Collaborator's Name(s)] (Optional)
+- Landy Rakotoarison - Lead Developer
+- Herimanana Rasolonirina (Optional)
 
 ---
 
