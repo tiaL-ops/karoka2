@@ -48,6 +48,23 @@ async function getUserName(uid) {
         return null;
     }
 }
+const fetchCompetitionData = async () => {
+    try {
+        const docRef = doc(db, "competitions", "Compet1test");
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            console.log("Competition Data:", docSnap.data());
+        } else {
+            console.error("No such document!");
+        }
+    } catch (error) {
+        console.error("Error fetching competition data:", error);
+    }
+};
+
+// Run the fetch function
+fetchCompetitionData();
 
 
 // Wait for user authentication
@@ -62,4 +79,4 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Export Firebase services
-export { db, auth, googleProvider };
+export { db, auth, googleProvider,doc, getDoc,getFirestore };
