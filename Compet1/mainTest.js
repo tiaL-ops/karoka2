@@ -1,4 +1,4 @@
-import { getFirestore, doc, getDoc } from "../public/scripts/firebase.js";
+import { getFirestore, doc, getDoc } from "../public/game/scripts/firebase.js";
 import competTest from "./competTest.js";
 
 // Fetch competition data
