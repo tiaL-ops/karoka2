@@ -31,8 +31,8 @@ export default class WorldScene extends Phaser.Scene {
     this.load.image("chest2", "assets/maps/chest2.png");
     this.load.image("forest_tiles", "assets/maps/forest_tiles.png");
     this.load.image("sign_post", "assets/maps/sign_post.svg");
-    this.load.image("terrain_atlas", "assets/maps/terrain_atlas.png");
-    this.load.image("terrain", "assets/maps/terrain.png");
+    this.load.image("terrain_atlas", "public/maps/terrain_atlas.png");
+    this.load.image("terrain", "./game/maps/terrain.png");
 
     this.load.tilemapTiledJSON("WPMap", "assets/maps/WPMap.json");
   }
