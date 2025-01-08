@@ -1,6 +1,7 @@
 // Import the required Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-analytics.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
@@ -79,4 +80,4 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Export Firebase services
-export { db, auth, googleProvider,doc, getDoc,getFirestore };
+export { db, auth, googleProvider,doc, getDoc,getFirestore ,signOut};
