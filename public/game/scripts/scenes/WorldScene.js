@@ -17,25 +17,57 @@ import {
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
 export default class WorldScene extends Phaser.Scene {
-  constructor() {
+  constructor(competitionData) {
+    
     super({ key: "WorldScene" });
+    this.competitionData = competitionData;
     this.panelContainer = null; // Define the panel container here
     this.isVisible = false;
     this.player = null;
   }
 
   preload() {
-    const selectedAvatar = localStorage.getItem("selectedAvatar") || "boi"; // Default to 'boi'
-    this.loadAvatar(selectedAvatar);
+    if (!this.competitionData) {
+        console.error("No competition data available for preload.");
+        return;
+    }
 
-    this.load.image("chest2", "assets/maps/chest2.png");
-    this.load.image("forest_tiles", "assets/maps/forest_tiles.png");
-    this.load.image("sign_post", "assets/maps/sign_post.svg");
-    this.load.image("terrain_atlas", "public/maps/terrain_atlas.png");
-    this.load.image("terrain", "./game/maps/terrain.png");
+    const data = this.competitionData;
+    console.log("Competition data loaded:", data);
 
-    this.load.tilemapTiledJSON("WPMap", "assets/maps/WPMap.json");
-  }
+    // Load spritesheet
+    if (data.spritesheet) {
+        const sprite = data.spritesheet;
+        console.log('Here is sprite key',sprite.key);
+        this.load.spritesheet(sprite.key, sprite.url, {
+            frameWidth: sprite.frameWidth,
+            frameHeight: sprite.frameHeight,
+        });
+    }
+
+    // Load images
+    if (Array.isArray(data.images)) {
+        data.images.forEach(image => {
+            this.load.image(image.key, image.url);
+            console.log('Here is image key',image.key);
+        });
+    }
+
+    // Load tilemap
+    
+    const tilemap = data.tilemap;
+    this.load.tilemapTiledJSON(tilemap.key, tilemap.url);
+
+    // Log asset loading
+    this.load.on("complete", () => {
+        console.log("All assets loaded successfully.");
+    });
+
+    this.load.on("loaderror", (file) => {
+        console.error(`Failed to load asset: ${file.key}`);
+    });
+}
+
   init(data) {
     if (!data) {
       console.warn("No data passed to init. Falling back to default.");
@@ -103,42 +135,24 @@ export default class WorldScene extends Phaser.Scene {
       .setDepth(1000);
     toggleButton.setScrollFactor(0);
 
-    const map = this.make.tilemap({ key: "WPMap" });
-    const chestTileset = map.addTilesetImage("chest2", "chest2");
-    const forestTilesTileset = map.addTilesetImage(
-      "forest_tiles",
-      "forest_tiles"
-    );
-    const signPostTileset = map.addTilesetImage("sign_post", "sign_post");
-    const terrainAtlasTileset = map.addTilesetImage(
-      "terrain_atlas",
-      "terrain_atlas"
-    );
-    const terrainTileset = map.addTilesetImage("terrain", "terrain");
+    const map = this.make.tilemap({ key: this.competitionData.tilemap.key });
+   
+    const allTilesets = this.competitionData.images.map(image => {
+      return map.addTilesetImage(image.key, image.key);
+  });
 
-    const allTilesets = [
-      chestTileset,
-      forestTilesTileset,
-      signPostTileset,
-      terrainAtlasTileset,
-      terrainTileset,
-    ];
-
-    map.createLayer("Background", allTilesets, 0, 0);
-    map.createLayer("Details", allTilesets, 0, 0);
-    map.createLayer("Trees", allTilesets, 0, 0);
-    map.createLayer("Sign_Chest", allTilesets, 0, 0);
-    map.createLayer("Resolved", allTilesets, 0, 0);
-    map.createLayer("Hint", allTilesets, 0, 0);
-
+    const backgroundLayer = map.createLayer("Background", allTilesets, 0, 0);
+    const foundationLayer = map.createLayer("Foundation", allTilesets, 0, 0);
+    const detailsLayer = map.createLayer("Details", allTilesets, 0, 0);
+/*
     // Get the default spawn point from the "Spawn" layer
-    const playerObjectLayer = map.getObjectLayer("Spawn");
+    //const playerObjectLayer = map.getObjectLayer("Spawn");
 
 
     const defaultSpawn = playerObjectLayer.objects.find(
       (obj) => obj.name === "Starting"
     );
-
+*/
     // Use passed position or fallback to default spawn point
     const playerSpawn = this.playerPosition || defaultSpawn;
 
@@ -167,8 +181,20 @@ export default class WorldScene extends Phaser.Scene {
       console.error("No valid spawn point found for the player.");
     }
 
+    
+    this.physics.world.setBounds(0, 0, backgroundLayer.width, backgroundLayer.height);
+    const camera = this.cameras.main;
+    camera.setBounds(0, 0, backgroundLayer.width, backgroundLayer.height);
+    camera.setZoom(1);
+
+    this.girl = this.physics.add.sprite(100, 100, "girl");
+    this.girl.setCollideWorldBounds(true);
+    camera.startFollow(this.girl);
+
+    this.cursors = this.input.keyboard.createCursorKeys();
     // Process Block layer to get the objects
     const gameObjectLayer = map.getObjectLayer("Block");
+
     if (!gameObjectLayer) {
       console.error("Object layer not found!");
       return;
@@ -275,7 +301,7 @@ export default class WorldScene extends Phaser.Scene {
       }
     });
 
-    // Camera setup
+   /* // Camera setup
     const camera = this.cameras.main;
     camera.startFollow(this.player);
     camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
@@ -283,11 +309,11 @@ export default class WorldScene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
     this.player.setCollideWorldBounds(true);
-
+*/
     // Debug camera width and height if necessary
 
     // Pass input keys to the player
-    this.player.cursors = this.input.keyboard.createCursorKeys();
+   
   }
 
   update() {
@@ -295,21 +321,23 @@ export default class WorldScene extends Phaser.Scene {
       this.player.update(); // Update the player (e.g., movement)
     }
   }
-
+/*
   loadAvatar(avatarKey) {
+    console.log('loadingavatar: ', sprite.key);
     if (avatarKey === "boi") {
-      this.load.spritesheet("boi", "assets/maps/boiTest.png", {
+      
+      this.load.spritesheet("girl", "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2Fgirl.png?alt=media", {
         frameWidth: 48,
         frameHeight: 48,
       });
     } else {
-      this.load.spritesheet("girl", "assets/maps/girl.png", {
+      this.load.spritesheet("girl", "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2Fgirl.png?alt=media", {
         frameWidth: 48,
         frameHeight: 48,
       });
     }
   }
-
+*/
   createPlayerAnimations(textureKey) {
     const prefix = textureKey; // Use the texture key as a prefix for unique animation keys
 
@@ -516,4 +544,13 @@ export default class WorldScene extends Phaser.Scene {
     this.panelContainer.add(logoutButton);
     logoutButton.setScrollFactor(0);
   }
+  update() {
+    const speed = 200;
+    this.girl.setVelocity(0);
+
+    if (this.cursors.left.isDown) this.girl.setVelocityX(-speed);
+    if (this.cursors.right.isDown) this.girl.setVelocityX(speed);
+    if (this.cursors.up.isDown) this.girl.setVelocityY(-speed);
+    if (this.cursors.down.isDown) this.girl.setVelocityY(speed);
+}
 }
