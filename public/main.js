@@ -1,7 +1,8 @@
 import { createAuthForm } from './game/scripts/authform.js';
 import { auth, signOut } from './game/scripts/firebase.js'; // Ensure firebase.js exports `auth` and `signOut`
-
+import { getFirestore, doc, getDoc } from "../public/game/scripts/firebase.js";
 // Function to load the main menu and update the username
+
 function loadMainMenu() {
     const user = auth.currentUser; // Get the currently logged-in user
     const usernameElement = document.getElementById('username');
@@ -51,19 +52,92 @@ function handleLogout() {
 const authButton = document.getElementById('auth-button');
 authButton.addEventListener('click', openAuthForm);
 
-const gameContainer = document.getElementById('game-container');
-const gamePreview = document.getElementById('game-preview');
+async function fetchCompetitionData() {
+    console.log("fetch called");
 
-// Set the source of the iframe
-gamePreview.src = 'game.html';
+    const competitionKey = "compet1Test";
+    const db = getFirestore();
 
-// Functions to toggle visibility
-function showGameThumbnail() {
-    gameContainer.classList.remove('hidden');
-    gameContainer.classList.add('visible');
+    const collectionName = "competitions";
+    const thumbnailContainer = document.getElementById('thumbnail-container');
+
+    try {
+        const competitionsRef = collection(db, collectionName,competitionKey);
+        const docSnap = await getDoc(competitionsRef);
+
+        if (docSnap.exists()) {
+            console.log("Competition data fetched:", docSnap.data());
+            return docSnap.data();
+        } else {
+            console.error("No competition data found for:", competitionKey);
+            return null;
+        }
+
+        
+            /*
+            const thumbnailDiv = document.createElement('div');
+            thumbnailDiv.className = 'p-4 border rounded-lg shadow-md cursor-pointer text-center';
+
+            // Create placeholder for thumbnail (use an image if available)
+            const thumbnailImage = document.createElement('div');
+            thumbnailImage.className = 'w-32 h-32 bg-gray-200 flex items-center justify-center';
+            thumbnailImage.textContent = competition.name || "Unnamed Competition";
+
+            // Create a title for the competition
+            const title = document.createElement('h3');
+            title.className = 'text-lg font-bold mt-2';
+            title.textContent = competition.name || "Unnamed Competition";
+
+            // Add a click event to log competition ID
+            thumbnailDiv.addEventListener('click', () => {
+                console.log(`Competition clicked: ${competitionId}`);
+            });
+
+            // Append elements to thumbnail div
+            thumbnailDiv.appendChild(thumbnailImage);
+            thumbnailDiv.appendChild(title);
+
+            // Append thumbnail to container
+            thumbnailContainer.appendChild(thumbnailDiv);
+        
+
+        console.log('Competitions successfully loaded.');
+        */
+    } catch (error) {
+        console.error("Error fetching competition data:", error);
+    }
 }
 
-function hideGameThumbnail() {
-    gameContainer.classList.remove('visible');
-    gameContainer.classList.add('hidden');
+async function startGame() {
+    const competitionData = await fetchCompetitionData();
+
+    if (!competitionData) {
+        console.error("Failed to fetch competition data. Game cannot start.");
+        return;
+    }
+
+    // Pass the fetched data to the scene
+    const config = {
+        type: Phaser.AUTO, // Auto-detect WebGL or Canvas rendering
+        width: 800, // Set a larger default canvas width
+        height: 600, // Set a larger default canvas height
+        backgroundColor: '#000000', // Set a default background color
+        scene: [new competTest(competitionData)], // Pass data to the scene
+        physics: {
+            default: 'arcade', // Use Arcade physics
+            arcade: {
+                gravity: { y: 0 }, // No gravity for top-down or non-falling physics
+                debug: true, // Enable debug mode for easier troubleshooting
+            },
+        },
+        scale: {
+            mode: Phaser.Scale.FIT, // Adjust the canvas size to fit the browser window
+            autoCenter: Phaser.Scale.CENTER_BOTH, // Center the game canvas
+        },
+    };
+
+    new Phaser.Game(config);
 }
+
+
+startGame();

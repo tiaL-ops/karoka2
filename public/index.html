@@ -37,11 +37,54 @@
         </button>
     </div>
 
-    <!-- Game Preview -->
-    <div id="game-container" class="hidden">
-        <h3 class="text-xl font-bold text-indigo-400 mb-4">Game Preview</h3>
-        <iframe id="game-preview" class="w-80 h-64 border-4 border-gray-700 rounded-lg shadow-md"></iframe>
+    <div id="thumbnail-container" class="grid grid-cols-3 gap-4 p-4">
+        <!-- Styled canvas to display the game -->
+        <div class="thumbnail-frame" onclick="redirectToGame()">
+            <span>Click to Play</span>
+        </div>
     </div>
+
+    <script>
+        function redirectToGame() {
+            window.location.href = 'game/game.html';
+        }
+    </script>
+    <style>
+        /* Style for the thumbnail frame */
+        .thumbnail-frame {
+            position: relative;
+            width: 320px; /* Slightly larger than the iframe to include padding */
+            height: 220px;
+            padding: 10px; /* Add padding around the iframe */
+            border: 2px solid #ddd; /* Subtle border */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+            background: #f9f9f9; /* Light background color */
+            overflow: hidden; /* Clip overflow if needed */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* Style for the iframe */
+        .thumbnail-frame iframe {
+            width: 100%; /* Full width of the container */
+            height: 100%; /* Full height of the container */
+            border: none; /* Remove the default iframe border */
+            border-radius: 5px; /* Slightly round the iframe corners */
+        }
+        
+        /* Add hover effect for interactivity */
+        .thumbnail-frame:hover {
+            transform: scale(1.02); /* Slight zoom effect */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+        }
+        </style>
+        
+    
+    
+    
 
     <!-- Login Modal -->
     <div id="login-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"></div>
