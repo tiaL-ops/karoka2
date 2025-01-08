@@ -95,21 +95,6 @@ export default class MainMenuScene extends Phaser.Scene {
     }
 
    resizeGame(gameSize) {
-     /*
-        const { width, height } = gameSize;
-
-        // Resize background
-        this.background.setDisplaySize(width, height);
-
-        // Reposition and resize title
-        this.titleText.setFontSize(Math.floor(height * 0.06)).setPosition(width / 2, height * 0.2);
-
-        // Reposition and resize buttons
-        this.buttons.forEach((btn, index) => {
-            const y = height * (0.4 + index * 0.1);
-            btn.button.setDisplaySize(width * 0.4, height * 0.1).setPosition(width / 2, y);
-            btn.buttonText.setFontSize(Math.floor(height * 0.035)).setPosition(width / 2, y);
-        });
-    */
+   
 }
 }

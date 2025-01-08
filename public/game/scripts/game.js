@@ -45,7 +45,7 @@ async function startGame() {
         width: 800, // Set a larger default canvas width
         height: 600, // Set a larger default canvas height
         backgroundColor: '#000000', // Set a default background color
-        scene: [new MainMenuScene(competitionData)], // Pass data to the scene
+        scene: [new WorldScene(competitionData)], // Pass data to the scene
         physics: {
             default: 'arcade', // Use Arcade physics
             arcade: {
