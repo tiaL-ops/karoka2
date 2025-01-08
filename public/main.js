@@ -108,36 +108,26 @@ async function fetchCompetitionData() {
     }
 }
 
-async function startGame() {
-    const competitionData = await fetchCompetitionData();
 
-    if (!competitionData) {
-        console.error("Failed to fetch competition data. Game cannot start.");
-        return;
-    }
-
-    // Pass the fetched data to the scene
-    const config = {
-        type: Phaser.AUTO, // Auto-detect WebGL or Canvas rendering
-        width: 800, // Set a larger default canvas width
-        height: 600, // Set a larger default canvas height
-        backgroundColor: '#000000', // Set a default background color
-        scene: [new competTest(competitionData)], // Pass data to the scene
-        physics: {
-            default: 'arcade', // Use Arcade physics
-            arcade: {
-                gravity: { y: 0 }, // No gravity for top-down or non-falling physics
-                debug: true, // Enable debug mode for easier troubleshooting
-            },
-        },
-        scale: {
-            mode: Phaser.Scale.FIT, // Adjust the canvas size to fit the browser window
-            autoCenter: Phaser.Scale.CENTER_BOTH, // Center the game canvas
-        },
-    };
-
-    new Phaser.Game(config);
+function filterCompetitions(status) {
+    const competitions = document.querySelectorAll('.competition');
+    competitions.forEach((competition) => {
+        if (status === 'all' || competition.classList.contains(status)) {
+            competition.style.display = 'block';
+        } else {
+            competition.style.display = 'none';
+        }
+    });
 }
+window.filterCompetitions = filterCompetitions;
+
+// Add click functionality to open competitions
+document.querySelectorAll('.competition.open').forEach((competition) => {
+    competition.addEventListener('click', () => {
+        //alert(`Navigating to ${competition.querySelector('h3').innerText}...`);
+    
+        window.location.href = 'game/game.html';
+    });
+});
 
 
-startGame();

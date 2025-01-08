@@ -2,29 +2,67 @@ import { auth } from './firebase.js';
 import { createAuthForm } from './authform.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 import MainMenuScene from './scenes/MainMenuScene.js';
+import { getFirestore, doc, getDoc } from "./firebase.js";
 import WorldScene from './scenes/WorldScene.js'; 
 import TestScene from './scenes/TestScene.js';
 import RiddleScene from './scenes/RiddleScene.js';
 import BackgroundScene from './scenes/BackgroundScene.js';
 import InstructionsScene from './scenes/InstructionScene.js'
-const config = {
-    type: Phaser.AUTO,
-    width: 1200, // Match the CSS width
-    height: 1025, // Match the CSS height
-    backgroundColor: '#000000',
-    scene: [WorldScene,RiddleScene],
-    physics: {
-        default: 'arcade',
-        arcade: {
-            debug:false,
-            gravity: { y: 0 },
-            
-        },
-    },
-    dom: {
-        createContainer: true // Enable DOM containers
+
+async function fetchCompetitionData() {
+    console.log("Fetching doc");
+    const competitionKey = "compet1Test";
+    const db = getFirestore();
+    try {
+        const docRef = doc(db, "competitions", competitionKey);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            console.log("Competition data fetched:", docSnap.data());
+            return docSnap.data();
+        } else {
+            console.error("No competition data found for:", competitionKey);
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching competition data:", error);
+        return null;
     }
-};
+}
+
+// Start the game
+async function startGame() {
+    const competitionData = await fetchCompetitionData();
+    console.log("STarting the game");
+    if (!competitionData) {
+        console.error("Failed to fetch competition data. Game cannot start.");
+        return;
+    }
+
+    // Pass the fetched data to the scene
+    const config = {
+        type: Phaser.AUTO, // Auto-detect WebGL or Canvas rendering
+        width: 800, // Set a larger default canvas width
+        height: 600, // Set a larger default canvas height
+        backgroundColor: '#000000', // Set a default background color
+        scene: [new MainMenuScene(competitionData)], // Pass data to the scene
+        physics: {
+            default: 'arcade', // Use Arcade physics
+            arcade: {
+                gravity: { y: 0 }, // No gravity for top-down or non-falling physics
+                debug: true, // Enable debug mode for easier troubleshooting
+            },
+        },
+        scale: {
+            mode: Phaser.Scale.FIT, // Adjust the canvas size to fit the browser window
+            autoCenter: Phaser.Scale.CENTER_BOTH, // Center the game canvas
+        },
+    };
+
+    new Phaser.Game(config);
+}
+
+startGame();
 
 
 
@@ -84,16 +122,8 @@ window.addEventListener('resize', resizeGame);
 resizeGame(); // Initial call to adjust the canvas size
 
 
-// Monitor Authentication State
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        //console.log('User is logged in:', user);
-        game.loadScene('MainMenuScene', MainMenuScene); // Load MainMenuScene
-    } else {
-        console.log('No user logged in. Showing auth form.');
-        createAuthForm(() => game.loadScene('MainMenuScene', MainMenuScene)); // Show login form and load MainMenuScene
-    }
-});
+
+
 
 // Export the game instance
 export default game;

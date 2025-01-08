@@ -6,6 +6,7 @@
     <title>Welcome to Karoka</title>
     <!-- Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body class="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white flex flex-col items-center py-10 px-6">
     <!-- Header -->
@@ -28,62 +29,27 @@
         </p>
     </div>
 
-    <!-- Active Competition -->
-    <div class="w-full max-w-4xl bg-gray-800/70 p-6 rounded-lg shadow-md mb-8">
-        <h3 class="text-2xl font-semibold text-indigo-400 mb-4">Active Competition:</h3>
-        <p class="text-lg mb-4">Current Competition: <strong class="text-indigo-400">Winter Algorithm Challenge</strong></p>
-        <button id="game-button" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow-md transition">
-            Go to Game
-        </button>
+    <div id="filter-buttons">
+        <button onclick="filterCompetitions('open')">Show Open</button>
+        <button onclick="filterCompetitions('closed')">Show Closed</button>
+        <button onclick="filterCompetitions('all')">Show All</button>
     </div>
 
-    <div id="thumbnail-container" class="grid grid-cols-3 gap-4 p-4">
-        <!-- Styled canvas to display the game -->
-        <div class="thumbnail-frame" onclick="redirectToGame()">
-            <span>Click to Play</span>
+    <div id="competition-container">
+        <div class="competition open" data-status="open">
+            <span class="status-label">Open</span>
+            <h3>Competition 1</h3>
+        </div>
+        <div class="competition closed" data-status="closed">
+            <span class="status-label">Closed</span>
+            <h3>Competition 2</h3>
+        </div>
+        <div class="competition open" data-status="open">
+            <span class="status-label">Open</span>
+            <h3>Competition 3</h3>
         </div>
     </div>
 
-    <script>
-        function redirectToGame() {
-            window.location.href = 'game/game.html';
-        }
-    </script>
-    <style>
-        /* Style for the thumbnail frame */
-        .thumbnail-frame {
-            position: relative;
-            width: 320px; /* Slightly larger than the iframe to include padding */
-            height: 220px;
-            padding: 10px; /* Add padding around the iframe */
-            border: 2px solid #ddd; /* Subtle border */
-            border-radius: 8px; /* Rounded corners */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-            background: #f9f9f9; /* Light background color */
-            overflow: hidden; /* Clip overflow if needed */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        /* Style for the iframe */
-        .thumbnail-frame iframe {
-            width: 100%; /* Full width of the container */
-            height: 100%; /* Full height of the container */
-            border: none; /* Remove the default iframe border */
-            border-radius: 5px; /* Slightly round the iframe corners */
-        }
-        
-        /* Add hover effect for interactivity */
-        .thumbnail-frame:hover {
-            transform: scale(1.02); /* Slight zoom effect */
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
-        }
-        </style>
-        
-    
-    
     
 
     <!-- Login Modal -->
