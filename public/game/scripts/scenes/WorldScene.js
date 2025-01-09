@@ -36,6 +36,7 @@ export default class WorldScene extends Phaser.Scene {
     console.log("Competition data loaded:", data);
 
     // Load spritesheet
+    /*
     if (data.spritesheet) {
         const sprite = data.spritesheet;
         console.log('Here is sprite key',sprite.key);
@@ -43,6 +44,12 @@ export default class WorldScene extends Phaser.Scene {
             frameWidth: sprite.frameWidth,
             frameHeight: sprite.frameHeight,
         });
+    }*/
+
+    if (Array.isArray(data.spritesheet)){
+      data.spritesheet.forEach(sprites =>{
+        this.load.image(sprites.key, sprites.url, );
+      });
     }
 
     // Load images
@@ -188,7 +195,7 @@ export default class WorldScene extends Phaser.Scene {
     camera.setZoom(1);
 
     this.girl = this.physics.add.sprite(100, 100, "girl");
-    this.girl.setCollideWorldBounds(true);
+  this.girl.setCollideWorldBounds(true);
     camera.startFollow(this.girl);
 
     this.cursors = this.input.keyboard.createCursorKeys();

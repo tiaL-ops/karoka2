@@ -26,12 +26,20 @@ const competitionData = {
       url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2FTileMap.png?alt=media",
     },
   ],
-  spritesheet: {
+  spritesheet: [{
     key: "girl",
     url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2Fgirl.png?alt=media",
     frameWidth: 48,
     frameHeight: 48,
+  
   },
+  {
+    key: "boiTest",
+    url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2FboiTest.png?alt=media",
+    frameWidth: 48,
+    frameHeight: 48,
+  },
+],
   tilemap: {
     key: "test",
     url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2Ftest.json?alt=media",

@@ -11,6 +11,7 @@ import InstructionsScene from './InstructionScene.js';
 export default class MainMenuScene extends Phaser.Scene {
     constructor() {
         super({ key: 'MainMenuScene' });
+        this.competitionData = competitionData;
     }
 
     preload() {
