@@ -4,6 +4,16 @@
 KarokaGame is a fun and educational 2D game built with **Phaser.js**. It is designed to help students understand the fundamentals of **data structures** and **algorithms** through an interactive and engaging gaming experience. Players solve riddles, navigate through challenges, and learn essential programming concepts in an exciting way.
 
 ---
+## Bug:
+Notes: 
+
+8 Jan 2025:
+WorldScene Bug: Player Can’t work;
+Constructor: Player =null
+—> All the competition data fetched:
+Line 168 this.player created- like to curse
+
+Line 192 should follow player,
 
 ## Features
 
@@ -89,8 +99,8 @@ KarokaGame is a fun and educational 2D game built with **Phaser.js**. It is desi
 
 ## Authors
 
-- [Your Name] - Lead Developer
-- [Collaborator's Name(s)] (Optional)
+- Landy Rakotoarison - Lead Developer
+- Herimanana Rasolonirina (Optional)
 
 ---
 
