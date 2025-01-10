@@ -46,12 +46,17 @@ export default class WorldScene extends Phaser.Scene {
         });
     }*/
 
-    if (Array.isArray(data.spritesheet)){
-      data.spritesheet.forEach(sprites =>{
-        this.load.image(sprites.key, sprites.url, );
+   
+    if (Array.isArray(data.spritesheet)) {
+  
+      data.spritesheet.forEach((sprites) => {
+        this.load.spritesheet(sprites.key, sprites.url, {
+          frameWidth: sprites.frameWidth, // Width of a single frame
+          frameHeight: sprites.frameHeight, // Height of a single frame
+        });
       });
     }
-
+    
     // Load images
     if (Array.isArray(data.images)) {
         data.images.forEach(image => {
@@ -194,8 +199,11 @@ export default class WorldScene extends Phaser.Scene {
     camera.setBounds(0, 0, backgroundLayer.width, backgroundLayer.height);
     camera.setZoom(1);
 
+    //Here to update later to 
+
     this.girl = this.physics.add.sprite(100, 100, "girl");
   this.girl.setCollideWorldBounds(true);
+
     camera.startFollow(this.girl);
 
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -264,9 +272,10 @@ export default class WorldScene extends Phaser.Scene {
     });
 
     // Collision with Chest:
-    const chestObjectLayer = map.getObjectLayer("Chests");
+    /*const chestObjectLayer = map.getObjectLayer("Chests");
     const chestGroup = this.physics.add.staticGroup();
 
+    
     chestObjectLayer.objects.forEach((obj) => {
       const chest = chestGroup.create(obj.x, obj.y, textureKey);
       chest.setOrigin(0);
@@ -307,7 +316,7 @@ export default class WorldScene extends Phaser.Scene {
         console.log("A mysterious chest encountered");
       }
     });
-
+*/
    /* // Camera setup
     const camera = this.cameras.main;
     camera.startFollow(this.player);
@@ -323,11 +332,7 @@ export default class WorldScene extends Phaser.Scene {
    
   }
 
-  update() {
-    if (this.player && this.player.body) {
-      this.player.update(); // Update the player (e.g., movement)
-    }
-  }
+ 
 /*
   loadAvatar(avatarKey) {
     console.log('loadingavatar: ', sprite.key);
@@ -553,11 +558,25 @@ export default class WorldScene extends Phaser.Scene {
   }
   update() {
     const speed = 200;
-    this.girl.setVelocity(0);
-
-    if (this.cursors.left.isDown) this.girl.setVelocityX(-speed);
-    if (this.cursors.right.isDown) this.girl.setVelocityX(speed);
-    if (this.cursors.up.isDown) this.girl.setVelocityY(-speed);
-    if (this.cursors.down.isDown) this.girl.setVelocityY(speed);
-}
+    this.girl.setVelocity(0); // Reset velocity
+  
+    // Check input and update velocity
+    if (this.cursors.left.isDown) {
+      this.girl.setVelocityX(-speed);
+      this.girl.anims.play("girl_walk_left", true); // Play left animation
+    } else if (this.cursors.right.isDown) {
+      this.girl.setVelocityX(speed);
+      this.girl.anims.play("girl_walk_right", true); // Play right animation
+    } else if (this.cursors.up.isDown) {
+      this.girl.setVelocityY(-speed);
+      this.girl.anims.play("girl_walk_up", true); // Play up animation
+    } else if (this.cursors.down.isDown) {
+      this.girl.setVelocityY(speed);
+      this.girl.anims.play("girl_walk_down", true); // Play down animation
+    } else {
+      // Stop animation when idle
+      this.girl.anims.stop();
+    }
+  }
+  
 }
