@@ -11,7 +11,7 @@ import InstructionsScene from './scenes/InstructionScene.js'
 
 async function fetchCompetitionData() {
     console.log("Fetching doc");
-    const competitionKey = "compet1Test";
+    const competitionKey = "Beta";
     const db = getFirestore();
     try {
         const docRef = doc(db, "competitions", competitionKey);
@@ -83,7 +83,7 @@ game.loadScene = function (sceneKey, sceneClass = null) {
         }
     }
 
-    // Stop all currently active scenes
+
     Object.keys(this.scene.keys).forEach(activeSceneKey => {
         if (this.scene.isActive(activeSceneKey)) {
             this.scene.stop(activeSceneKey);

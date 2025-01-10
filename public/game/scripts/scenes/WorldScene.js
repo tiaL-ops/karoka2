@@ -7,7 +7,7 @@ import MainMenuScene from "./MainMenuScene.js";
 import RiddleScene from "./RiddleScene.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
-import { db, auth } from "../firebase.js"; // Import Firebase configuration and auth
+import { db, auth } from "../firebase.js"; 
 import {
   doc,
   setDoc,
@@ -65,7 +65,7 @@ export default class WorldScene extends Phaser.Scene {
     });
 
     this.load.on("loaderror", (file) => {
-        console.error(`Failed to load asset: ${file.key}`);
+        console.error(`Oh no, Failed to load asset: ${file.key}`);
     });
 }
 
@@ -167,7 +167,7 @@ export default class WorldScene extends Phaser.Scene {
 
     //Here to update later to 
 
-    this.player = this.physics.add.sprite(100, 100, selectedAvatar);
+    this.player = this.physics.add.sprite(this.playerPosition.x, this.playerPosition.y, selectedAvatar);
 
     this.player.setCollideWorldBounds(true);
     this.createPlayerAnimations(selectedAvatar);
@@ -211,20 +211,30 @@ export default class WorldScene extends Phaser.Scene {
     // Collision with Riddles:
     const riddleObjectLayer = map.getObjectLayer("Riddles");
     const riddleGroup = this.physics.add.staticGroup();
-
+    
     riddleObjectLayer.objects.forEach((obj) => {
       const riddle = riddleGroup.create(obj.x, obj.y, textureKey);
       riddle.setOrigin(0);
       riddle.body.setSize(obj.width, obj.height).setOffset(0, 0);
-      // Store riddle name for logging
-      riddle.name = obj.name;
+     
+      riddle.name = obj.name; 
+      console.log("Here is riddle name during creation:", riddle.name);
     });
-
+    
+    // Handle collisions
+    this.physics.add.collider(this.player, riddleGroup, (player, riddle) => {
+      
+      if (riddle && riddle.name) {
+        
+        console.log(`Riddle ${riddle.name} encountered`);
+      } else {
+        console.log("Encountered an unknown riddle");
+      }
+    });
   
    
   }
 
- 
 
   createPlayerAnimations(textureKey) {
     const prefix = textureKey; 
