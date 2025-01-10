@@ -7,7 +7,7 @@ import MainMenuScene from "./MainMenuScene.js";
 import RiddleScene from "./RiddleScene.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
-import { db, auth } from "../firebase.js"; // Import Firebase configuration and auth
+import { db, auth } from "../firebase.js"; 
 import {
   doc,
   setDoc,
@@ -17,25 +17,58 @@ import {
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
 export default class WorldScene extends Phaser.Scene {
-  constructor() {
+  constructor(competitionData) {
+    
     super({ key: "WorldScene" });
-    this.panelContainer = null; // Define the panel container here
+    this.competitionData = competitionData;
+    this.panelContainer = null; 
     this.isVisible = false;
     this.player = null;
   }
 
   preload() {
-    const selectedAvatar = localStorage.getItem("selectedAvatar") || "boi"; // Default to 'boi'
-    this.loadAvatar(selectedAvatar);
+    if (!this.competitionData) {
+        console.error("No competition data available for preload.");
+        return;
+    }
 
-    this.load.image("chest2", "assets/maps/chest2.png");
-    this.load.image("forest_tiles", "assets/maps/forest_tiles.png");
-    this.load.image("sign_post", "assets/maps/sign_post.svg");
-    this.load.image("terrain_atlas", "assets/maps/terrain_atlas.png");
-    this.load.image("terrain", "assets/maps/terrain.png");
+    const data = this.competitionData;
+    console.log("Competition data loaded:", data);
 
-    this.load.tilemapTiledJSON("WPMap", "assets/maps/WPMap.json");
-  }
+    
+    if (Array.isArray(data.spritesheet)) {
+  
+      data.spritesheet.forEach((sprites) => {
+        this.load.spritesheet(sprites.key, sprites.url, {
+          frameWidth: sprites.frameWidth,
+          frameHeight: sprites.frameHeight,
+        });
+      });
+    }
+    
+    // Load images
+    if (Array.isArray(data.images)) {
+        data.images.forEach(image => {
+            this.load.image(image.key, image.url);
+            console.log('Here is image key',image.key);
+        });
+    }
+
+    // Load tilemap
+    
+    const tilemap = data.tilemap;
+    this.load.tilemapTiledJSON(tilemap.key, tilemap.url);
+
+    // Log asset loading
+    this.load.on("complete", () => {
+        console.log("All assets loaded successfully.");
+    });
+
+    this.load.on("loaderror", (file) => {
+        console.error(`Oh no, Failed to load asset: ${file.key}`);
+    });
+}
+
   init(data) {
     if (!data) {
       console.warn("No data passed to init. Falling back to default.");
@@ -50,7 +83,7 @@ export default class WorldScene extends Phaser.Scene {
     // Use default spawn point if position is invalid
     this.playerPosition = isInvalidPosition ? { x: 558, y: 202 } : data.playerPosition;
   
-   // console.log("Player position received:", this.playerPosition);
+ 
   }
   
   
@@ -71,8 +104,8 @@ export default class WorldScene extends Phaser.Scene {
     this.panelContainer = null;
     const toggleButton = this.add
       .text(
-        10, // X position
-        10, // Y position
+        10, 
+        10, 
         "Show Panel", // Initial button text
         {
           font: "16px Arial",
@@ -89,11 +122,11 @@ export default class WorldScene extends Phaser.Scene {
           if (!this.panelContainer) {
             this.createPanel(); // Create the panel if it doesn't exist
           }
-          this.panelContainer.setVisible(true); // Show the panel immediately
+          this.panelContainer.setVisible(true); 
           toggleButton.setText("Hide Panel");
         } else {
           if (this.panelContainer) {
-            this.panelContainer.setVisible(false); // Hide the panel
+            this.panelContainer.setVisible(false); 
           }
           toggleButton.setText("Show Panel");
         }
@@ -103,116 +136,73 @@ export default class WorldScene extends Phaser.Scene {
       .setDepth(1000);
     toggleButton.setScrollFactor(0);
 
-    const map = this.make.tilemap({ key: "WPMap" });
-    const chestTileset = map.addTilesetImage("chest2", "chest2");
-    const forestTilesTileset = map.addTilesetImage(
-      "forest_tiles",
-      "forest_tiles"
-    );
-    const signPostTileset = map.addTilesetImage("sign_post", "sign_post");
-    const terrainAtlasTileset = map.addTilesetImage(
-      "terrain_atlas",
-      "terrain_atlas"
-    );
-    const terrainTileset = map.addTilesetImage("terrain", "terrain");
+    const map = this.make.tilemap({ key: this.competitionData.tilemap.key });
+   
+    const allTilesets = this.competitionData.images.map(image => {
+      return map.addTilesetImage(image.key, image.key);
+  });
 
-    const allTilesets = [
-      chestTileset,
-      forestTilesTileset,
-      signPostTileset,
-      terrainAtlasTileset,
-      terrainTileset,
-    ];
-
-    map.createLayer("Background", allTilesets, 0, 0);
-    map.createLayer("Details", allTilesets, 0, 0);
-    map.createLayer("Trees", allTilesets, 0, 0);
-    map.createLayer("Sign_Chest", allTilesets, 0, 0);
-    map.createLayer("Resolved", allTilesets, 0, 0);
-    map.createLayer("Hint", allTilesets, 0, 0);
-
-    // Get the default spawn point from the "Spawn" layer
-    const playerObjectLayer = map.getObjectLayer("Spawn");
-
-
-    const defaultSpawn = playerObjectLayer.objects.find(
-      (obj) => obj.name === "Starting"
-    );
-
-    // Use passed position or fallback to default spawn point
+    const backgroundLayer = map.createLayer("Background", allTilesets, 0, 0);
+    const foundationLayer = map.createLayer("Foundation", allTilesets, 0, 0);
+    const detailsLayer = map.createLayer("Details", allTilesets, 0, 0);
+ 
     const playerSpawn = this.playerPosition || defaultSpawn;
+    const selectedAvatar = localStorage.getItem("selectedAvatar") || "boi";
 
     if (playerSpawn) {
-    
 
-      const startX = playerSpawn.x; // Spawn X coordinate
-      const startY = playerSpawn.y; // Spawn Y coordinate
-
-      const selectedAvatar = localStorage.getItem("selectedAvatar") || "boi";
-
-      // Create the player with the current avatar at the determined position
-      this.player = new Player(this, startX, startY, selectedAvatar);
-      this.player.cursors = this.input.keyboard.createCursorKeys();
-
-      // Create animations specific to the selected avatar
-      this.createPlayerAnimations(selectedAvatar);
-
-      // Handle avatar updates dynamically
-      this.events.on("avatarChanged", (newAvatar) => {
-        this.player.updateTexture(newAvatar);
-      });
+      const startX = playerSpawn.x; 
+      const startY = playerSpawn.y; 
 
      
     } else {
       console.error("No valid spawn point found for the player.");
     }
 
+    
+    this.physics.world.setBounds(0, 0, backgroundLayer.width, backgroundLayer.height);
+    const camera = this.cameras.main;
+    camera.setBounds(0, 0, backgroundLayer.width, backgroundLayer.height);
+    camera.setZoom(1);
+
+    //Here to update later to 
+
+    this.player = this.physics.add.sprite(this.playerPosition.x, this.playerPosition.y, selectedAvatar);
+
+    this.player.setCollideWorldBounds(true);
+    this.createPlayerAnimations(selectedAvatar);
+
+    camera.startFollow(this.player);
+
+    this.cursors = this.input.keyboard.createCursorKeys();
     // Process Block layer to get the objects
     const gameObjectLayer = map.getObjectLayer("Block");
+
     if (!gameObjectLayer) {
       console.error("Object layer not found!");
       return;
     }
     const graphics = this.add.graphics();
-    graphics.fillStyle(0x000000, 0); // Transparent fill
-    graphics.fillRect(0, 0, 50, 50); // Adjust size to your needs
+    graphics.fillStyle(0x000000, 0); 
+    graphics.fillRect(0, 0, 50, 50);
 
     const textureKey = "invisibleCollider";
-    graphics.generateTexture(textureKey, 1, 1); // Creates a texture from the graphics
+    graphics.generateTexture(textureKey, 1, 1); 
     graphics.destroy();
 
     // Create static groups for trees and rocks
     const objectsBodies = this.physics.add.staticGroup();
-    const holeBodies = this.physics.add.staticGroup();
-    const waterBodies = this.physics.add.staticGroup();
-
+   
     // Iterate over all objects in the Blockt layer
     gameObjectLayer.objects.forEach((obj) => {
-      if (obj.name === "Hole_Stupid") {
-        // Create a physics body for the hole
-        const hole = holeBodies.create(obj.x, obj.y, textureKey);
-        hole.setOrigin(0);
-        hole.body.setSize(obj.width, obj.height).setOffset(0, 0);
-      } else if (obj.name === "Stupid") {
-        // Create a physics body for the water
-        const water = waterBodies.create(obj.x, obj.y, textureKey);
-        water.setOrigin(0);
-        water.body.setSize(obj.width, obj.height).setOffset(0, 0);
-      } else {
-        // Create a physics body for any left objects
+  
         const object = objectsBodies.create(obj.x, obj.y, textureKey);
         object.setOrigin(0);
         object.body.setSize(obj.width, obj.height).setOffset(0, 0);
-      }
+      
     });
 
-    this.physics.add.collider(this.player, holeBodies, () => {
-      console.log("Tha's a hole bruh");
-    });
-
-    this.physics.add.collider(this.player, waterBodies, () => {
-      console.log(" U wanna die?");
-    });
+   
 
     this.physics.add.collider(this.player, objectsBodies, () => {
       console.log(" Can't walk!");
@@ -221,97 +211,33 @@ export default class WorldScene extends Phaser.Scene {
     // Collision with Riddles:
     const riddleObjectLayer = map.getObjectLayer("Riddles");
     const riddleGroup = this.physics.add.staticGroup();
-
+    
     riddleObjectLayer.objects.forEach((obj) => {
       const riddle = riddleGroup.create(obj.x, obj.y, textureKey);
       riddle.setOrigin(0);
       riddle.body.setSize(obj.width, obj.height).setOffset(0, 0);
-      // Store riddle name for logging
-      riddle.name = obj.name;
+     
+      riddle.name = obj.name; 
+      console.log("Here is riddle name during creation:", riddle.name);
     });
-
-    // Collision with Chest:
-    const chestObjectLayer = map.getObjectLayer("Chests");
-    const chestGroup = this.physics.add.staticGroup();
-
-    chestObjectLayer.objects.forEach((obj) => {
-      const chest = chestGroup.create(obj.x, obj.y, textureKey);
-      chest.setOrigin(0);
-      chest.body.setSize(obj.width, obj.height).setOffset(0, 0);
-      // Store chest name for logging
-      chest.name = obj.name;
-    });
-
-    // Add collision handling for riddles
+    
+    // Handle collisions
     this.physics.add.collider(this.player, riddleGroup, (player, riddle) => {
-      if (riddle.name) {
-        console.log(`${riddle.name} encountered`);
-        this.currentRiddle = riddle.name;
-        const playerPosition = { x: this.player.x, y: this.player.y }; // Save the player's current position
-
-        this.scene.start("RiddleScene", {
-          currentRiddle: riddle.name,
-          playerPosition,
-        });
+      
+      if (riddle && riddle.name) {
+        
+        console.log(`Riddle ${riddle.name} encountered`);
       } else {
-        console.log("A mysterious riddle encountered");
+        console.log("Encountered an unknown riddle");
       }
     });
-
-    // Add collision handling for chests
-    this.physics.add.collider(this.player, chestGroup, (player, chest) => {
-      if (chest.name) {
-        this.currentChest = chest.name;
-        const playerPosition = { x: this.player.x, y: this.player.y }; // Save the player's current position
-
-        this.scene.start("RiddleScene", {
-          currentRiddle: chest.name,
-          playerPosition,
-        });
-
-        console.log(`${chest.name} encountered`);
-      } else {
-        console.log("A mysterious chest encountered");
-      }
-    });
-
-    // Camera setup
-    const camera = this.cameras.main;
-    camera.startFollow(this.player);
-    camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-
-    this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-
-    this.player.setCollideWorldBounds(true);
-
-    // Debug camera width and height if necessary
-
-    // Pass input keys to the player
-    this.player.cursors = this.input.keyboard.createCursorKeys();
+  
+   
   }
 
-  update() {
-    if (this.player && this.player.body) {
-      this.player.update(); // Update the player (e.g., movement)
-    }
-  }
-
-  loadAvatar(avatarKey) {
-    if (avatarKey === "boi") {
-      this.load.spritesheet("boi", "assets/maps/boiTest.png", {
-        frameWidth: 48,
-        frameHeight: 48,
-      });
-    } else {
-      this.load.spritesheet("girl", "assets/maps/girl.png", {
-        frameWidth: 48,
-        frameHeight: 48,
-      });
-    }
-  }
 
   createPlayerAnimations(textureKey) {
-    const prefix = textureKey; // Use the texture key as a prefix for unique animation keys
+    const prefix = textureKey; 
 
     this.anims.create({
       key: `${prefix}_walk_down`,
@@ -516,4 +442,30 @@ export default class WorldScene extends Phaser.Scene {
     this.panelContainer.add(logoutButton);
     logoutButton.setScrollFactor(0);
   }
+  update() {
+    const speed = 200;
+    const prefix = localStorage.getItem("selectedAvatar") || "boi"; 
+    this.player.setVelocity(0); 
+  
+    // Check input and update velocity with appropriate animation
+    if (this.cursors.left.isDown) {
+      this.player.setVelocityX(-speed);
+      this.player.anims.play(`${prefix}_walk_left`, true); // Play left animation
+    } else if (this.cursors.right.isDown) {
+      this.player.setVelocityX(speed);
+      this.player.anims.play(`${prefix}_walk_right`, true); // Play right animation
+    } else if (this.cursors.up.isDown) {
+      this.player.setVelocityY(-speed);
+      this.player.anims.play(`${prefix}_walk_up`, true); // Play up animation
+    } else if (this.cursors.down.isDown) {
+      this.player.setVelocityY(speed);
+      this.player.anims.play(`${prefix}_walk_down`, true); // Play down animation
+    } else {
+      // Stop animation when idle
+      this.player.anims.stop();
+    }
+  }
+  
+
+  
 }
