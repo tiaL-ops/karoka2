@@ -1,0 +1,101 @@
+import { auth } from '../firebase.js';
+import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+import WorldScene from './WorldScene.js';
+import game from '../game.js'; 
+import AvatarScene from './AvatarScene.js';
+import TestScene from './TestScene.js';
+import ProfileScene from './ProfileScene.js';
+import InstructionsScene from './InstructionScene.js';
+
+
+export default class MainMenuScene extends Phaser.Scene {
+    constructor() {
+        super({ key: 'MainMenuScene' });
+        this.competitionData = competitionData;
+    }
+
+    preload() {
+        this.load.image('background', 'assets/background.png');
+        this.load.image('button', 'assets/button.png');
+    }
+
+    create() {
+        const { width, height } = this.scale;
+
+        // Add background
+        this.background = this.add.image(0, 0, 'background').setOrigin(0).setDisplaySize(width, height);
+
+        // Title text
+        this.titleText = this.add.text(width / 2, height * 0.2, 'Karoka 🔎', {
+            fontSize: `${Math.floor(height * 0.06)}px`,
+            fill: '#ffffff',
+            fontFamily: 'Poppins, Arial, sans-serif',
+            fontStyle: 'bold',
+        }).setOrigin(0.5);
+
+        // Create Buttons
+        this.buttons = [];
+        const buttonLabels = ['Start Game', 'Choose Avatar','About you','Instructions','Your feedback','Logout'];
+        const buttonActions = [
+            () => this.scene.start("WorldScene"),
+            () => game.loadScene('AvatarScene', AvatarScene),
+            () => game.loadScene('ProfileScene', ProfileScene),
+            () => game.loadScene('InstructionsScene',InstructionsScene),
+            () => this.goToLink(),
+            async () => {
+                try {
+                    await signOut(auth);
+                    console.log('User logged out successfully!');
+                    document.body.innerHTML = ''; // Clear the screen
+                    location.reload(); // Reload to reset to login form
+                } catch (error) {
+                    console.error('Logout failed:', error.message);
+                }
+            },
+        ];
+
+        // Create buttons with spacing
+        buttonLabels.forEach((label, index) => {
+            const button = this.createButton(height * (0.4 + index * 0.1), label, buttonActions[index]);
+            this.buttons.push(button);
+        });
+ 
+
+        // Handle resizing
+        //this.scale.on('resize', this.resizeGame, this);
+    }
+
+    createButton(y, label, onClick) {
+        const { width, height } = this.scale;
+
+        const button = this.add.image(width / 2, y, 'button')
+            .setInteractive()
+            .setDisplaySize(width * 0.4, height * 0.1)
+            .setOrigin(0.5);
+
+        const buttonText = this.add.text(button.x, button.y, label, {
+            fontSize: `${Math.floor(height * 0.035)}px`,
+            fill: '#ffffff',
+            fontFamily: 'Poppins, Arial, sans-serif',
+        }).setOrigin(0.5);
+
+        button.on('pointerover', () => button.setTint(0xaaaaaa)); // Hover effect
+        button.on('pointerout', () => button.clearTint());
+        button.on('pointerdown', onClick); // Attach the click handler
+
+        return { button, buttonText };
+    }
+    
+
+    goToLink(){
+        const link = 'https://forms.gle/8kGtzRigsrYeV3LF7'; // Make sure this is a valid URL
+        
+      
+        // Open the link in a new tab or window
+        window.open(link, "_blank");
+    }
+
+   resizeGame(gameSize) {
+   
+}
+}

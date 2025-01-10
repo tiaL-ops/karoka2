@@ -3,16 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KarokaGame</title>
-    <link rel="stylesheet" href="styles/style.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>Welcome to Karoka</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white flex flex-col items-center py-10 px-6">
+    <!-- Header -->
+    <header class="w-full max-w-4xl bg-gray-800/70 p-6 rounded-lg shadow-md flex justify-between items-center mb-8">
+        <p class="text-lg text-gray-300">
+            Hello, <span id="username" class="text-indigo-400">Guest</span>!
+        </p>
+        <button id="auth-button" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow-md transition">
+            Login / Sign Up
+        </button>
+    </header>
 
-    <!-- Game Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.0/dist/phaser.js"></script>
-    <script type="module" src="/scripts/authform.js" onerror="console.error('Failed to load authform.js');"></script>
-    <script type="module" src="/scripts/firebase.js" onerror="console.error('Failed to load firebase.js');"></script>
-    <script type="module" src="/scripts/game.js" onerror="console.error('Failed to load game.js');"></script>
+    <!-- Welcome Section -->
+    <div class="text-center mb-12">
+        <h1 class="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-6">
+            Welcome to Karoka!
+        </h1>
+        <p class="text-lg text-gray-400">
+            Explore, compete, and sharpen your problem-solving skills.
+        </p>
+    </div>
+
+    <div id="filter-buttons">
+        <button onclick="filterCompetitions('open')">Show Open</button>
+        <button onclick="filterCompetitions('closed')">Show Closed</button>
+        <button onclick="filterCompetitions('all')">Show All</button>
+    </div>
+
+    <div id="competition-container">
+        <div class="competition open" data-status="open">
+            <span class="status-label">Open</span>
+            <h3>Competition 1</h3>
+        </div>
+        <div class="competition closed" data-status="closed">
+            <span class="status-label">Closed</span>
+            <h3>Competition 2</h3>
+        </div>
+        <div class="competition open" data-status="open">
+            <span class="status-label">Open</span>
+            <h3>Competition 3</h3>
+        </div>
+    </div>
+
+    
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"></div>
+
+    <!-- Scripts -->
+    <script type="module" src="main.js"> </script>
 </body>
 </html>
