@@ -1,6 +1,6 @@
 import { createAuthForm } from './game/scripts/authform.js';
 import { auth, signOut } from './game/scripts/firebase.js'; // Ensure firebase.js exports `auth` and `signOut`
-import { getFirestore, doc, getDoc } from "../public/game/scripts/firebase.js";
+import { getFirestore, doc, getDocs ,collection} from "../public/game/scripts/firebase.js";
 // Function to load the main menu and update the username
 
 function loadMainMenu() {
@@ -52,14 +52,90 @@ function handleLogout() {
 const authButton = document.getElementById('auth-button');
 authButton.addEventListener('click', openAuthForm);
 
-async function fetchCompetitionData() {
+
+
+
+
+//import { getFirestore, collection, getDocs } from "firebase/firestore";
+async function displayCompetitions() {
+    console.log("displaycompetition");
+
+    // Initialize Firestore
+    const db = getFirestore();
+
+    try {
+        const competitionsRef = collection(db, "competitions");
+
+        // Fetch competition documents
+        const competitionsSnapshot = await getDocs(competitionsRef);
+
+        // Get the container element
+        const competitionContainer = document.getElementById("competition-container");
+        competitionContainer.innerHTML = "";
+
+        competitionsSnapshot.forEach((doc) => {
+            const name = doc.id;
+            const data = doc.data();
+            const status = data.status || "unknown";
+            const thumbnail = data.thumbnail || ""; // Default to an empty string if thumbnail is not provided
+
+            console.log(name);
+
+            // Create a div for the competition
+            const competitionDiv = document.createElement("div");
+            competitionDiv.className = `competition ${status}`;
+            competitionDiv.dataset.status = status;
+            competitionDiv.dataset.name = name;
+
+            // Add the status label
+            const statusLabel = document.createElement("span");
+            statusLabel.className = "status-label";
+            statusLabel.textContent = status.charAt(0).toUpperCase() + status.slice(1); // Capitalize status
+            competitionDiv.appendChild(statusLabel);
+
+            // Add the name header
+            const nameHeader = document.createElement("h3");
+            nameHeader.textContent = name;
+            competitionDiv.appendChild(nameHeader);
+
+            // Add the thumbnail image if available
+            if (thumbnail) {
+                const thumbnailImg = document.createElement("img");
+                thumbnailImg.className = "thumbnail"; // Optional: Add a class for styling
+                thumbnailImg.src = thumbnail; // Set the source to the thumbnail URL
+                thumbnailImg.alt = `${name} Thumbnail`; // Set alt text for accessibility
+                competitionDiv.appendChild(thumbnailImg);
+            }
+
+            // Add click functionality to redirect to the game's page with the competition name
+            competitionDiv.addEventListener("click", () => {
+                // Navigate to the game's page and pass the competition name as a query parameter
+                window.location.href = `game/game.html?competition=${encodeURIComponent(name)}`;
+            });
+
+            // Append the competition div to the container
+            competitionContainer.appendChild(competitionDiv);
+        });
+
+        console.log("Competitions displayed successfully.");
+    } catch (error) {
+        console.error("Error fetching competitions:", error);
+    }
+}
+
+window.onload = displayCompetitions;
+
+  
+
+/*
+async function fetchCompetitionData(competitionKey) {
     console.log("fetch called");
 
-    const competitionKey = "compet1Test";
+    //const competitionKey = "compet1Test";
     const db = getFirestore();
 
     const collectionName = "competitions";
-    const thumbnailContainer = document.getElementById('thumbnail-container');
+    
 
     try {
         const competitionsRef = collection(db, collectionName,competitionKey);
@@ -74,42 +150,15 @@ async function fetchCompetitionData() {
         }
 
         
-            /*
-            const thumbnailDiv = document.createElement('div');
-            thumbnailDiv.className = 'p-4 border rounded-lg shadow-md cursor-pointer text-center';
-
-            // Create placeholder for thumbnail (use an image if available)
-            const thumbnailImage = document.createElement('div');
-            thumbnailImage.className = 'w-32 h-32 bg-gray-200 flex items-center justify-center';
-            thumbnailImage.textContent = competition.name || "Unnamed Competition";
-
-            // Create a title for the competition
-            const title = document.createElement('h3');
-            title.className = 'text-lg font-bold mt-2';
-            title.textContent = competition.name || "Unnamed Competition";
-
-            // Add a click event to log competition ID
-            thumbnailDiv.addEventListener('click', () => {
-                console.log(`Competition clicked: ${competitionId}`);
-            });
-
-            // Append elements to thumbnail div
-            thumbnailDiv.appendChild(thumbnailImage);
-            thumbnailDiv.appendChild(title);
-
-            // Append thumbnail to container
-            thumbnailContainer.appendChild(thumbnailDiv);
-        
-
-        console.log('Competitions successfully loaded.');
-        */
+            
     } catch (error) {
         console.error("Error fetching competition data:", error);
     }
 }
-
+*/
 
 function filterCompetitions(status) {
+    console.log("filter called");
     const competitions = document.querySelectorAll('.competition');
     competitions.forEach((competition) => {
         if (status === 'all' || competition.classList.contains(status)) {

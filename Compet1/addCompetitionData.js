@@ -59,3 +59,4 @@ async function addCompetitionData() {
 
 // Run the function
 addCompetitionData();
+
