@@ -25,7 +25,7 @@
             Welcome to Karoka!
         </h1>
         <p class="text-lg text-gray-400">
-            Explore, compete, and sharpen your problem-solving skills.
+            Learn and Have fun.
         </p>
     </div>
 
@@ -35,20 +35,10 @@
         <button onclick="filterCompetitions('all')">Show All</button>
     </div>
 
-    <div id="competition-container">
-        <div class="competition open" data-status="open">
-            <span class="status-label">Open</span>
-            <h3>Competition 1</h3>
-        </div>
-        <div class="competition closed" data-status="closed">
-            <span class="status-label">Closed</span>
-            <h3>Competition 2</h3>
-        </div>
-        <div class="competition open" data-status="open">
-            <span class="status-label">Open</span>
-            <h3>Competition 3</h3>
-        </div>
-    </div>
+    <div id="competition-container" class="w-full max-w-4xl"></div>
+   
+   
+    
 
     
 
@@ -56,6 +46,6 @@
     <div id="login-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"></div>
 
     <!-- Scripts -->
-    <script type="module" src="main.js"> </script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>
