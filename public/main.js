@@ -178,5 +178,49 @@ document.querySelectorAll('.competition.open').forEach((competition) => {
         window.location.href = 'game/game.html';
     });
 });
+// DOM Elements
+const profileSection = document.getElementById("profile-section");
+const toggleProfileButton = document.getElementById("toggle-profile");
+
+// Handle toggle button click
+toggleProfileButton.addEventListener("click", () => {
+    if (profileSection.classList.contains("hidden")) {
+        profileSection.classList.remove("hidden");
+        toggleProfileButton.textContent = "Hide Profile";
+    } else {
+        profileSection.classList.add("hidden");
+        toggleProfileButton.textContent = "Show Profile";
+    }
+});
+
+// Show/hide profile section based on login state
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        // Fetch user initials
+        const initials = user.displayName ? user.displayName.split(" ").map(n => n[0]).join("") : "?";
+        document.getElementById("profile-initials").textContent = initials;
+
+        // Populate profile data
+        document.getElementById("profile-username").textContent = user.displayName || "Anonymous";
+
+        const userDoc = doc(db, "users", user.uid);
+        const userProfile = await getDoc(userDoc);
+
+        if (userProfile.exists()) {
+            const { bio, skillLevel } = userProfile.data();
+            document.getElementById("profile-bio").textContent = bio || "No bio provided.";
+            document.getElementById("profile-skill").textContent = skillLevel || "Intermediate";
+        }
+
+        // Show the toggle button and profile section (default to hidden)
+        toggleProfileButton.classList.remove("hidden");
+        toggleProfileButton.textContent = "Show Profile";
+        profileSection.classList.add("hidden");
+    } else {
+        // Hide the toggle button and profile section for guests
+        toggleProfileButton.classList.add("hidden");
+        profileSection.classList.add("hidden");
+    }
+});
 
 
