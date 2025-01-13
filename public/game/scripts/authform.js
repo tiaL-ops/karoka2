@@ -125,4 +125,20 @@ export function createAuthForm(loadMainMenu) {
             errorMessage.innerText = 'Google login failed: ' + error.message;
         }
     });
+
+    
+    // Close the form when clicking outside of it
+    const handleClickOutside = (event) => {
+        if (!form.contains(event.target)) {
+            container.remove(); // Remove the container from the DOM
+            document.removeEventListener('click', handleClickOutside); // Cleanup the event listener
+        }
+    };
+
+    // Add a slight delay to ensure the click event that triggers the form doesn't immediately close it
+    setTimeout(() => {
+        document.addEventListener('click', handleClickOutside);
+    }, 0);
+
+  
 }
