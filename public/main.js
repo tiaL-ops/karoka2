@@ -102,22 +102,7 @@ async function loadProfileData(userId) {
     }
 }
 
-// Save Profile Data
-async function saveProfileData(userId) {
-    const profileData = {
-        kname: document.getElementById('kname').value,
-        fieldOfStudy: document.getElementById('fieldOfStudy').value,
-        programmingLevel: document.getElementById('programmingLevel').value,
-        bio: document.getElementById('bio').value,
-    };
 
-    try {
-        await setDoc(doc(db, 'profiles', userId), profileData, { merge: true });
-        alert('Profile saved successfully!');
-    } catch (error) {
-        console.error('Error saving profile data:', error);
-    }
-}
 
 // Display Competitions
 async function displayCompetitions() {
@@ -147,6 +132,13 @@ auth.onAuthStateChanged(async (user) => {
     updateUIForUser(user);
     if (user) {
         await loadProfileData(user.uid);
+        buttonProfile.style.display="block";
+    }else{
+        const t = document.getElementById('profile-container');
+        const buttonProfile= document.getElementById('profile-button');
+        buttonProfile.style.display="none";
+        t.style.display = "none";
+
     }
 });
 
