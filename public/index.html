@@ -42,33 +42,33 @@
             Show All
         </button>
     </div>
-   
-<!-- Profile Section -->
-<!-- Redesigned Profile Section with New Background -->
-<section id="profile-section" class="w-full max-w-sm h-full bg-gradient-to-tl from-indigo-700 to-purple-800 p-6 shadow-lg rounded-lg fixed top-0 left-0 flex flex-col items-center">
-    <!-- Profile Image -->
-    <div class="w-24 h-24 rounded-full bg-purple-600 flex items-center justify-center text-white text-3xl mb-4 shadow-md">
-        <span id="profile-initials">?</span>
-    </div>
-    
-    <!-- Profile Name -->
-    <h2 id="profile-username" class="text-2xl font-bold text-white mb-2">Loading...</h2>
-    <p id="profile-bio" class="text-sm text-gray-300 italic mb-6">Fetching bio...</p>
-    
-    <!-- Skill Level -->
-    <div class="w-full bg-purple-600 bg-opacity-80 rounded-lg p-4 text-center mb-6 shadow-inner">
-        <p class="text-sm text-gray-300 font-medium">Skill Level</p>
-        <p id="profile-skill" class="text-lg font-semibold text-indigo-300">Loading...</p>
-    </div>
 
-    <!-- Profile Actions -->
-    <button class="w-full px-4 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-semibold rounded-lg shadow-md transition">
-        Edit Profile
-    </button>
-    <button id="logout-button" class="w-full mt-3 px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg shadow-md transition">
-        Logout
-    </button>
-</section>
+    <button onclick="hideProfileContainer()">Profile</button>
+
+    <div id="profile-container">
+       
+        <h2>Edit Profile</h2>
+        <div class="input-group">
+            <label for="username">Name</label>
+            <input type="text" id="kname" placeholder="Enter your name">
+        </div>
+        <div class="input-group">
+            <label for="fieldOfStudy">Field of Study</label>
+            <input type="text" id="fieldOfStudy" placeholder="Enter your field of study">
+        </div>
+        <div class="input-group">
+            <label for="programmingLevel">Programming Level (Beginner/Intermediate/Advanced)</label>
+            <input type="text" id="programmingLevel" placeholder="Enter your programming level">
+        </div>
+        <div class="input-group">
+            <label for="bio">Bio</label>
+            <textarea id="bio" rows="4" placeholder="Write a short bio about yourself"></textarea>
+        </div>
+        <div class="button-group">
+            <button id='save-profile' class="save-btn">Save</button>
+            <button id ='cancel-profile' class="cancel-btn">Cancel</button>
+        </div>
+    </div>
 
 
 
