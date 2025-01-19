@@ -1,113 +1,217 @@
 import { createAuthForm } from './game/scripts/authform.js';
-import { auth, signOut } from './game/scripts/firebase.js'; // Ensure firebase.js exports `auth` and `signOut`
-import { getFirestore, doc, getDoc } from "../public/game/scripts/firebase.js";
-// Function to load the main menu and update the username
+import { auth, signOut } from './game/scripts/firebase.js';
+import { getFirestore, doc, getDocs, setDoc, collection, getDoc } from '../public/game/scripts/firebase.js';
 
-function loadMainMenu() {
-    const user = auth.currentUser; // Get the currently logged-in user
-    const usernameElement = document.getElementById('username');
-    const authButton = document.getElementById('auth-button');
+// Initialize Firestore
+const db = getFirestore();
 
-    if (user) {
-        const displayName = user.displayName || 'User'; // Use displayName if available, fallback to "User"
-        usernameElement.textContent = displayName;
+// DOM Elements
+let usernameElement, profileSection, competitionContainer, authButton;
 
-        // Change the auth button to a logout button
-        authButton.textContent = 'Logout';
-        authButton.removeEventListener('click', openAuthForm); // Remove login/signup listener
-        authButton.addEventListener('click', handleLogout); // Add logout listener
+let currentUserId = '';
 
-        console.log('Main menu loaded for:', displayName);
+// Ensure DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    usernameElement = document.getElementById('username');
+    profileSection = document.getElementById('profile-section');
+    competitionContainer = document.getElementById('competition-container');
+    authButton = document.getElementById('auth-button');
+
+    if (authButton) {
+        authButton.addEventListener('click', openAuthForm);
     } else {
-        console.log('No user is logged in.');
+        console.error('Auth button not found.');
+    }
+
+    const saveProfileButton = document.getElementById('save-profile');
+    const cancelProfileButton = document.getElementById('cancel-profile');
+
+    if (saveProfileButton) {
+        saveProfileButton.addEventListener('click', () => {
+            if (currentUserId) {
+                saveProfileData(currentUserId);
+            }
+        });
+    } else {
+        console.error('Save profile button not found.');
+    }
+
+    if (cancelProfileButton) {
+        cancelProfileButton.addEventListener('click', () => {
+            if (currentUserId) {
+                console.log("cancel");
+            }
+        });
+    } else {
+        console.error('Cancel profile button not found.');
+    }
+
+    displayCompetitions();
+});
+
+// Update UI for User Login/Logout
+function updateUIForUser(user) {
+    if (user) {
+        usernameElement.textContent = user.displayName || 'User';
+        authButton.textContent = 'Logout';
+        authButton.onclick = handleLogout;
+        if (profileSection) profileSection.classList.remove('hidden');
+    } else {
+        usernameElement.textContent = 'Guest';
+        authButton.textContent = 'Login / Sign Up';
+        authButton.onclick = openAuthForm;
+        if (profileSection) profileSection.classList.add('hidden');
     }
 }
 
-// Function to open the auth form
+// Open Authentication Form
 function openAuthForm() {
-    createAuthForm(loadMainMenu);
+    createAuthForm(() => {
+        console.log('Authentication form opened.');
+        
+    });
 }
 
-// Function to handle logout
+// Handle Logout
 function handleLogout() {
     signOut(auth)
         .then(() => {
             console.log('User logged out successfully.');
-
-            // Reset UI to default
-            const usernameElement = document.getElementById('username');
-            const authButton = document.getElementById('auth-button');
-            usernameElement.textContent = 'Guest';
-            authButton.textContent = 'Login / Sign Up';
-
-            authButton.removeEventListener('click', handleLogout); // Remove logout listener
-            authButton.addEventListener('click', openAuthForm); // Add login/signup listener
+            updateUIForUser(null);
         })
-        .catch((error) => {
-            console.error('Logout failed:', error.message);
-        });
+        .catch((error) => console.error('Error during logout:', error.message));
 }
 
-// Attach event listener to the auth-button
-const authButton = document.getElementById('auth-button');
-authButton.addEventListener('click', openAuthForm);
-
-async function fetchCompetitionData() {
-    console.log("fetch called");
-
-    const competitionKey = "compet1Test";
-    const db = getFirestore();
-
-    const collectionName = "competitions";
-    const thumbnailContainer = document.getElementById('thumbnail-container');
-
+// Load Profile Data
+async function loadProfileData(userId) {
     try {
-        const competitionsRef = collection(db, collectionName,competitionKey);
-        const docSnap = await getDoc(competitionsRef);
+        const profileRef = doc(db, 'profiles', userId);
+        const profileSnap = await getDoc(profileRef);
 
-        if (docSnap.exists()) {
-            console.log("Competition data fetched:", docSnap.data());
-            return docSnap.data();
+        if (profileSnap.exists()) {
+            const data = profileSnap.data();
+            console.log("profile snap exist",data);
+
+            // Update placeholder attributes to match the fetched data
+            document.getElementById('kname').placeholder = data.kname || 'Enter your name';
+            console.log("this is kname",data.kname);
+            document.getElementById('fieldOfStudy').placeholder = data.fieldOfStudy || 'Enter your field of study';
+            document.getElementById('programmingLevel').placeholder = data.programmingLevel || 'Enter your programming level';
+            document.getElementById('bio').placeholder = data.bio || 'Write a short bio about yourself';
+
+        
         } else {
-            console.error("No competition data found for:", competitionKey);
-            return null;
+            console.log('No profile data found.');
         }
-
-        
-            /*
-            const thumbnailDiv = document.createElement('div');
-            thumbnailDiv.className = 'p-4 border rounded-lg shadow-md cursor-pointer text-center';
-
-            // Create placeholder for thumbnail (use an image if available)
-            const thumbnailImage = document.createElement('div');
-            thumbnailImage.className = 'w-32 h-32 bg-gray-200 flex items-center justify-center';
-            thumbnailImage.textContent = competition.name || "Unnamed Competition";
-
-            // Create a title for the competition
-            const title = document.createElement('h3');
-            title.className = 'text-lg font-bold mt-2';
-            title.textContent = competition.name || "Unnamed Competition";
-
-            // Add a click event to log competition ID
-            thumbnailDiv.addEventListener('click', () => {
-                console.log(`Competition clicked: ${competitionId}`);
-            });
-
-            // Append elements to thumbnail div
-            thumbnailDiv.appendChild(thumbnailImage);
-            thumbnailDiv.appendChild(title);
-
-            // Append thumbnail to container
-            thumbnailContainer.appendChild(thumbnailDiv);
-        
-
-        console.log('Competitions successfully loaded.');
-        */
     } catch (error) {
-        console.error("Error fetching competition data:", error);
+        console.error('Error loading profile data:', error);
     }
 }
 
+
+
+
+// Display Competitions
+async function displayCompetitions() {
+    try {
+        const competitionsRef = collection(db, 'competitions');
+        const snapshot = await getDocs(competitionsRef);
+
+        competitionContainer.innerHTML = '';
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            const competitionDiv = document.createElement('div');
+            competitionDiv.className = `competition ${data.status}`;
+            competitionDiv.innerHTML = `
+                <span>${data.status}</span>
+                <h3>${doc.id}</h3>
+            `;
+            competitionContainer.appendChild(competitionDiv);
+        });
+    } catch (error) {
+        console.error('Error fetching competitions:', error);
+    }
+}
+
+
+
+const buttonProfile= document.getElementById('profile-button');
+// Authentication Listener
+auth.onAuthStateChanged(async (user) => {
+    currentUserId = user ? user.uid : '';
+    updateUIForUser(user);
+    if (user) {
+        await loadProfileData(user.uid);
+        buttonProfile.style.display="block";
+    }else{
+        const t = document.getElementById('profile-container');
+       
+        buttonProfile.style.display="none";
+        t.style.display = "none";
+
+    }
+});
+
+
+// Save Profile Data
+async function saveProfileData(userId) {
+    try {
+        // Fetch the existing profile data from Firestore
+        const profileRef = doc(db, 'profiles', userId);
+        const profileSnap = await getDoc(profileRef);
+        let existingData = {};
+
+        if (profileSnap.exists()) {
+            existingData = profileSnap.data();
+        } else {
+            console.log('No existing profile data found; creating a new one.');
+        }
+
+        // Gather updated values from form inputs
+        const updatedData = {
+            kname: document.getElementById('kname').value.trim(),
+            fieldOfStudy: document.getElementById('fieldOfStudy').value.trim(),
+            programmingLevel: document.getElementById('programmingLevel').value.trim(),
+            bio: document.getElementById('bio').value.trim(),
+        };
+
+        // Merge updated data with existing data, prioritizing non-empty values
+        const profileData = { ...existingData };
+        Object.keys(updatedData).forEach((key) => {
+            if (updatedData[key]) {
+                profileData[key] = updatedData[key]; // Only overwrite if the new value is non-empty
+            }
+        });
+
+        // Check if there's any actual change to save
+        if (JSON.stringify(profileData) === JSON.stringify(existingData)) {
+            alert('No changes to save.');
+            return;
+        }
+
+        // Save the merged profile data to Firestore
+        await setDoc(profileRef, profileData, { merge: true });
+
+        console.log('Profile data saved to Firestore:', profileData);
+        alert('Profile saved successfully!');
+    } catch (error) {
+        console.error('Error saving profile data:', error);
+        alert('Failed to save profile. Please try again.');
+    }
+}
+
+
+
+function hideProfileContainer() {
+    const x = document.getElementById('profile-container');
+    if (x.style.display === "none") {
+        x.style.display = "block";
+      } else {
+        x.style.display = "none";
+      }
+}
+
+window.hideProfileContainer=hideProfileContainer;
 
 function filterCompetitions(status) {
     const competitions = document.querySelectorAll('.competition');
@@ -121,7 +225,6 @@ function filterCompetitions(status) {
 }
 window.filterCompetitions = filterCompetitions;
 
-// Add click functionality to open competitions
 document.querySelectorAll('.competition.open').forEach((competition) => {
     competition.addEventListener('click', () => {
         //alert(`Navigating to ${competition.querySelector('h3').innerText}...`);
@@ -129,5 +232,3 @@ document.querySelectorAll('.competition.open').forEach((competition) => {
         window.location.href = 'game/game.html';
     });
 });
-
-

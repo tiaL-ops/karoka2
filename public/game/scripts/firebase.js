@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-analytics.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc,collection, getDocs ,setDoc} from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
 
@@ -65,7 +65,7 @@ const fetchCompetitionData = async () => {
 };
 
 // Run the fetch function
-fetchCompetitionData();
+//fetchCompetitionData();
 
 
 // Wait for user authentication
@@ -80,4 +80,4 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Export Firebase services
-export { db, auth, googleProvider,doc, getDoc,getFirestore ,signOut};
+export { db, auth, googleProvider,doc, getDoc,getFirestore ,signOut,collection, getDocs,setDoc,onAuthStateChanged};
