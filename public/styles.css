@@ -1,4 +1,6 @@
-
+#profile-container {
+    display: none; /* Hide initially */
+}
 
 #competition-container {
     display: flex;

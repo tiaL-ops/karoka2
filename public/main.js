@@ -132,6 +132,9 @@ async function displayCompetitions() {
         console.error('Error fetching competitions:', error);
     }
 }
+
+
+
 const buttonProfile= document.getElementById('profile-button');
 // Authentication Listener
 auth.onAuthStateChanged(async (user) => {
@@ -209,3 +212,23 @@ function hideProfileContainer() {
 }
 
 window.hideProfileContainer=hideProfileContainer;
+
+function filterCompetitions(status) {
+    const competitions = document.querySelectorAll('.competition');
+    competitions.forEach((competition) => {
+        if (status === 'all' || competition.classList.contains(status)) {
+            competition.style.display = 'block';
+        } else {
+            competition.style.display = 'none';
+        }
+    });
+}
+window.filterCompetitions = filterCompetitions;
+
+document.querySelectorAll('.competition.open').forEach((competition) => {
+    competition.addEventListener('click', () => {
+        //alert(`Navigating to ${competition.querySelector('h3').innerText}...`);
+    
+        window.location.href = 'game/game.html';
+    });
+});
