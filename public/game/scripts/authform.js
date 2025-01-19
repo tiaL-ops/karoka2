@@ -78,22 +78,37 @@ export function createAuthForm(loadMainMenu) {
 
     // Signup with Email and Password
     signupButton.addEventListener('click', async () => {
-        const name = nameInput.value;
-        const email = emailInput.value;
-        const password = passwordInput.value;
-
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+    
+        if (!email || !password || !name) {
+            errorMessage.classList.remove('hidden');
+            errorMessage.innerText = 'Name, email, and password are required.';
+            return;
+        }
+    
         try {
+            // Create user with email and password
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-
-            // Save user details in Firestore
-            await setDoc(doc(db, 'profiles', user.uid), {
-                name,
-                email,
-                uid: user.uid,
-            });
-
-            console.log('Signup successful and user saved:', user);
+    
+            // Check if the profile already exists
+            const profileRef = doc(db, 'profiles', user.uid);
+            const profileSnap = await getDoc(profileRef);
+    
+            if (!profileSnap.exists()) {
+                // Create a new profile only if it doesn't exist
+                await setDoc(profileRef, {
+                    name,
+                    email,
+                    uid: user.uid,
+                });
+                console.log('Signup successful and new profile created:', user);
+            } else {
+                console.log('Profile already exists for this user. Skipping creation.');
+            }
+    
             container.remove();
             loadMainMenu();
         } catch (error) {
@@ -102,21 +117,31 @@ export function createAuthForm(loadMainMenu) {
             errorMessage.innerText = 'Signup failed: ' + error.message;
         }
     });
+    
 
     // Login with Google
     googleButton.addEventListener('click', async () => {
         try {
+            // Sign in with Google
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
-
-            // Save user details in Firestore
-            await setDoc(doc(db, 'profiles', user.uid), {
-                name: user.displayName, // Name from Google profile
-                email: user.email,
-                uid: user.uid,
-            });
-
-            console.log('Google login successful and user saved:', user);
+    
+            // Reference to the user profile in Firestore
+            const profileRef = doc(db, 'profiles', user.uid);
+            const profileSnap = await getDoc(profileRef);
+    
+            if (!profileSnap.exists()) {
+                // Create a new profile only if it doesn't exist
+                await setDoc(profileRef, {
+                    name: user.displayName || 'Unknown User', // Default to "Unknown User" if no display name
+                    email: user.email,
+                    uid: user.uid,
+                });
+                console.log('Google login successful and new profile created:', user);
+            } else {
+                console.log('Profile already exists for this user. No changes made.');
+            }
+    
             container.remove();
             loadMainMenu();
         } catch (error) {
@@ -125,6 +150,7 @@ export function createAuthForm(loadMainMenu) {
             errorMessage.innerText = 'Google login failed: ' + error.message;
         }
     });
+    
 
     
     // Close the form when clicking outside of it
