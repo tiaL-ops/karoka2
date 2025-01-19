@@ -11,7 +11,8 @@ import InstructionsScene from './scenes/InstructionScene.js'
 
 async function fetchCompetitionData() {
     console.log("Fetching doc");
-    const competitionKey = "Beta";
+    const params = new URLSearchParams(window.location.search);
+    const competitionKey =  params.get("competition");
     const db = getFirestore();
     try {
         const docRef = doc(db, "competitions", competitionKey);
