@@ -1,4 +1,4 @@
-import { auth, googleProvider } from './firebase.js';
+import { auth, googleProvider,getDoc } from './firebase.js';
 import { 
     signInWithEmailAndPassword, 
     createUserWithEmailAndPassword, 
@@ -114,7 +114,8 @@ export function createAuthForm(loadMainMenu) {
         } catch (error) {
             console.error('Signup failed:', error.message);
             errorMessage.classList.remove('hidden');
-            errorMessage.innerText = 'Signup failed: ' + error.message;
+            container.remove();
+          
         }
     });
     
@@ -145,9 +146,8 @@ export function createAuthForm(loadMainMenu) {
             container.remove();
             loadMainMenu();
         } catch (error) {
-            console.error('Google login failed:', error.message);
-            errorMessage.classList.remove('hidden');
-            errorMessage.innerText = 'Google login failed: ' + error.message;
+            
+            container.remove();
         }
     });
     
