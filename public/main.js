@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cancelProfileButton) {
         cancelProfileButton.addEventListener('click', () => {
             if (currentUserId) {
-                loadProfileData(currentUserId);
+                console.log("cancel");
             }
         });
     } else {
@@ -68,7 +68,7 @@ function updateUIForUser(user) {
 function openAuthForm() {
     createAuthForm(() => {
         console.log('Authentication form opened.');
-        loadMainMenu();
+        
     });
 }
 
@@ -90,10 +90,16 @@ async function loadProfileData(userId) {
 
         if (profileSnap.exists()) {
             const data = profileSnap.data();
-            document.getElementById('kname').value = data.kname || '';
-            document.getElementById('fieldOfStudy').value = data.fieldOfStudy || '';
-            document.getElementById('programmingLevel').value = data.programmingLevel || '';
-            document.getElementById('bio').value = data.bio || '';
+            console.log("profile snap exist",data);
+
+            // Update placeholder attributes to match the fetched data
+            document.getElementById('kname').placeholder = data.kname || 'Enter your name';
+            console.log("this is kname",data.kname);
+            document.getElementById('fieldOfStudy').placeholder = data.fieldOfStudy || 'Enter your field of study';
+            document.getElementById('programmingLevel').placeholder = data.programmingLevel || 'Enter your programming level';
+            document.getElementById('bio').placeholder = data.bio || 'Write a short bio about yourself';
+
+        
         } else {
             console.log('No profile data found.');
         }
@@ -101,6 +107,7 @@ async function loadProfileData(userId) {
         console.error('Error loading profile data:', error);
     }
 }
+
 
 
 
@@ -125,7 +132,7 @@ async function displayCompetitions() {
         console.error('Error fetching competitions:', error);
     }
 }
-
+const buttonProfile= document.getElementById('profile-button');
 // Authentication Listener
 auth.onAuthStateChanged(async (user) => {
     currentUserId = user ? user.uid : '';
@@ -135,12 +142,62 @@ auth.onAuthStateChanged(async (user) => {
         buttonProfile.style.display="block";
     }else{
         const t = document.getElementById('profile-container');
-        const buttonProfile= document.getElementById('profile-button');
+       
         buttonProfile.style.display="none";
         t.style.display = "none";
 
     }
 });
+
+
+// Save Profile Data
+async function saveProfileData(userId) {
+    try {
+        // Fetch the existing profile data from Firestore
+        const profileRef = doc(db, 'profiles', userId);
+        const profileSnap = await getDoc(profileRef);
+        let existingData = {};
+
+        if (profileSnap.exists()) {
+            existingData = profileSnap.data();
+        } else {
+            console.log('No existing profile data found; creating a new one.');
+        }
+
+        // Gather updated values from form inputs
+        const updatedData = {
+            kname: document.getElementById('kname').value.trim(),
+            fieldOfStudy: document.getElementById('fieldOfStudy').value.trim(),
+            programmingLevel: document.getElementById('programmingLevel').value.trim(),
+            bio: document.getElementById('bio').value.trim(),
+        };
+
+        // Merge updated data with existing data, prioritizing non-empty values
+        const profileData = { ...existingData };
+        Object.keys(updatedData).forEach((key) => {
+            if (updatedData[key]) {
+                profileData[key] = updatedData[key]; // Only overwrite if the new value is non-empty
+            }
+        });
+
+        // Check if there's any actual change to save
+        if (JSON.stringify(profileData) === JSON.stringify(existingData)) {
+            alert('No changes to save.');
+            return;
+        }
+
+        // Save the merged profile data to Firestore
+        await setDoc(profileRef, profileData, { merge: true });
+
+        console.log('Profile data saved to Firestore:', profileData);
+        alert('Profile saved successfully!');
+    } catch (error) {
+        console.error('Error saving profile data:', error);
+        alert('Failed to save profile. Please try again.');
+    }
+}
+
+
 
 function hideProfileContainer() {
     const x = document.getElementById('profile-container');
@@ -152,4 +209,3 @@ function hideProfileContainer() {
 }
 
 window.hideProfileContainer=hideProfileContainer;
-

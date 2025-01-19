@@ -80,4 +80,4 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Export Firebase services
-export { db, auth, googleProvider,doc, getDoc,getFirestore ,signOut,collection, getDocs,setDoc};
+export { db, auth, googleProvider,doc, getDoc,getFirestore ,signOut,collection, getDocs,setDoc,onAuthStateChanged};
