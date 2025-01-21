@@ -241,6 +241,7 @@ document.querySelectorAll('.competition.open').forEach((competition) => {
 
 
 document.addEventListener('click', (event) => {
+    console.log("yo");
     const profile = document.getElementById('profile-container');
     const toggleButton = document.getElementById('profile-button');
 
