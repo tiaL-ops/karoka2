@@ -204,14 +204,20 @@ async function saveProfileData(userId) {
 
 function hideProfileContainer() {
     const x = document.getElementById('profile-container');
-    if (x.style.display === "none") {
-        x.style.display = "block";
-      } else {
-        x.style.display = "none";
-      }
+    if (x) { // Check if the element exists
+        if (x.style.display === "none" || !x.style.display) { // Check if it's hidden or has no style set
+            x.style.display = "block"; // Show the element
+        } else {
+            x.style.display = "none"; // Hide the element
+        }
+    } else {
+        console.error("Element with ID 'profile-container' not found");
+    }
 }
 
-window.hideProfileContainer=hideProfileContainer;
+// Expose the function globally
+window.hideProfileContainer = hideProfileContainer;
+
 
 function filterCompetitions(status) {
     const competitions = document.querySelectorAll('.competition');
@@ -231,4 +237,21 @@ document.querySelectorAll('.competition.open').forEach((competition) => {
     
         window.location.href = 'game/game.html';
     });
+});
+
+
+document.addEventListener('click', (event) => {
+    const profile = document.getElementById('profile-container');
+    const toggleButton = document.getElementById('profile-button');
+
+    if (profile && toggleButton) {
+        // If clicking outside both the profile container and the toggle button
+        if (
+            profile.style.display === 'block' && // Only act if profile is visible
+            !profile.contains(event.target) && // Click is outside the profile container
+            event.target !== toggleButton // Click is not on the toggle button
+        ) {
+            profile.style.display = 'none'; // Hide the profile
+        }
+    }
 });
