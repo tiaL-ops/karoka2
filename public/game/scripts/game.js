@@ -126,5 +126,7 @@ resizeGame(); // Initial call to adjust the canvas size
 
 
 
+
+
 // Export the game instance
 export default game;
