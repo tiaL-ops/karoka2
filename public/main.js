@@ -160,7 +160,7 @@ async function displayCompetitions() {
                 thumbnailImg.alt = `${name} Thumbnail`; // Set alt text for accessibility
                 competitionDiv.appendChild(thumbnailImg);
             }
-
+            //test
             // Add click functionality to redirect to the game's page with the competition name
             competitionDiv.addEventListener("click", () => {
                 // Navigate to the game's page and pass the competition name as a query parameter
