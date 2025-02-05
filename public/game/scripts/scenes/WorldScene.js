@@ -81,7 +81,7 @@ export default class WorldScene extends Phaser.Scene {
       (data.playerPosition.x === 0 && data.playerPosition.y === 0);
   
     // Use default spawn point if position is invalid
-    this.playerPosition = isInvalidPosition ? { x: 558, y: 202 } : data.playerPosition;
+    this.playerPosition = isInvalidPosition ? { x: 505, y: 1035 } : data.playerPosition;
   
  
   }
@@ -153,13 +153,24 @@ export default class WorldScene extends Phaser.Scene {
     const backgroundLayer = map.createLayer("Background", allTilesets, 0, 0);
     const foundationLayer = map.createLayer("Foundation", allTilesets, 0, 0);
     const detailsLayer = map.createLayer("Details", allTilesets, 0, 0);
- 
-    const playerSpawn = this.playerPosition || defaultSpawn;
+
+    const defaultSpawn= map.getObjectLayer("Spawn");
+    if (defaultSpawn && defaultSpawn.objects.length > 0) {
+      const spawnX = defaultSpawn.objects[0].x;  
+      const spawnY = defaultSpawn.objects[0].y;
+      console.log(`Spawn X Coordinate: ${spawnX}`);
+  } else {
+      console.log("No spawn point found!");
+  }
+    
+    const playerSpawn = defaultSpawn;
     const selectedAvatar = localStorage.getItem("selectedAvatar") || "boi";
 
     if (playerSpawn) {
+      console.log("there is a playerSpawn",playerSpawn);
 
-      const startX = playerSpawn.x; 
+      const startX =1; 
+      console.log("so startt x ", startX);
       const startY = playerSpawn.y; 
 
      
@@ -217,55 +228,28 @@ export default class WorldScene extends Phaser.Scene {
     });
 
 
+   
+
+
+
+
+
+
+
+    // Collision with Riddles:
     const riddleObjectLayer = map.getObjectLayer("Riddles");
-let minX = Infinity, maxX = -Infinity;
-let minY = Infinity, maxY = -Infinity;
-
-riddleObjectLayer.objects.forEach((obj) => {
-    if (obj.x < minX) minX = obj.x;
-    if (obj.x > maxX) maxX = obj.x;
-    if (obj.y < minY) minY = obj.y;
-    if (obj.y > maxY) maxY = obj.y;
-});
-
-console.log(`World Bounds - X: (${minX} to ${maxX}), Y: (${minY} to ${maxY})`);
-
-
-
-
-//const map = this.make.tilemap({ key: tilemap.key });
-
-const riddleLayer = map.getObjectLayer("Riddles");
-if (riddleLayer) {
-    const riddleZones = this.physics.add.staticGroup();
-
-    // Get the tile size
-    const tileWidth = map.tileWidth;
-    const tileHeight = map.tileHeight;
-
-    console.log("Tile size:", tileWidth, tileHeight);
-
-    riddleLayer.objects.forEach(obj => {
+    const riddleGroup = this.physics.add.staticGroup();
     
-
-        const adjustedX = obj.x 
-        const adjustedY = obj.y 
-
-        console.log(`Original pos: ${obj.x}, ${obj.y}`);
-        console.log(`Adjusted pos: ${adjustedX}, ${adjustedY}`);
-
-        const zone = riddleZones
-            .create(adjustedX, adjustedY, "invisibleCollider")
-            .setOrigin(0);
-
-        zone.body.setSize(obj.width, obj.height).setOffset(0,0);
+    riddleObjectLayer.objects.forEach((obj) => {
+      const riddle = riddleGroup.create(obj.x, obj.y, textureKey);
+      riddle.setOrigin(0);
+      riddle.body.setSize(obj.width, obj.height).setOffset(0, 0);
+     
+      riddle.name = obj.name; 
+      console.log("Here is riddle name during creation:", riddle.name);
     });
-}
-
-
     
     // Handle collisions
-    /*
     this.physics.add.collider(this.player, riddleGroup, (player, riddle) => {
       
       if (riddle && riddle.name) {
@@ -276,7 +260,7 @@ if (riddleLayer) {
       }
     });
   
-   */
+   
   }
   
 
