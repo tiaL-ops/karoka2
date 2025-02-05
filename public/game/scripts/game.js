@@ -25,6 +25,8 @@ async function fetchCompetitionData() {
     }
 }
 
+
+
 // Start the game
 async function startGame() {
     const competitionData = await fetchCompetitionData();
@@ -58,6 +60,11 @@ async function startGame() {
 }
 
 startGame();
+this.input.keyboard.on('keydown-G', (event) => {
+    this.input.on('pointerdown', (pointer) => {
+        console.log(`Mouse clicked at X: ${pointer.worldX}, Y: ${pointer.worldY}`);
+    });
+});
 
 
 const game = new Phaser.Game(config);
