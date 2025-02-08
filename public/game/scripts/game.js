@@ -2,6 +2,8 @@
 import { getFirestore, doc, getDoc } from "./firebase.js";
 import WorldScene from './scenes/WorldScene.js'; 
 import RiddleScene from "./scenes/RiddleScene.js";
+import AnswerScene from "./scenes/AnswerScene.js";
+import UIPanelScene from "./scenes/UIPanelScene.js";
 
 
 async function fetchCompetitionData() {
@@ -43,7 +45,7 @@ async function startGame() {
         width: 800, 
         height: 600, 
         backgroundColor: '#000000', 
-        scene: [new WorldScene(competitionData),RiddleScene], 
+        scene: [new WorldScene(competitionData),RiddleScene,AnswerScene,UIPanelScene], 
         physics: {
             default: 'arcade', 
             arcade: {
