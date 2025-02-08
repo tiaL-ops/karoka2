@@ -57,6 +57,60 @@ async function addCompetitionData() {
   }
 }
 
+
+async function addPanelImage() {
+  try {
+    const competitionId = "compet1Test"; 
+    const competitionRef = db.collection("competitions").doc(competitionId);
+
+    // Define the new panel image
+    const panelImage = {
+      key: "panel",
+      url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2Fpanel.png?alt=media",
+    };
+
+    // Update Firestore to append the new image to the images array
+    await competitionRef.update({
+      images: admin.firestore.FieldValue.arrayUnion(panelImage),
+    });
+
+    console.log("Panel image added successfully!");
+  } catch (error) {
+    console.error("Error adding panel image:", error);
+  }
+}
+
+// IMPORTANT: Firebase Admin already initialized above
+
+const riddle = "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2FCompet1Riddle.json?alt=media"
+
+
+// Function to add the riddle to Firestore under a separate 'riddles' array
+async function addRiddleToFirestore() {
+  try {
+    const competitionId = "compet1Test";
+    const competitionRef = db.collection("competitions").doc(competitionId);
+
+    // Update Firestore to append the riddle object to a dedicated 'riddles' array
+    await competitionRef.update({
+      riddles: admin.firestore.FieldValue.arrayUnion(riddle),
+    });
+
+    console.log("Riddle added successfully!");
+  } catch (error) {
+    console.error("Error adding riddle:", error);
+  }
+}
+
 // Run the function
-addCompetitionData();
+addRiddleToFirestore();
+
+
+
+
+
+
+
+
+
 
