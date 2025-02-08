@@ -103,36 +103,32 @@ export default class WorldScene extends Phaser.Scene {
   
     // Create a toggle button for the panel
     this.panelContainer = null;
-    const toggleButton = this.add
-      .text(
-        10, 
-        10, 
-        "Show Panel", // Initial button text
-        {
-          font: "16px Arial",
-          fill: "#ffffff",
-          backgroundColor: "#0000ff",
-          padding: { left: 10, right: 10, top: 5, bottom: 5 },
-        }
-      )
-      .setInteractive()
-      .on("pointerdown", () => {
-        this.isVisible = !this.isVisible;
-        if (this.isVisible) {
-          if (!this.panelContainer) {
-            this.createPanel();
-          }
-          this.panelContainer.setVisible(true);
-          toggleButton.setText("Hide Panel");
-        } else {
-          if (this.panelContainer) {
-            this.panelContainer.setVisible(false);
-          }
-          toggleButton.setText("Show Panel");
-        }
-      })
-      .setDepth(1000);
-    toggleButton.setScrollFactor(0);
+    // Inside WorldScene.create(), in your toggle button pointerdown handler:
+const toggleButton = this.add.text(10, 10, "Show Panel", {
+  font: "16px Arial",
+  fill: "#ffffff",
+  backgroundColor: "#0000ff",
+  padding: { left: 10, right: 10, top: 5, bottom: 5 },
+})
+.setInteractive()
+.on("pointerdown", () => {
+  this.isVisible = !this.isVisible;
+  if (this.isVisible) {
+    // Launch UIPanelScene and pass necessary data
+    this.scene.launch("UIPanelScene", {
+      currentUserId: this.currentUserId,
+      playerPosition: this.playerPosition,
+    });
+    toggleButton.setText("Hide Panel");
+  } else {
+    // Stop UIPanelScene
+    this.scene.stop("UIPanelScene");
+    toggleButton.setText("Show Panel");
+  }
+})
+.setDepth(1000);
+toggleButton.setScrollFactor(0);
+
 
     const map = this.make.tilemap({ key: this.competitionData.tilemap.key });
     const allTilesets = this.competitionData.images.map(image => {
@@ -304,111 +300,8 @@ this.physics.add.overlap(this.player, riddleGroup, (player, riddle) => {
     });
   }
 
-  async createPanel() {
-    console.log("Creating panel...");
-    const panelWidth = Math.min(200, this.cameras.main.width * 0.3);
-    const panelHeight = this.cameras.main.height;
-    this.panelContainer = this.add
-      .container(this.cameras.main.width - panelWidth, 0)
-      .setDepth(10)
-      .setVisible(false);
-    this.panelContainer.setScrollFactor(0);
-    const panelBackground = this.add
-      .rectangle(0, 0, panelWidth, panelHeight, 0x000000, 0.8)
-      .setOrigin(0, 0);
-    this.panelContainer.add(panelBackground);
 
-    const Kname = localStorage.getItem("Kname") || localStorage.getItem("Name");
-    const usernameText = this.add.text(10, 10, "Username: " + Kname, {
-      font: "16px Arial",
-      fill: "#ffffff",
-    });
-    this.panelContainer.add(usernameText);
-
-    const pointsText = this.add.text(10, 40, `Points: 0`, {
-      font: "16px Arial",
-      fill: "#ffffff",
-    });
-    this.panelContainer.add(pointsText);
-
-    const levelsText = this.add.text(10, 70, `Levels:`, {
-      font: "16px Arial",
-      fill: "#ffffff",
-    });
-    this.panelContainer.add(levelsText);
-
-    const levelTexts = [];
-    const totalLevels = 4;
-
-    const docRef = doc(db, "profiles", this.currentUserId);
-    onSnapshot(docRef, (doc) => {
-      if (doc.exists()) {
-        const data = doc.data();
-        const solvedLevels = new Set(
-          Array.isArray(data.solvedLevels) ? data.solvedLevels : []
-        );
-        pointsText.setText(`Points: ${data.points || 0}`);
-        for (let i = 1; i <= totalLevels; i++) {
-          const isUnlocked = solvedLevels.has(i);
-          const levelTextContent = isUnlocked
-            ? `Level ${i} ✅`
-            : `Level ${i} 🔒`;
-          if (levelTexts[i - 1]) {
-            levelTexts[i - 1].setText(levelTextContent);
-          } else {
-            const levelText = this.add
-              .text(10, 100 + (i - 1) * 30, levelTextContent, {
-                font: "14px Arial",
-                fill: isUnlocked ? "#00ff00" : "#ff0000",
-              })
-              .setInteractive()
-              .on("pointerdown", () => {
-                if (isUnlocked) {
-                  console.log(`Level ${i} clicked`);
-                } else {
-                  console.log(`Level ${i} is locked.`);
-                }
-              });
-            this.panelContainer.add(levelText);
-            levelTexts.push(levelText);
-          }
-        }
-      } else {
-        console.error("Profile data not found!");
-      }
-    });
-
-    const mainMenuButton = this.add
-      .text(10, panelHeight - 80, "Main Menu", {
-        font: "16px Arial",
-        fill: "#ff0000",
-      })
-      .setInteractive()
-      .on("pointerdown", () => {
-        game.loadScene("MainMenuScene", MainMenuScene);
-      });
-    this.panelContainer.add(mainMenuButton);
-    mainMenuButton.setScrollFactor(0);
-
-    const logoutButton = this.add
-      .text(10, panelHeight - 40, "Logout", {
-        font: "16px Arial",
-        fill: "#ff0000",
-      })
-      .setInteractive()
-      .on("pointerdown", async () => {
-        try {
-          await signOut(auth);
-          console.log("User logged out successfully!");
-          document.body.innerHTML = "";
-          location.reload();
-        } catch (error) {
-          console.error("Logout failed:", error.message);
-        }
-      });
-    this.panelContainer.add(logoutButton);
-    logoutButton.setScrollFactor(0);
-  }
+  
 
   update() {
     const speed = 200;

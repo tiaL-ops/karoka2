@@ -1,9 +1,4 @@
-
-
-console.log("Hi");
-/*import WorldScene from "./WorldScene.js";
-import game from "../game.js";
-import { db, auth } from "../firebase.js"; // Import Firebase configuration and auth
+import { db, auth } from "../firebase.js"; // Firebase configuration and auth
 import {
   doc,
   setDoc,
@@ -11,491 +6,187 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
-export default class RiddleScene extends Phaser.Scene {
-  constructor(riddleData) {
-    super({ key: "RiddleScene" });
-    this.riddles = []; 
-    this.currentRiddle = null; 
-    this.isSolved = false;
+export default class AnswerScene extends Phaser.Scene {
+  constructor() {
+    super({ key: "AnswerScene" });
+    this.solution = "";      // Correct answer from the riddle data
+    this.currentLevel = null; // Level number
+    this.playerPosition = { x: 0, y: 0 }; // For returning to WorldScene
   }
 
-  // Receive data from the previous scene
+  /**
+   * Expected data:
+   * {
+   *   riddle: { Level, Title, Riddle, Solution, Link, … },
+   *   playerPosition: { x, y }
+   * }
+   */
   init(data) {
-    if (data.currentRiddle) {
-      this.currentRiddle = data.currentRiddle; // Store the passed riddle
-    }
-
-    if (data.playerPosition) {
-      this.playerPosition = { ...data.playerPosition }; // Store player position
+    if (data && data.riddle) {
+      this.solution = data.riddle.Solution; // e.g., "break" or "lambda"
+      this.currentLevel = data.riddle.Level;
     } else {
-      this.playerPosition = { x: 0, y: 0 }; // Fallback to a default position
+      console.error("No riddle data passed to AnswerScene");
+      // Fallback values:
+      this.currentLevel = 1;
+      this.solution = "";
     }
-
-    console.log(
-      "Initialized player position in TestScene:",
-      this.playerPosition
-    );
+    if (data && data.playerPosition) {
+      this.playerPosition = data.playerPosition;
+    }
+    console.log("AnswerScene initialized for Level:", this.currentLevel, "Solution:", this.solution);
   }
 
   preload() {
-    this.load.image("paper", "assets/oldpaper.png");
-    this.load.image("paperParam", "assets/letterParam.png");
-    this.load.json("riddlesData", "assets/riddles/riddles.json"); // Load JSON file
+    // Load a background image for the answer scene (e.g., an old paper)
+    this.load.image("answerBg", "assets/oldpaper.png");
   }
 
   create() {
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        this.currentUserId = user.uid; // Use Firebase Auth UID
-        await this.loadProfileData(user.uid); // Pass the user ID to load profile
-        await this.checkIfSolved(); // Ensure isSolved is set before rendering
-        this.setupRiddleScene();
-      } else {
-        console.error("User not logged in.");
-      }
-    });
+    console.log("AnswerScene create");
+    
+    // Add the background image
+    this.add.image(400, 300, "answerBg").setScale(0.8);
 
-    // Load riddles from JSON
-    this.riddles = this.cache.json.get("riddlesData"); // Get loaded JSON data
-    console.log("Current Riddle:", this.currentRiddle);
+    // Display prompt text
+    this.add.text(400, 150, "Enter your answer:", {
+      fontSize: "24px",
+      color: "#000",
+      align: "center",
+      fontFamily: "'Press Start 2P', cursive",
+    }).setOrigin(0.5);
 
-    const data = this.currentRiddle || "Level1_Chest"; // Fallback if no riddle is passed
-    const parts = data.split("_");
-    const level = parseInt(parts[0].replace("Level", "")); // Extract the number after 'Level'
-    const type = parts[1]; // 'Chest' or 'Riddle'
-
-    console.log("This is the type" , type);
-    this.currentLevel = level; // Use the extracted level
-    const riddleOrChest = type.toLowerCase(); // Use the extracted type
-    if (type == 'riddle'){
-     
-    }else{
-      console.log("oups not a riddlke");
-    }
-  }
-
-  displayRiddle() {
-    this.add.image(400, 300, "paper").setScale(0.8);
-
-    const riddleData = this.riddles.find((r) => r.level === this.currentLevel);
-    if (!riddleData) {
-      console.error("Riddle data not found for level:", this.currentLevel);
-      return;
-    }
-
-    if (this.riddleText) {
-      this.riddleText.destroy();
-    }
-
-    if (!this.isSolved) {
-      this.riddleText = this.add
-        .text(400, 150, ` ${riddleData.input} ✍`, {
-          fontSize: "20px",
-          color: "#000",
-          align: "center",
-          fontFamily: "Morris Roman, serif",
-          wordWrap: { width: 300 },
-        })
-        .setOrigin(0.5);
-
-
-      this.riddleText = this.add
-        .text(400, 250, riddleData.riddle, {
-          fontSize: "20px",
-          color: "#000",
-          align: "center",
-          fontFamily: "Morris Roman, serif",
-          wordWrap: { width: 300 },
-        })
-        .setOrigin(0.5);
-
-
-    } else {
-      this.riddleText = this.add
-        .text(400, 200, "Solved!", {
-          fontSize: "20px",
-          color: "#000",
-          align: "center",
-          fontFamily: "Morris Roman, serif",
-          wordWrap: { width: 300 },
-        })
-        .setOrigin(0.5);
-    }
-
-    const returnText = this.add
-      .text(400, 440, "Return", {
-        fontSize: "24px",
-        color: "#6a1f1f",
-        align: "center",
-        fontFamily: "Morris Roman, serif",
-        stroke: "#f0e6d6",
-        strokeThickness: 3,
-      })
-      .setOrigin(0.5);
-
-    returnText.setInteractive({ useHandCursor: true });
-    returnText.on("pointerover", () => {
-      returnText.setStyle({ color: "#a83b3b" });
-    });
-    returnText.on("pointerout", () => {
-      returnText.setStyle({ color: "#6a1f1f" });
-    });
-
-    returnText.on("pointerdown", () => {
-      if (this.playerPosition) {
-        this.scene.start("WorldScene", { playerPosition: this.playerPosition });
-      } else {
-        console.error(
-          "Player position is undefined. Cannot return to WorldScene."
-        );
-      }
-    });
-  }
-
-  showInputField() {
-    const riddleData = this.riddles.find((r) => r.level === this.currentLevel);
-    if (!riddleData) {
-      console.error("Riddle data not found for level:", this.currentLevel);
-      return;
-    }
-
+    // Create an HTML input element for the answer
     const canvas = this.sys.game.canvas;
     const canvasBounds = canvas.getBoundingClientRect();
-
     const inputElement = document.createElement("input");
     inputElement.type = "text";
-    inputElement.id = "answer";
+    inputElement.id = "answerInput";
     inputElement.placeholder = "Type your answer...";
-    inputElement.style.width = "80%";
-    inputElement.style.maxWidth = "300px";
+    inputElement.style.width = "300px";
     inputElement.style.height = "35px";
     inputElement.style.fontSize = "18px";
-    inputElement.style.fontFamily = "Cursive, Press Start 2P, monospace";
-    inputElement.style.color = "#4b3621";
-    inputElement.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
-    inputElement.style.border = "none";
-    inputElement.style.outline = "none";
-    inputElement.style.borderBottom = "2px solid #4b3621";
+    inputElement.style.fontFamily = "'Press Start 2P', cursive";
+    inputElement.style.textAlign = "center";
     inputElement.style.position = "absolute";
-    inputElement.style.padding = "5px";
-    inputElement.style.left = `${
-      canvasBounds.left + canvasBounds.width / 2 - 150
-    }px`;
-    inputElement.style.top = `${
-      canvasBounds.top + canvasBounds.height * 0.5 - 40
-    }px`;
-
+    // Center the input over the canvas
+    inputElement.style.left = `${canvasBounds.left + canvasBounds.width / 2 - 150}px`;
+    inputElement.style.top = `${canvasBounds.top + canvasBounds.height / 2 - 20}px`;
+    inputElement.style.zIndex = "1000";
+    inputElement.style.background = "rgba(255,255,255,0.9)";
+    inputElement.style.border = "2px solid #4b3621";
+    
+    // Limit input to the number of characters in the solution.
+    if (this.solution && this.solution.length) {
+      inputElement.maxLength = this.solution.length;
+    }
+    
     document.body.appendChild(inputElement);
 
-    const returnText = this.add
-      .text(400, 400, "Submit", {
-        fontSize: "24px",
-        color: "#6a1f1f",
-        align: "center",
-        fontFamily: "Morris Roman, serif",
-        stroke: "#f0e6d6",
-        strokeThickness: 3,
-      })
-      .setOrigin(0.5);
-
-    returnText.setInteractive({ useHandCursor: true });
-    returnText.on("pointerover", () => {
-      returnText.setStyle({ color: "#a83b3b" });
-    });
-    returnText.on("pointerout", () => {
-      returnText.setStyle({ color: "#6a1f1f" });
-    });
-
-    returnText.on("pointerdown", () => {
+    // Create a Submit button using Phaser text
+    const submitButton = this.add.text(400, 400, "Submit", {
+      fontSize: "24px",
+      color: "#6a1f1f",
+      align: "center",
+      fontFamily: "'Press Start 2P', cursive",
+      stroke: "#f0e6d6",
+      strokeThickness: 3,
+    }).setOrigin(0.5);
+    submitButton.setInteractive({ useHandCursor: true });
+    submitButton.on("pointerdown", () => {
       const userInput = inputElement.value;
-      this.validateAnswer(riddleData.solution, userInput);
+      this.validateAnswer(userInput);
     });
 
+    // Create a Return button so the user can return without submitting an answer
+    const returnButton = this.add.text(400, 450, "Return", {
+      fontSize: "24px",
+      color: "#6a1f1f",
+      align: "center",
+      fontFamily: "'Press Start 2P', cursive",
+      stroke: "#f0e6d6",
+      strokeThickness: 3,
+    }).setOrigin(0.5);
+    returnButton.setInteractive({ useHandCursor: true });
+    returnButton.on("pointerdown", () => {
+      // Return to WorldScene, preserving the player position
+      this.scene.start("WorldScene", { playerPosition: this.playerPosition });
+    });
+
+    // Remove the HTML input element when the scene shuts down
     this.events.once("shutdown", () => {
       inputElement.remove();
     });
   }
 
-  async validateAnswer(solution, userInput) {
-    if (userInput.trim() === solution.trim()) {
-      this.sendToDatabase(this.currentLevel, 1);
-      this.isSolved = true;
-      this.displayMessage("Success! You solved the riddle.", true);
-      this.showOverlaySuccess();
-      this.scene.start("WorldScene", { playerPosition: this.playerPosition });
+  async validateAnswer(userInput) {
+    console.log("Validating answer:", userInput, "against solution:", this.solution);
+    if (userInput.trim() === this.solution.trim()) {
+      // Correct answer: update Firebase (e.g., add points, mark level solved)
+      await this.updateFirebase();
+      this.add.text(400, 500, "Correct Answer!", {
+        fontSize: "24px",
+        color: "#00ff00",
+        align: "center",
+        fontFamily: "'Press Start 2P', cursive",
+      }).setOrigin(0.5);
+      // Return to WorldScene after a short delay
+      this.time.delayedCall(2000, () => {
+        this.scene.start("WorldScene", { playerPosition: this.playerPosition });
+      });
     } else {
-
-      await this.logIncorrectAttempt(this.currentLevel, userInput);
-      this.displayMessage("Incorrect! Try again.", false);
-      this.showOverlayFailure();
-
+      // Incorrect answer: log the attempt and display a message
+      await this.logIncorrectAttempt(userInput);
+      this.add.text(400, 500, "Incorrect Answer. Try again.", {
+        fontSize: "24px",
+        color: "#ff0000",
+        align: "center",
+        fontFamily: "'Press Start 2P', cursive",
+      }).setOrigin(0.5);
     }
   }
 
-  async loadProfileData(userId) {
+  async updateFirebase() {
     try {
+      const userId = auth.currentUser.uid;
       const docRef = doc(db, "profiles", userId);
       const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        this.profileData = docSnap.data();
-        //console.log("Profile data loaded:", this.profileData);
-      } else {
-        // Initialize profile if not found
-        this.profileData = { points: 0, disabledLevels: [] };
-        await setDoc(docRef, this.profileData);
-        console.log("Profile created with default values.");
-      }
-    } catch (error) {
-      console.error("Error loading profile data:", error);
-    }
-  }
-
-  async checkIfSolved() {
-    try {
-      const docRef = doc(db, "profiles", this.currentUserId);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        const solvedLevels = data.solvedLevels || [];
-        this.isSolved = solvedLevels.includes(this.currentLevel);
-      }
-    } catch (error) {
-      console.error("Error checking if level is solved:", error);
-    }
-  }
-
-  async sendToDatabase(level, point) {
-    try {
-      const docRef = doc(db, "profiles", this.currentUserId);
-      const docSnap = await getDoc(docRef);
-
       if (docSnap.exists()) {
         const existingData = docSnap.data();
         const solvedLevels = new Set(existingData.solvedLevels || []);
-        solvedLevels.add(level); // Mark the current level as solved
-        const riddleData = this.riddles.find((r) => r.level === this.currentLevel);
-    if (!riddleData) {
-      console.error("Riddle data not found for level:", this.currentLevel);
-      return;
-    }
+        solvedLevels.add(this.currentLevel);
         const updatedData = {
-          points: (existingData.points || 0) + riddleData.point,
-          solvedLevels: Array.from(solvedLevels), // Store as an array
+          // For example, add 10 points for a correct answer.
+          points: (existingData.points || 0) + 10,
+          solvedLevels: Array.from(solvedLevels),
         };
         await setDoc(docRef, updatedData, { merge: true });
-      } else {
-        const newData = {
-          points: point,
-          solvedLevels: [level], // Initialize solved levels with the current level
-        };
-        await setDoc(docRef, newData);
+        console.log("Firebase updated with correct answer for level", this.currentLevel);
       }
-      console.log("Progress updated successfully.");
     } catch (error) {
-      console.error("Error saving progress:", error);
+      console.error("Error updating firebase:", error);
     }
   }
 
-  setupRiddleScene() {
-    const data = this.currentRiddle || "Level1_Chest"; // Fallback if no riddle is passed
-    const parts = data.split("_");
-    const level = parseInt(parts[0].replace("Level", "")); // Extract the number after 'Level'
-    const type = parts[1]; // 'Chest' or 'Riddle'
-
-    this.currentLevel = level; // Use the extracted level
-    const riddleOrChest = type.toLowerCase(); // Use the extracted type
-
-    if (riddleOrChest === "riddle") {
-      this.displayRiddle();
-      if (!this.isSolved) {
-        this.showInputField();
-      }
-    } else {
-      this.displayRessources();
-  }
-}
-
-  displayRessources() {
-    this.add.image(400, 300, "paper").setScale(0.8);
-
-    const riddleData = this.riddles.find((r) => r.level === this.currentLevel);
-    if (!riddleData) {
-      console.error("Riddle data not found for level:", this.currentLevel);
-      return;
-    }
-    
-    if (this.riddleText) {
-      this.riddleText.destroy();
-    }
-    
-    this.ressourceText = this.add
-  .text(
-    400,
-    300,
-    `Here is a link to a website that \n may help you! :) \n\n 📖 ${riddleData.textSources} 📖`,
-    {
-      fontSize: "20px",
-      color: "#000",
-      align: "center",
-      fontFamily: "Morris Roman, serif",
-      wordWrap: { width: 300 },
-    }
-  )
-  .setOrigin(0.5)
-
-    
-    this.ressourceText.setInteractive({ useHandCursor: true });
-    
-    this.ressourceText.on("pointerover", () => {
-      this.ressourceText.setStyle({ color: "#a83b3b" });
-    });
-    
-    this.ressourceText.on("pointerout", () => {
-      this.ressourceText.setStyle({ color: "#6a1f1f" });
-    });
-    
-    this.ressourceText.on("pointerdown", () => {
-      const link = riddleData.ressources; // Make sure this is a valid URL
-      //console.log(link);
-    
-      // Open the link in a new tab or window
-      window.open(link, "_blank");
-    });
-    
-         
-    const returnText = this.add
-      .text(400, 440, "Return", {
-        fontSize: "24px",
-        color: "#6a1f1f",
-        align: "center",
-        fontFamily: "Morris Roman, serif",
-        stroke: "#f0e6d6",
-        strokeThickness: 3,
-      })
-      .setOrigin(0.5);
-
-    returnText.setInteractive({ useHandCursor: true });
-    returnText.on("pointerover", () => {
-      returnText.setStyle({ color: "#a83b3b" });
-    });
-    returnText.on("pointerout", () => {
-      returnText.setStyle({ color: "#6a1f1f" });
-    });
-
-    returnText.on("pointerdown", () => {
-      if (this.playerPosition) {
-        this.scene.start("WorldScene", { playerPosition: this.playerPosition });
-      } else {
-        console.error(
-          "Player position is undefined. Cannot return to WorldScene."
-        );
-      }
-    });
-  }
-
-  displayMessage(message, isSuccess) {
-    if (this.resultText) {
-      this.resultText.destroy();
-    }
-
-    this.resultText = this.add
-      .text(400, 450, message, {
-        fontSize: "20px",
-        color: isSuccess ? "#00ff00" : "#ff0000",
-        align: "center",
-      })
-      .setOrigin(0.5);
-
-    if (isSuccess) {
-      this.time.delayedCall(2000, () => {
-        console.log("You solved the riddle!");
-        // Implement success logic here (e.g., load next level)
-      });
-    }
-  }
-  // Success (green overlay)
-showOverlaySuccess() {
-  const overlay = this.add.rectangle(
-    this.cameras.main.centerX,
-    this.cameras.main.centerY,
-    this.cameras.main.width,
-    this.cameras.main.height,
-    0x00ff00 // Green color
-  )
-    .setAlpha(0.5) // Semi-transparent
-    .setDepth(100); // Ensure it's on top of other elements
-
-  // Fade out the overlay after a short delay
-  this.tweens.add({
-    targets: overlay,
-    alpha: 0,
-    duration: 1000, // 1 second
-    onComplete: () => overlay.destroy(),
-  });
-}
-
-// Failure (red overlay)
-showOverlayFailure() {
-  const overlay = this.add.rectangle(
-    this.cameras.main.centerX,
-    this.cameras.main.centerY,
-    this.cameras.main.width,
-    this.cameras.main.height,
-    0xff0000 // Red color
-  )
-    .setAlpha(0.5) // Semi-transparent
-    .setDepth(100); // Ensure it's on top of other elements
-
-  // Fade out the overlay after a short delay
-  this.tweens.add({
-    targets: overlay,
-    alpha: 0,
-    duration: 1000, // 1 second
-    onComplete: () => overlay.destroy(),
-  });
-}
-
-
-  async logIncorrectAttempt(level, attemptedAnswer) {
+  async logIncorrectAttempt(userInput) {
     try {
-      const docRef = doc(db, "profiles", this.currentUserId);
+      const userId = auth.currentUser.uid;
+      const docRef = doc(db, "profiles", userId);
       const docSnap = await getDoc(docRef);
-  
       if (docSnap.exists()) {
         const existingData = docSnap.data();
         const incorrectAttempts = existingData.incorrectAttempts || {};
-  
-        // Ensure there is an array for the current level
-        incorrectAttempts[level] = incorrectAttempts[level] || [];
-        incorrectAttempts[level].push({
-          answer: attemptedAnswer,
+        // Ensure there's an array for the current level
+        incorrectAttempts[this.currentLevel] = incorrectAttempts[this.currentLevel] || [];
+        incorrectAttempts[this.currentLevel].push({
+          answer: userInput,
           timestamp: new Date().toISOString(),
         });
-  
         await setDoc(docRef, { incorrectAttempts }, { merge: true });
-      } else {
-        // Create a new profile with incorrect attempts
-        const newData = {
-          incorrectAttempts: {
-            [level]: [
-              {
-                answer: attemptedAnswer,
-                timestamp: new Date().toISOString(),
-              },
-            ],
-          },
-        };
-        await setDoc(docRef, newData);
+        console.log("Incorrect attempt logged for level", this.currentLevel);
       }
-      console.log("Incorrect attempt logged successfully.");
     } catch (error) {
       console.error("Error logging incorrect attempt:", error);
     }
   }
-  
-  
-
 }
-*/
