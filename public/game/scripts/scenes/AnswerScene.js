@@ -1,3 +1,4 @@
+// AnswerScene.js
 import { db, auth } from "../firebase.js"; // Firebase configuration and auth
 import {
   doc,
@@ -38,82 +39,100 @@ export default class AnswerScene extends Phaser.Scene {
   }
 
   preload() {
-    // Load a background image for the answer scene (e.g., an old paper)
-    this.load.image("answerBg", "assets/oldpaper.png");
+    // We'll draw our background panel using Graphics.
   }
 
   create() {
     console.log("AnswerScene create");
     
-    // Add the background image
-    this.add.image(400, 300, "answerBg").setScale(0.8);
+    // --- Draw a Retro-Styled Background Panel ---
+    const panelWidth = 400;
+    const panelHeight = 300;
+    const panelX = this.cameras.main.width / 2 - panelWidth / 2;
+    const panelY = 150;
+    
+    const graphics = this.add.graphics();
+    const fillColor = 0xF8E0E0;     // Light pastel red/pink
+    const borderColor = 0xC0392B;   // Deep red accent
+    const borderThickness = 6;
+    const radius = 12;
+    graphics.fillStyle(fillColor, 1);
+    graphics.fillRoundedRect(panelX, panelY, panelWidth, panelHeight, radius);
+    graphics.lineStyle(borderThickness, borderColor, 1);
+    graphics.strokeRoundedRect(panelX, panelY, panelWidth, panelHeight, radius);
 
-    // Display prompt text
-    this.add.text(400, 150, "Enter your answer:", {
-      fontSize: "24px",
-      color: "#000",
-      align: "center",
-      fontFamily: "'Press Start 2P', cursive",
+    // --- Prompt Text ---
+    this.add.text(this.cameras.main.width / 2, panelY + 40, "Enter your answer:", {
+      font: "20px 'Press Start 2P'",
+      fill: "#C0392B",
+      stroke: "#FFFFFF",
+      strokeThickness: 2,
+      align: "center"
     }).setOrigin(0.5);
 
-    // Create an HTML input element for the answer
+    // --- Create HTML Input Element for Answer ---
+    // We want to center the input inside the panel.
     const canvas = this.sys.game.canvas;
     const canvasBounds = canvas.getBoundingClientRect();
+    const inputWidth = 200;
+    const inputHeight = 35;
+    const absoluteLeft = canvasBounds.left + panelX + (panelWidth - inputWidth) / 2;
+    const absoluteTop  = canvasBounds.top + panelY + (panelHeight - inputHeight) / 2;
+    
     const inputElement = document.createElement("input");
     inputElement.type = "text";
     inputElement.id = "answerInput";
     inputElement.placeholder = "Type your answer...";
-    inputElement.style.width = "300px";
-    inputElement.style.height = "35px";
-    inputElement.style.fontSize = "18px";
-    inputElement.style.fontFamily = "'Press Start 2P', cursive";
+    inputElement.style.width = `${inputWidth}px`;
+    inputElement.style.height = `${inputHeight}px`;
+    inputElement.style.fontSize = "16px";
+    inputElement.style.fontFamily = "'Press Start 2P'";
     inputElement.style.textAlign = "center";
     inputElement.style.position = "absolute";
-    // Center the input over the canvas
-    inputElement.style.left = `${canvasBounds.left + canvasBounds.width / 2 - 150}px`;
-    inputElement.style.top = `${canvasBounds.top + canvasBounds.height / 2 - 20}px`;
+    inputElement.style.left = `${absoluteLeft}px`;
+    inputElement.style.top = `${absoluteTop}px`;
     inputElement.style.zIndex = "1000";
-    inputElement.style.background = "rgba(255,255,255,0.9)";
-    inputElement.style.border = "2px solid #4b3621";
-    
-    // Limit input to the number of characters in the solution.
+    // Use a light blue background with blue border.
+    inputElement.style.background = "rgba(173,216,230,0.9)"; // Light blue
+    inputElement.style.border = "2px solid #2196F3";          // Blue border
+    // Limit input length to the solution's length.
     if (this.solution && this.solution.length) {
       inputElement.maxLength = this.solution.length;
     }
-    
     document.body.appendChild(inputElement);
 
-    // Create a Submit button using Phaser text
-    const submitButton = this.add.text(400, 400, "Submit", {
-      fontSize: "24px",
-      color: "#6a1f1f",
-      align: "center",
-      fontFamily: "'Press Start 2P', cursive",
-      stroke: "#f0e6d6",
-      strokeThickness: 3,
+    // --- Submit Button ---
+    const submitButton = this.add.text(this.cameras.main.width / 2, panelY + panelHeight - 60, "Submit", {
+      font: "20px 'Press Start 2P', cursive",
+      fill: "#E74C3C",
+      stroke: "#FFFFFF",
+      strokeThickness: 2,
+      align: "center"
     }).setOrigin(0.5);
     submitButton.setInteractive({ useHandCursor: true });
     submitButton.on("pointerdown", () => {
       const userInput = inputElement.value;
+      if (!userInput.trim()) {
+        this.showMessage("Please enter an answer.", false);
+        return;
+      }
       this.validateAnswer(userInput);
     });
 
-    // Create a Return button so the user can return without submitting an answer
-    const returnButton = this.add.text(400, 450, "Return", {
-      fontSize: "24px",
-      color: "#6a1f1f",
-      align: "center",
-      fontFamily: "'Press Start 2P', cursive",
-      stroke: "#f0e6d6",
-      strokeThickness: 3,
+    // --- Return Button ---
+    const returnButton = this.add.text(this.cameras.main.width / 2, panelY + panelHeight - 30, "Return", {
+      font: "20px 'Press Start 2P', cursive",
+      fill: "#E74C3C",
+      stroke: "#FFFFFF",
+      strokeThickness: 2,
+      align: "center"
     }).setOrigin(0.5);
     returnButton.setInteractive({ useHandCursor: true });
     returnButton.on("pointerdown", () => {
-      // Return to WorldScene, preserving the player position
       this.scene.start("WorldScene", { playerPosition: this.playerPosition });
     });
 
-    // Remove the HTML input element when the scene shuts down
+    // --- Cleanup: Remove the HTML input element when the scene shuts down ---
     this.events.once("shutdown", () => {
       inputElement.remove();
     });
@@ -122,28 +141,41 @@ export default class AnswerScene extends Phaser.Scene {
   async validateAnswer(userInput) {
     console.log("Validating answer:", userInput, "against solution:", this.solution);
     if (userInput.trim() === this.solution.trim()) {
-      // Correct answer: update Firebase (e.g., add points, mark level solved)
       await this.updateFirebase();
-      this.add.text(400, 500, "Correct Answer!", {
-        fontSize: "24px",
-        color: "#00ff00",
-        align: "center",
-        fontFamily: "'Press Start 2P', cursive",
-      }).setOrigin(0.5);
-      // Return to WorldScene after a short delay
+      this.showMessage("Correct Answer!", true);
       this.time.delayedCall(2000, () => {
         this.scene.start("WorldScene", { playerPosition: this.playerPosition });
       });
     } else {
-      // Incorrect answer: log the attempt and display a message
       await this.logIncorrectAttempt(userInput);
-      this.add.text(400, 500, "Incorrect Answer. Try again.", {
-        fontSize: "24px",
-        color: "#ff0000",
-        align: "center",
-        fontFamily: "'Press Start 2P', cursive",
-      }).setOrigin(0.5);
+      this.showMessage("Incorrect Answer. Try again.", false);
     }
+  }
+
+  // Create a container with a background rectangle and text message.
+  showMessage(message, isCorrect) {
+    // Background colors: light green for correct, light red for incorrect, light gray for warnings.
+    const bgColor = isCorrect ? 0xAAFFAA : 0xFFAAAA;
+    const textColor = isCorrect ? "#27AE60" : "#E74C3C";
+    const padding = 10;
+    // Create the text object.
+    const messageText = this.add.text(0, 0, message, {
+      font: "20px 'Press Start 2P', cursive",
+      fill: textColor,
+      stroke: "#FFFFFF",
+      strokeThickness: 2,
+      align: "center"
+    }).setOrigin(0.5);
+    // Create a background rectangle sized to the text with some padding.
+    const bgWidth = messageText.width + padding * 2;
+    const bgHeight = messageText.height + padding * 2;
+    const bg = this.add.rectangle(0, 0, bgWidth, bgHeight, bgColor, 0.9).setOrigin(0.5);
+    // Create a container to hold both.
+    const container = this.add.container(this.cameras.main.width / 2, 500, [bg, messageText]);
+    container.setDepth(30);
+    // Optionally remove after a few seconds (or leave it until next message).
+    this.time.delayedCall(2000, () => { container.destroy(); });
+    return container;
   }
 
   async updateFirebase() {
@@ -156,7 +188,6 @@ export default class AnswerScene extends Phaser.Scene {
         const solvedLevels = new Set(existingData.solvedLevels || []);
         solvedLevels.add(this.currentLevel);
         const updatedData = {
-          // For example, add 10 points for a correct answer.
           points: (existingData.points || 0) + 10,
           solvedLevels: Array.from(solvedLevels),
         };
@@ -176,7 +207,6 @@ export default class AnswerScene extends Phaser.Scene {
       if (docSnap.exists()) {
         const existingData = docSnap.data();
         const incorrectAttempts = existingData.incorrectAttempts || {};
-        // Ensure there's an array for the current level
         incorrectAttempts[this.currentLevel] = incorrectAttempts[this.currentLevel] || [];
         incorrectAttempts[this.currentLevel].push({
           answer: userInput,
