@@ -1,6 +1,7 @@
 
 import { getFirestore, doc, getDoc } from "./firebase.js";
 import WorldScene from './scenes/WorldScene.js'; 
+import RiddleScene from "./scenes/RiddleScene.js";
 
 
 async function fetchCompetitionData() {
@@ -42,7 +43,7 @@ async function startGame() {
         width: 800, 
         height: 600, 
         backgroundColor: '#000000', 
-        scene: [new WorldScene(competitionData)], 
+        scene: [new WorldScene(competitionData),RiddleScene], 
         physics: {
             default: 'arcade', 
             arcade: {
