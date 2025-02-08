@@ -1,4 +1,6 @@
 
+
+console.log("Hi");
 /*import WorldScene from "./WorldScene.js";
 import game from "../game.js";
 import { db, auth } from "../firebase.js"; // Import Firebase configuration and auth
