@@ -1,15 +1,14 @@
-
+// game.js
 import { getFirestore, doc, getDoc } from "./firebase.js";
 import WorldScene from './scenes/WorldScene.js'; 
 import RiddleScene from "./scenes/RiddleScene.js";
 import AnswerScene from "./scenes/AnswerScene.js";
 import UIPanelScene from "./scenes/UIPanelScene.js";
 
-
 async function fetchCompetitionData() {
     console.log("Fetching doc");
     const params = new URLSearchParams(window.location.search);
-    const competitionKey =  params.get("competition");
+    const competitionKey = params.get("competition");
     const db = getFirestore();
     try {
         const docRef = doc(db, "competitions", competitionKey);
@@ -28,48 +27,43 @@ async function fetchCompetitionData() {
     }
 }
 
-
-
-// Start the game
 async function startGame() {
     const competitionData = await fetchCompetitionData();
-    console.log("STarting the game with ", competitionData);
+    console.log("Starting the game with", competitionData);
     if (!competitionData) {
         console.error("Failed to fetch competition data. Game cannot start.");
-        return;
+        return null;
     }
 
-    // Pass the fetched data to the scene
     const config = {
         type: Phaser.AUTO, 
         width: 800, 
         height: 600, 
         backgroundColor: '#000000', 
-        scene: [new WorldScene(competitionData),RiddleScene,AnswerScene,UIPanelScene], 
+        parent: 'game-container',
+        dom: { createContainer: true },
+        scene: [
+            new WorldScene(competitionData),
+            RiddleScene,
+            AnswerScene,
+            UIPanelScene
+        ], 
         physics: {
             default: 'arcade', 
             arcade: {
-                gravity: { y: 0 }, // No gravity for top-down or non-falling physics
-                debug: true, // Enable debug mode for easier troubleshooting
+                gravity: { y: 0 },
+                debug: true,
             },
         },
         scale: {
-            mode: Phaser.Scale.FIT, // Adjust the canvas size to fit the browser window
-            autoCenter: Phaser.Scale.CENTER_BOTH, // Center the game canvas
+            mode: Phaser.Scale.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH,
         },
     };
 
-    new Phaser.Game(config);
+    const game = new Phaser.Game(config);
+    return game;
 }
 
-startGame();
-this.input.keyboard.on('keydown-G', (event) => {
-    this.input.on('pointerdown', (pointer) => {
-        console.log(`Mouse clicked at X: ${pointer.worldX}, Y: ${pointer.worldY}`);
-    });
-});
-
-
-const game = new Phaser.Game(config);
-
-export default game;
+// Export the promise that resolves to the game instance.
+export default startGame();
