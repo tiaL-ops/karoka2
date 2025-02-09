@@ -9,26 +9,19 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/fi
 
 export default class AnswerScene extends Phaser.Scene {
   constructor() {
-    super({ key: "AnswerScene" });
+    // Ensure DOM container is created so Phaser can manage DOM elements.
+    super({ key: "AnswerScene", dom: { createContainer: true } });
     this.solution = "";      // Correct answer from the riddle data
     this.currentLevel = null; // Level number
     this.playerPosition = { x: 0, y: 0 }; // For returning to WorldScene
   }
 
-  /**
-   * Expected data:
-   * {
-   *   riddle: { Level, Title, Riddle, Solution, Link, … },
-   *   playerPosition: { x, y }
-   * }
-   */
   init(data) {
     if (data && data.riddle) {
-      this.solution = data.riddle.Solution; // e.g., "break" or "lambda"
+      this.solution = data.riddle.Solution;
       this.currentLevel = data.riddle.Level;
     } else {
       console.error("No riddle data passed to AnswerScene");
-      // Fallback values:
       this.currentLevel = 1;
       this.solution = "";
     }
@@ -39,18 +32,18 @@ export default class AnswerScene extends Phaser.Scene {
   }
 
   preload() {
-    // We'll draw our background panel using Graphics.
+    // Optionally preload assets
   }
 
   create() {
     console.log("AnswerScene create");
-    
+
     // --- Draw a Retro-Styled Background Panel ---
     const panelWidth = 400;
     const panelHeight = 300;
     const panelX = this.cameras.main.width / 2 - panelWidth / 2;
     const panelY = 150;
-    
+
     const graphics = this.add.graphics();
     const fillColor = 0xF8E0E0;     // Light pastel red/pink
     const borderColor = 0xC0392B;   // Deep red accent
@@ -70,48 +63,55 @@ export default class AnswerScene extends Phaser.Scene {
       align: "center"
     }).setOrigin(0.5);
 
-    // --- Create HTML Input Element for Answer ---
-    // We want to center the input inside the panel.
-    const canvas = this.sys.game.canvas;
-    const canvasBounds = canvas.getBoundingClientRect();
-    const inputWidth = 200;
-    const inputHeight = 35;
-    const absoluteLeft = canvasBounds.left + panelX + (panelWidth - inputWidth) / 2;
-    const absoluteTop  = canvasBounds.top + panelY + (panelHeight - inputHeight) / 2;
-    
-    const inputElement = document.createElement("input");
-    inputElement.type = "text";
-    inputElement.id = "answerInput";
-    inputElement.placeholder = "Type your answer...";
-    inputElement.style.width = `${inputWidth}px`;
-    inputElement.style.height = `${inputHeight}px`;
-    inputElement.style.fontSize = "16px";
-    inputElement.style.fontFamily = "'Press Start 2P'";
-    inputElement.style.textAlign = "center";
-    inputElement.style.position = "absolute";
-    inputElement.style.left = `${absoluteLeft}px`;
-    inputElement.style.top = `${absoluteTop}px`;
-    inputElement.style.zIndex = "1000";
-    // Use a light blue background with blue border.
-    inputElement.style.background = "rgba(173,216,230,0.9)"; // Light blue
-    inputElement.style.border = "2px solid #2196F3";          // Blue border
-    // Limit input length to the solution's length.
+    // --- Create Phaser DOM Input Element for Answer ---
+    let panelCenterX = this.cameras.main.width / 2;
+    let panelCenterY = panelY + 200; // Adjust vertical position inside the panel
+
+    const inputStyle = `
+      width: 200px;
+      height: 35px;
+      font-size: 16px;
+      font-family: 'Press Start 2P';
+      text-align: center;
+      background: rgba(173,216,230,0.9);
+      border: 2px solid #2196F3;
+      padding: 5px;
+      z-index: 10000;
+    `;
+
+    const inputElement = this.add.dom(panelCenterX, panelCenterY, 'input', inputStyle);
+    inputElement.node.placeholder = "Type your answer...";
     if (this.solution && this.solution.length) {
-      inputElement.maxLength = this.solution.length;
+      inputElement.node.maxLength = this.solution.length;
     }
-    document.body.appendChild(inputElement);
+
+    // Log the initial position of the DOM element
+    console.log('Initial Input Element Position:', inputElement.x, inputElement.y);
+
+    // --- Update DOM Input Position on Game Resize ---
+    this.scale.on('resize', (gameSize) => {
+      panelCenterX = gameSize.width / 2;
+      panelCenterY = panelY + 200;
+      inputElement.setPosition(panelCenterX, panelCenterY);
+      console.log('Resized Input Element Position:', inputElement.x, inputElement.y);
+    });
 
     // --- Submit Button ---
-    const submitButton = this.add.text(this.cameras.main.width / 2, panelY + panelHeight - 60, "Submit", {
-      font: "20px 'Press Start 2P', cursive",
-      fill: "#E74C3C",
-      stroke: "#FFFFFF",
-      strokeThickness: 2,
-      align: "center"
-    }).setOrigin(0.5);
+    const submitButton = this.add.text(
+      this.cameras.main.width / 2,
+      panelY + panelHeight - 60,
+      "Submit",
+      {
+        font: "20px 'Press Start 2P', cursive",
+        fill: "#E74C3C",
+        stroke: "#FFFFFF",
+        strokeThickness: 2,
+        align: "center"
+      }
+    ).setOrigin(0.5);
     submitButton.setInteractive({ useHandCursor: true });
     submitButton.on("pointerdown", () => {
-      const userInput = inputElement.value;
+      const userInput = inputElement.node.value;
       if (!userInput.trim()) {
         this.showMessage("Please enter an answer.", false);
         return;
@@ -120,21 +120,21 @@ export default class AnswerScene extends Phaser.Scene {
     });
 
     // --- Return Button ---
-    const returnButton = this.add.text(this.cameras.main.width / 2, panelY + panelHeight - 30, "Return", {
-      font: "20px 'Press Start 2P', cursive",
-      fill: "#E74C3C",
-      stroke: "#FFFFFF",
-      strokeThickness: 2,
-      align: "center"
-    }).setOrigin(0.5);
+    const returnButton = this.add.text(
+      this.cameras.main.width / 2,
+      panelY + panelHeight - 30,
+      "Return",
+      {
+        font: "20px 'Press Start 2P', cursive",
+        fill: "#E74C3C",
+        stroke: "#FFFFFF",
+        strokeThickness: 2,
+        align: "center"
+      }
+    ).setOrigin(0.5);
     returnButton.setInteractive({ useHandCursor: true });
     returnButton.on("pointerdown", () => {
       this.scene.start("WorldScene", { playerPosition: this.playerPosition });
-    });
-
-    // --- Cleanup: Remove the HTML input element when the scene shuts down ---
-    this.events.once("shutdown", () => {
-      inputElement.remove();
     });
   }
 
@@ -152,13 +152,11 @@ export default class AnswerScene extends Phaser.Scene {
     }
   }
 
-  // Create a container with a background rectangle and text message.
   showMessage(message, isCorrect) {
-    // Background colors: light green for correct, light red for incorrect, light gray for warnings.
     const bgColor = isCorrect ? 0xAAFFAA : 0xFFAAAA;
     const textColor = isCorrect ? "#27AE60" : "#E74C3C";
     const padding = 10;
-    // Create the text object.
+
     const messageText = this.add.text(0, 0, message, {
       font: "20px 'Press Start 2P', cursive",
       fill: textColor,
@@ -166,14 +164,14 @@ export default class AnswerScene extends Phaser.Scene {
       strokeThickness: 2,
       align: "center"
     }).setOrigin(0.5);
-    // Create a background rectangle sized to the text with some padding.
+
     const bgWidth = messageText.width + padding * 2;
     const bgHeight = messageText.height + padding * 2;
     const bg = this.add.rectangle(0, 0, bgWidth, bgHeight, bgColor, 0.9).setOrigin(0.5);
-    // Create a container to hold both.
+
     const container = this.add.container(this.cameras.main.width / 2, 500, [bg, messageText]);
     container.setDepth(30);
-    // Optionally remove after a few seconds (or leave it until next message).
+
     this.time.delayedCall(2000, () => { container.destroy(); });
     return container;
   }

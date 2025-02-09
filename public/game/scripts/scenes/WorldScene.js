@@ -126,7 +126,7 @@ const toggleButton = this.add.text(10, 10, "Show Panel", {
     toggleButton.setText("Show Panel");
   }
 })
-.setDepth(1000);
+.setDepth(100);
 toggleButton.setScrollFactor(0);
 
 
