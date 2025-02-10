@@ -17,6 +17,7 @@ export default class MainMenuScene extends Phaser.Scene {
     preload() {
         this.load.image('background', 'assets/background.png');
         this.load.image('button', 'assets/button.png');
+        console.log("Test Branch");
     }
 
     create() {
