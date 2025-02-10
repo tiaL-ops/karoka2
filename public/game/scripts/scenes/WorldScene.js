@@ -69,6 +69,7 @@ export default class WorldScene extends Phaser.Scene {
     this.load.on("loaderror", (file) => {
       console.error(`Oh no, Failed to load asset: ${file.key}`);
     });
+    this.isVisible = false;
   }
 
   init(data) {
@@ -115,6 +116,7 @@ const toggleButton = this.add.text(10, 10, "Show Panel", {
   this.isVisible = !this.isVisible;
   if (this.isVisible) {
     // Launch UIPanelScene and pass necessary data
+    
     this.scene.launch("UIPanelScene", {
       currentUserId: this.currentUserId,
       playerPosition: this.playerPosition,
@@ -234,7 +236,7 @@ this.physics.add.overlap(this.player, riddleGroup, (player, riddle) => {
       // Start the RiddleScene passing the entire currentRiddle object and player position.
       this.scene.start("RiddleScene", { 
         riddle: currentRiddle, 
-        playerPosition: { x: 505, y: 1035 } 
+        playerPosition: { x: this.player.x, y: this.player.y } 
       });
     } else {
       console.warn(`No riddle data found for riddle level: "${riddle.name}"`);
