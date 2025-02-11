@@ -4,6 +4,9 @@ import WorldScene from './scenes/WorldScene.js';
 import RiddleScene from "./scenes/RiddleScene.js";
 import AnswerScene from "./scenes/AnswerScene.js";
 import UIPanelScene from "./scenes/UIPanelScene.js";
+import MainMenuScene from "./scenes/MainMenuScene.js";
+import AvatarScene from "./scenes/AvatarScene.js";
+import InstructionsScene from "./scenes/InstructionScene.js";
 
 async function fetchCompetitionData() {
     console.log("Fetching doc");
@@ -43,10 +46,13 @@ async function startGame() {
         parent: 'game-container',
         dom: { createContainer: true },
         scene: [
+            MainMenuScene,
             new WorldScene(competitionData),
             RiddleScene,
             AnswerScene,
-            UIPanelScene
+            UIPanelScene,
+            new AvatarScene(competitionData),
+            new InstructionsScene(competitionData),
         ], 
         physics: {
             default: 'arcade', 
