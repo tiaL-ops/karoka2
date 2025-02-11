@@ -3,8 +3,8 @@ import { db, auth } from "../firebase.js";
 import {
   doc,
   onSnapshot,
-  
 } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
 export default class UIPanelScene extends Phaser.Scene {
   constructor() {
@@ -91,6 +91,17 @@ export default class UIPanelScene extends Phaser.Scene {
     });
     this.panelContainer.add(levelsText);
 
+    // Create a selection arrow indicator (text-based)
+    this.selectionIndicator = this.add.text(0, 0, "►", {
+      font: "18px 'Press Start 2P', cursive",
+      fill: "#ff0000",
+      stroke: "#000000",
+      strokeThickness: 2,
+    });
+    // Initially hide the indicator until the user hovers over an interactive element
+    this.selectionIndicator.setVisible(false);
+    this.panelContainer.add(this.selectionIndicator);
+
     // Retrieve the riddles JSON from cache (using the key "riddles" from preload)
     const riddlesData = this.cache.json.get("riddles");
     if (!riddlesData) {
@@ -142,6 +153,9 @@ export default class UIPanelScene extends Phaser.Scene {
             // If not solved, make it clickable so the user can attempt it.
             if (!isSolved) {
               levelText.setInteractive({ useHandCursor: true });
+              levelText.on("pointerover", () => {
+                this.updateSelectionIndicator(levelText);
+              });
               levelText.on("pointerdown", () => {
                 console.log(`Level ${level} clicked in UIPanelScene`);
                 // Launch AnswerScene so the user can enter their answer.
@@ -167,28 +181,30 @@ export default class UIPanelScene extends Phaser.Scene {
       stroke: "#000000",
       strokeThickness: 2,
     }).setInteractive({ useHandCursor: true });
+    mainMenuButton.on("pointerover", () => {
+      this.updateSelectionIndicator(mainMenuButton);
+    });
     mainMenuButton.on("pointerdown", () => {
+      this.scene.stop("WorldScene");
+  
       this.scene.start("MainMenuScene");
     });
     this.panelContainer.add(mainMenuButton);
 
-    // Logout button at the bottom of the panel
-    const logoutButton = this.add.text(20, panelHeight - 50, "Logout", {
-      font: "18px 'Press Start 2P', cursive",
-      fill: "#ff0000",
-      stroke: "#000000",
-      strokeThickness: 2,
-    }).setInteractive({ useHandCursor: true });
-    logoutButton.on("pointerdown", async () => {
-      try {
-        await signOut(auth);
-        console.log("User logged out successfully!");
-        document.body.innerHTML = "";
-        location.reload();
-      } catch (error) {
-        console.error("Logout failed:", error.message);
-      }
-    });
-    this.panelContainer.add(logoutButton);
+  }
+
+  /**
+   * Updates the position of the text-based selection indicator (►)
+   * to align with the provided target text.
+   *
+   * @param {Phaser.GameObjects.Text} target - The interactive text to highlight.
+   */
+  updateSelectionIndicator(target) {
+    // Make the indicator visible
+    this.selectionIndicator.setVisible(true);
+    // Position the indicator 15 pixels to the left of the target text
+    this.selectionIndicator.x = target.x - 15;
+    // Align vertically with the target (you can tweak the offset as needed)
+    this.selectionIndicator.y = target.y;
   }
 }

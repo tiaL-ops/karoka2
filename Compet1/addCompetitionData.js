@@ -1,5 +1,5 @@
-//IMPORTANT
-//THIS HAS ALREADY BEEN ADDEDD
+// IMPORTANT
+// THIS HAS ALREADY BEEN ADDED
 const admin = require("firebase-admin");
 
 // Initialize Firebase Admin SDK
@@ -26,30 +26,30 @@ const competitionData = {
       url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2FTileMap.png?alt=media",
     },
   ],
-  spritesheet: [{
-    key: "girl",
-    url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2Fgirl.png?alt=media",
-    frameWidth: 48,
-    frameHeight: 48,
-  
-  },
-  {
-    key: "boiTest",
-    url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2FboiTest.png?alt=media",
-    frameWidth: 48,
-    frameHeight: 48,
-  },
-],
+  spritesheet: [
+    {
+      key: "girl",
+      url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2Fgirl.png?alt=media",
+      frameWidth: 48,
+      frameHeight: 48,
+    },
+    {
+      key: "boiTest",
+      url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2FboiTest.png?alt=media",
+      frameWidth: 48,
+      frameHeight: 48,
+    },
+  ],
   tilemap: {
     key: "test",
     url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2Ftest.json?alt=media",
   },
 };
 
-// Add the data to Firestore
+// Function to add competition data
 async function addCompetitionData() {
   try {
-    const competitionId = "compet1Test"; 
+    const competitionId = "compet1Test";
     await db.collection("competitions").doc(competitionId).set(competitionData);
     console.log(`Competition data added successfully for: ${competitionId}`);
   } catch (error) {
@@ -57,10 +57,9 @@ async function addCompetitionData() {
   }
 }
 
-
 async function addPanelImage() {
   try {
-    const competitionId = "compet1Test"; 
+    const competitionId = "compet1Test";
     const competitionRef = db.collection("competitions").doc(competitionId);
 
     // Define the new panel image
@@ -82,8 +81,7 @@ async function addPanelImage() {
 
 // IMPORTANT: Firebase Admin already initialized above
 
-const riddle = "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2FCompet1Riddle.json?alt=media"
-
+const riddle = "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2FCompet1Riddle.json?alt=media";
 
 // Function to add the riddle to Firestore under a separate 'riddles' array
 async function addRiddleToFirestore() {
@@ -102,15 +100,34 @@ async function addRiddleToFirestore() {
   }
 }
 
-// Run the function
-addRiddleToFirestore();
+// Function to add the instructions to Firestore under a separate 'instructions' array
+async function addInstructionsToFirestore() {
+  try {
+    const competitionId = "compet1Test";
+    const competitionRef = db.collection("competitions").doc(competitionId);
 
+    const instructions = [
+      {
+        key: "PI",
+        url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2FPInstruction.png?alt=media",
+      },
+      {
+        key: "RI",
+        url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2FRInstruction.png?alt=media",
+      },
+    ];
 
+    // Update Firestore to append the instruction objects to the 'instructions' array
+    await competitionRef.update({
+      instructions: admin.firestore.FieldValue.arrayUnion(...instructions),
+    });
 
+    console.log("Instructions added successfully!");
+  } catch (error) {
+    console.error("Error adding instructions:", error);
+  }
+}
 
+// Run the functions
 
-
-
-
-
-
+addInstructionsToFirestore();
