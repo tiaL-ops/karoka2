@@ -111,4 +111,5 @@ This project is licensed under the [MIT License](LICENSE).
 Enjoy the journey of learning data structures and algorithms with KarokaGame! 🌟
 
 Done!
-Need to develip the game
+Need to develop the game
+Plan: Friday the game ready: New Game, ready to launch!!
