@@ -14,7 +14,7 @@ let currentUserId = '';
 
 // Ensure DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-  usernameElement = document.getElementById('username');
+  usernameElement = document.getElementById('username'); 
   profileSection = document.getElementById('profile-section');
   competitionContainer = document.getElementById('competition-container');
   authButton = document.getElementById('auth-button');
