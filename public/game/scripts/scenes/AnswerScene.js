@@ -4,12 +4,13 @@ import {
   doc,
   setDoc,
   getDoc,
+  onSnapshot,
 } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
 export default class AnswerScene extends Phaser.Scene {
   constructor() {
-    // Ensure DOM container is created so Phaser can manage DOM elements.
+    // Create the DOM container for Phaser-managed DOM elements.
     super({ key: "AnswerScene", dom: { createContainer: true } });
     this.solution = "";      // Correct answer from the riddle data
     this.currentLevel = null; // Level number
@@ -17,10 +18,12 @@ export default class AnswerScene extends Phaser.Scene {
 
     this.maxAttempts = 7;    // Maximum allowed incorrect attempts
     this.attemptsText = null; // Text object to display attempts remaining
+    this.solvedLevelsText = null; // Text element to display solved levels
 
-    // We'll store references to our DOM input and submit button so we can hide them later.
+    // References to DOM input and buttons.
     this.inputElement = null;
     this.submitButton = null;
+    this.unsubscribe = null; // For real-time listener cleanup.
   }
 
   init(data) {
@@ -62,19 +65,17 @@ export default class AnswerScene extends Phaser.Scene {
     graphics.strokeRoundedRect(panelX, panelY, panelWidth, panelHeight, radius);
 
     // --- Prompt Text ---
-    this.add
-      .text(this.cameras.main.width / 2, panelY + 40, "Enter your answer:", {
-        font: "20px 'Press Start 2P'",
-        fill: "#C0392B",
-        stroke: "#FFFFFF",
-        strokeThickness: 2,
-        align: "center"
-      })
-      .setOrigin(0.5);
+    this.add.text(this.cameras.main.width / 2, panelY + 40, "Enter your answer:", {
+      font: "20px 'Press Start 2P'",
+      fill: "#C0392B",
+      stroke: "#FFFFFF",
+      strokeThickness: 2,
+      align: "center"
+    }).setOrigin(0.5);
 
     // --- Create Phaser DOM Input Element for Answer ---
     let panelCenterX = this.cameras.main.width / 2;
-    let panelCenterY = panelY + 200; // Adjust vertical position inside the panel
+    let panelCenterY = panelY + 200; // Vertical position within the panel
 
     const inputStyle = `
       width: 200px;
@@ -87,13 +88,11 @@ export default class AnswerScene extends Phaser.Scene {
       padding: 5px;
       z-index: 10000;
     `;
-
     const inputElement = this.add.dom(panelCenterX, panelCenterY, 'input', inputStyle);
     inputElement.node.placeholder = "Type your answer...";
     if (this.solution && this.solution.length) {
       inputElement.node.maxLength = this.solution.length;
     }
-    // Save reference for later use.
     this.inputElement = inputElement;
     console.log('Initial Input Element Position:', inputElement.x, inputElement.y);
 
@@ -119,7 +118,41 @@ export default class AnswerScene extends Phaser.Scene {
       }
     ).setOrigin(0.5);
 
-    // Load existing attempt data from Firestore (and update UI accordingly)
+    // --- Create and Display Solved Levels Text ---
+    this.solvedLevelsText = this.add.text(
+      this.cameras.main.width / 2,
+      100,
+      "Solved Levels: None",
+      {
+        font: "18px 'Press Start 2P'",
+        fill: "#27AE60",
+        stroke: "#FFFFFF",
+        strokeThickness: 2,
+        align: "center"
+      }
+    ).setOrigin(0.5);
+
+    // --- Attach a real-time listener to update solvedLevelsText and check if current level is solved ---
+    const docRef = doc(db, "competition1Test", auth.currentUser.uid);
+    this.unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const solvedLevelsArray = data.solvedLevels || [];
+        const solved = solvedLevelsArray.length ? solvedLevelsArray.join(', ') : "None";
+        this.solvedLevelsText.setText("Solved Levels: " + solved);
+        // Check if the current level is already solved.
+        if (solvedLevelsArray.includes(this.currentLevel)) {
+          // Change input style to green, disable input and submission.
+          this.inputElement.node.style.backgroundColor = "#27AE60";
+          this.inputElement.node.disabled = true;
+          this.submitButton.disableInteractive();
+          // Optionally, show a message indicating the level is already solved.
+          this.showMessage("Level already solved!", true);
+        }
+      }
+    });
+
+    // --- Load existing attempt data from Firestore ---
     await this.loadAttempts();
 
     // --- Submit Button ---
@@ -137,7 +170,6 @@ export default class AnswerScene extends Phaser.Scene {
     ).setOrigin(0.5);
     submitButton.setInteractive({ useHandCursor: true });
     submitButton.on("pointerdown", () => {
-      // Only allow submission if input field is visible (attempts remain)
       if (!this.inputElement.visible) {
         return;
       }
@@ -180,7 +212,6 @@ export default class AnswerScene extends Phaser.Scene {
     } else {
       const logged = await this.logIncorrectAttempt(userInput);
       if (logged === false) {
-        // Maximum attempts reached: hide the input field and submit button.
         if (this.inputElement) this.inputElement.setVisible(false);
         if (this.submitButton) this.submitButton.setVisible(false);
         this.showMessage("No attempts left. Game Over.", false);
@@ -220,29 +251,30 @@ export default class AnswerScene extends Phaser.Scene {
   async updateFirebase() {
     try {
       const userId = auth.currentUser.uid;
-      const docRef = doc(db, "profiles", userId);
+      const docRef = doc(db, "competition1Test", userId);
       const docSnap = await getDoc(docRef);
+      let existingData = {};
       if (docSnap.exists()) {
-        const existingData = docSnap.data();
-        const solvedLevels = new Set(existingData.solvedLevels || []);
-        solvedLevels.add(this.currentLevel);
-        const updatedData = {
-          points: (existingData.points || 0) + 10,
-          solvedLevels: Array.from(solvedLevels),
-        };
-        await setDoc(docRef, updatedData, { merge: true });
-        console.log("Firebase updated with correct answer for level", this.currentLevel);
+        existingData = docSnap.data();
       }
+      const solvedLevels = new Set(existingData.solvedLevels || []);
+      solvedLevels.add(this.currentLevel);
+      const updatedData = {
+        points: (existingData.points || 0) + 10,
+        solvedLevels: Array.from(solvedLevels),
+        uid: userId,
+      };
+      await setDoc(docRef, updatedData, { merge: true });
+      console.log("Firebase updated with correct answer for level", this.currentLevel);
     } catch (error) {
       console.error("Error updating firebase:", error);
     }
   }
 
-  // Loads the current attempt count for the level from Firestore and updates the UI.
   async loadAttempts() {
     try {
       const userId = auth.currentUser.uid;
-      const docRef = doc(db, "profiles", userId);
+      const docRef = doc(db, "competition1Test", userId);
       const docSnap = await getDoc(docRef);
       let currentCount = 0;
       if (docSnap.exists()) {
@@ -256,7 +288,6 @@ export default class AnswerScene extends Phaser.Scene {
       if (this.attemptsText) {
         this.attemptsText.setText(`Attempts left: ${attemptsLeft}`);
       }
-      // If no attempts are left, hide the input and submit button.
       if (attemptsLeft <= 0) {
         if (this.inputElement) this.inputElement.setVisible(false);
         if (this.submitButton) this.submitButton.setVisible(false);
@@ -266,50 +297,53 @@ export default class AnswerScene extends Phaser.Scene {
     }
   }
 
-  // Logs an incorrect attempt to Firestore and returns:
-  // - true if the attempt was logged,
-  // - false if the maximum number of attempts has already been reached.
   async logIncorrectAttempt(userInput) {
     try {
       const userId = auth.currentUser.uid;
-      const docRef = doc(db, "profiles", userId);
+      const docRef = doc(db, "competition1Test", userId);
       const docSnap = await getDoc(docRef);
+      let existingData = {};
       if (docSnap.exists()) {
-        const existingData = docSnap.data();
-        const incorrectAttempts = existingData.incorrectAttempts || {};
-        if (!incorrectAttempts[this.currentLevel]) {
-          incorrectAttempts[this.currentLevel] = [];
+        existingData = docSnap.data();
+      }
+      const incorrectAttempts = existingData.incorrectAttempts || {};
+      if (!incorrectAttempts[this.currentLevel]) {
+        incorrectAttempts[this.currentLevel] = [];
+      }
+      const currentCount = incorrectAttempts[this.currentLevel].length;
+      if (currentCount >= this.maxAttempts) {
+        console.log(`Maximum incorrect attempts reached for level ${this.currentLevel}.`);
+        if (this.attemptsText) {
+          this.attemptsText.setText("No attempts left!");
         }
-        const currentCount = incorrectAttempts[this.currentLevel].length;
-
-        if (currentCount >= this.maxAttempts) {
-          console.log(`Maximum incorrect attempts reached for level ${this.currentLevel}.`);
-          if (this.attemptsText) {
-            this.attemptsText.setText("No attempts left!");
-          }
-          return false; // Do not log any new attempt.
-        } else {
-          incorrectAttempts[this.currentLevel].push({
-            answer: userInput,
-            timestamp: new Date().toISOString(),
-          });
-          await setDoc(docRef, { incorrectAttempts }, { merge: true });
-          console.log("Incorrect attempt logged for level", this.currentLevel);
-          const attemptsLeft = this.maxAttempts - (currentCount + 1);
-          console.log(`You have ${attemptsLeft} attempt(s) left.`);
-          if (this.attemptsText) {
-            this.attemptsText.setText(`Attempts left: ${attemptsLeft}`);
-          }
-          // If attemptsLeft becomes 0 after this logging, hide the input field.
-          if (attemptsLeft <= 0) {
-            if (this.inputElement) this.inputElement.setVisible(false);
-            if (this.submitButton) this.submitButton.setVisible(false);
-          }
-          return true;
+        return false;
+      } else {
+        incorrectAttempts[this.currentLevel].push({
+          answer: userInput,
+          timestamp: new Date().toISOString(),
+        });
+        await setDoc(docRef, { incorrectAttempts }, { merge: true });
+        console.log("Incorrect attempt logged for level", this.currentLevel);
+        const attemptsLeft = this.maxAttempts - (currentCount + 1);
+        console.log(`You have ${attemptsLeft} attempt(s) left.`);
+        if (this.attemptsText) {
+          this.attemptsText.setText(`Attempts left: ${attemptsLeft}`);
         }
+        if (attemptsLeft <= 0) {
+          if (this.inputElement) this.inputElement.setVisible(false);
+          if (this.submitButton) this.submitButton.setVisible(false);
+        }
+        return true;
       }
     } catch (error) {
       console.error("Error logging incorrect attempt:", error);
+    }
+  }
+
+  // Clean up the real-time listener when the scene is shut down.
+  shutdown() {
+    if (this.unsubscribe) {
+      this.unsubscribe();
     }
   }
 }

@@ -173,7 +173,7 @@ async function displayCompetitions() {
       // Competition name header
       const nameHeader = document.createElement("h3");
       nameHeader.textContent = name;
-      competitionDiv.appendChild(nameHeader);
+      //competitionDiv.appendChild(nameHeader);
 
       // Thumbnail image if available
       if (thumbnail) {
