@@ -32,7 +32,7 @@ export default class WorldScene extends Phaser.Scene {
     }
 
     const data = this.competitionData;
-    console.log("Competition data loaded:", data);
+    
 
     if (Array.isArray(data.spritesheet)) {
       data.spritesheet.forEach((sprites) => {
@@ -47,7 +47,7 @@ export default class WorldScene extends Phaser.Scene {
     if (Array.isArray(data.images)) {
       data.images.forEach(image => {
         this.load.image(image.key, image.url);
-        console.log("Here is image key", image.key);
+       
       });
     }
 
@@ -55,7 +55,7 @@ export default class WorldScene extends Phaser.Scene {
     // We use the key "riddles" for caching. (Assumes data.riddles is an array with at least one URL.)
     const riddleKey = "riddles";
     const riddleDataLink = data.riddles; 
-    console.log(typeof data.riddles, data.riddles); 
+   
     this.load.json(riddleKey, riddleDataLink[0]);
     
     // Load tilemap
@@ -98,7 +98,7 @@ export default class WorldScene extends Phaser.Scene {
 
     this.input.keyboard.on("keydown-G", () => {
       this.input.once("pointerdown", (pointer) => {
-        console.log(`Mouse clicked at X: ${pointer.worldX}, Y: ${pointer.worldY}`);
+      
       });
     });
   
