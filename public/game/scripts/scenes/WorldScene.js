@@ -262,6 +262,8 @@ this.physics.add.overlap(this.player, riddleGroup, (player, riddle) => {
     // -------------------------------
   }
 
+  
+
   createPlayerAnimations(textureKey) {
     const prefix = textureKey; 
     this.anims.create({
@@ -333,4 +335,6 @@ this.physics.add.overlap(this.player, riddleGroup, (player, riddle) => {
       this.player.anims.stop();
     }
   }
+
+  
 }
