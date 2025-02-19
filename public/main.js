@@ -282,4 +282,18 @@ document.addEventListener('click', (event) => {
       profile.style.display = 'none';
     }
   }
+
+});
+
+function redirectFeedback() {
+  // Redirect the browser to the specified URL
+  window.location.href = "https://forms.gle/hdwpx64Z7xYwmMKU9";
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const button = document.getElementById("feedback");
+  if (button) {
+    button.addEventListener("click", redirectFeedback);
+  } else {
+    console.error("Feedback button not found!");
+  }
 });
