@@ -38,7 +38,7 @@ export default class AnswerScene extends Phaser.Scene {
     if (data && data.playerPosition) {
       this.playerPosition = data.playerPosition;
     }
-    console.log("AnswerScene initialized for Level:", this.currentLevel, "Solution:", this.solution);
+   
   }
 
   preload() {
