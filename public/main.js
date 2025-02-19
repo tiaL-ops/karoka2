@@ -184,10 +184,16 @@ async function displayCompetitions() {
         competitionDiv.appendChild(thumbnailImg);
       }
 
-      // Redirect on click: navigate to game page with competition as query parameter.
       competitionDiv.addEventListener("click", () => {
-        window.location.href = `game/game.html?competition=${encodeURIComponent(name)}`;
+        if (!auth.currentUser) {
+          // If not logged in, open the authentication form first.
+          openAuthForm();
+        } else {
+          // If logged in, proceed with redirecting.
+          window.location.href = `game/game.html?competition=${encodeURIComponent(name)}`;
+        }
       });
+      
 
       competitionContainer.appendChild(competitionDiv);
     });

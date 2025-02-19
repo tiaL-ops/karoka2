@@ -42,13 +42,15 @@ export default class MainMenuScene extends Phaser.Scene {
       { label: "Choose Avatar", action: () => this.scene.start("AvatarScene") },
       { label: "Instructions", action: () => this.scene.start("InstructionsScene") },
       {
-        label: "Logout",
+        label: "Return",
         action: async () => {
           try {
-            await signOut(auth);
-            console.log("User logged out successfully!");
-            document.body.innerHTML = "";
-            location.reload();
+            this.scene.stop();
+            console.log("User back to html!");
+           
+            window.location.href = "../index.html";
+           
+
           } catch (error) {
             console.error("Logout failed:", error.message);
           }

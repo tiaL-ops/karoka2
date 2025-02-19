@@ -169,9 +169,17 @@ toggleButton.setScrollFactor(0);
     // Create the player sprite
     this.player = this.physics.add.sprite(this.playerPosition.x, this.playerPosition.y, selectedAvatar);
     this.player.setCollideWorldBounds(true);
+    
+    // Adjust the collider size (width: 20, height: 30 as an example)
+    this.player.body.setSize(20, 20);
+    
+    // Optionally, if you need to reposition the collider relative to the sprite:
+    this.player.body.setOffset(15, 20);
+    
     this.createPlayerAnimations(selectedAvatar);
     camera.startFollow(this.player);
     this.cursors = this.input.keyboard.createCursorKeys();
+    
 
     // Process Block layer for collision objects
     const gameObjectLayer = map.getObjectLayer("Block");
@@ -254,6 +262,8 @@ this.physics.add.overlap(this.player, riddleGroup, (player, riddle) => {
     // -------------------------------
   }
 
+  
+
   createPlayerAnimations(textureKey) {
     const prefix = textureKey; 
     this.anims.create({
@@ -325,4 +335,6 @@ this.physics.add.overlap(this.player, riddleGroup, (player, riddle) => {
       this.player.anims.stop();
     }
   }
+
+  
 }
