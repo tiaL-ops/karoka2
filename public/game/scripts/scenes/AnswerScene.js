@@ -14,6 +14,13 @@ export default class AnswerScene extends Phaser.Scene {
     this.solution = "";      // Correct answer from the riddle data
     this.currentLevel = null; // Level number
     this.playerPosition = { x: 0, y: 0 }; // For returning to WorldScene
+
+    this.maxAttempts = 7;    // Maximum allowed incorrect attempts
+    this.attemptsText = null; // Text object to display attempts remaining
+
+    // We'll store references to our DOM input and submit button so we can hide them later.
+    this.inputElement = null;
+    this.submitButton = null;
   }
 
   init(data) {
@@ -35,7 +42,7 @@ export default class AnswerScene extends Phaser.Scene {
     // Optionally preload assets
   }
 
-  create() {
+  async create() {
     console.log("AnswerScene create");
 
     // --- Draw a Retro-Styled Background Panel ---
@@ -55,13 +62,15 @@ export default class AnswerScene extends Phaser.Scene {
     graphics.strokeRoundedRect(panelX, panelY, panelWidth, panelHeight, radius);
 
     // --- Prompt Text ---
-    this.add.text(this.cameras.main.width / 2, panelY + 40, "Enter your answer:", {
-      font: "20px 'Press Start 2P'",
-      fill: "#C0392B",
-      stroke: "#FFFFFF",
-      strokeThickness: 2,
-      align: "center"
-    }).setOrigin(0.5);
+    this.add
+      .text(this.cameras.main.width / 2, panelY + 40, "Enter your answer:", {
+        font: "20px 'Press Start 2P'",
+        fill: "#C0392B",
+        stroke: "#FFFFFF",
+        strokeThickness: 2,
+        align: "center"
+      })
+      .setOrigin(0.5);
 
     // --- Create Phaser DOM Input Element for Answer ---
     let panelCenterX = this.cameras.main.width / 2;
@@ -84,8 +93,8 @@ export default class AnswerScene extends Phaser.Scene {
     if (this.solution && this.solution.length) {
       inputElement.node.maxLength = this.solution.length;
     }
-
-    // Log the initial position of the DOM element
+    // Save reference for later use.
+    this.inputElement = inputElement;
     console.log('Initial Input Element Position:', inputElement.x, inputElement.y);
 
     // --- Update DOM Input Position on Game Resize ---
@@ -95,6 +104,23 @@ export default class AnswerScene extends Phaser.Scene {
       inputElement.setPosition(panelCenterX, panelCenterY);
       console.log('Resized Input Element Position:', inputElement.x, inputElement.y);
     });
+
+    // --- Create and Display Attempts Remaining Text ---
+    this.attemptsText = this.add.text(
+      this.cameras.main.width / 2,
+      panelY + 80,
+      `Attempts left: ${this.maxAttempts}`,
+      {
+        font: "18px 'Press Start 2P'",
+        fill: "#C0392B",
+        stroke: "#FFFFFF",
+        strokeThickness: 2,
+        align: "center"
+      }
+    ).setOrigin(0.5);
+
+    // Load existing attempt data from Firestore (and update UI accordingly)
+    await this.loadAttempts();
 
     // --- Submit Button ---
     const submitButton = this.add.text(
@@ -111,13 +137,18 @@ export default class AnswerScene extends Phaser.Scene {
     ).setOrigin(0.5);
     submitButton.setInteractive({ useHandCursor: true });
     submitButton.on("pointerdown", () => {
-      const userInput = inputElement.node.value;
+      // Only allow submission if input field is visible (attempts remain)
+      if (!this.inputElement.visible) {
+        return;
+      }
+      const userInput = this.inputElement.node.value;
       if (!userInput.trim()) {
         this.showMessage("Please enter an answer.", false);
         return;
       }
       this.validateAnswer(userInput);
     });
+    this.submitButton = submitButton;
 
     // --- Return Button ---
     const returnButton = this.add.text(
@@ -147,8 +178,18 @@ export default class AnswerScene extends Phaser.Scene {
         this.scene.start("WorldScene", { playerPosition: this.playerPosition });
       });
     } else {
-      await this.logIncorrectAttempt(userInput);
-      this.showMessage("Incorrect Answer. Try again.", false);
+      const logged = await this.logIncorrectAttempt(userInput);
+      if (logged === false) {
+        // Maximum attempts reached: hide the input field and submit button.
+        if (this.inputElement) this.inputElement.setVisible(false);
+        if (this.submitButton) this.submitButton.setVisible(false);
+        this.showMessage("No attempts left. Game Over.", false);
+        this.time.delayedCall(2000, () => {
+          this.scene.start("WorldScene", { playerPosition: this.playerPosition });
+        });
+      } else {
+        this.showMessage("Incorrect Answer. Try again.", false);
+      }
     }
   }
 
@@ -197,6 +238,37 @@ export default class AnswerScene extends Phaser.Scene {
     }
   }
 
+  // Loads the current attempt count for the level from Firestore and updates the UI.
+  async loadAttempts() {
+    try {
+      const userId = auth.currentUser.uid;
+      const docRef = doc(db, "profiles", userId);
+      const docSnap = await getDoc(docRef);
+      let currentCount = 0;
+      if (docSnap.exists()) {
+        const existingData = docSnap.data();
+        const incorrectAttempts = existingData.incorrectAttempts || {};
+        if (incorrectAttempts[this.currentLevel]) {
+          currentCount = incorrectAttempts[this.currentLevel].length;
+        }
+      }
+      const attemptsLeft = this.maxAttempts - currentCount;
+      if (this.attemptsText) {
+        this.attemptsText.setText(`Attempts left: ${attemptsLeft}`);
+      }
+      // If no attempts are left, hide the input and submit button.
+      if (attemptsLeft <= 0) {
+        if (this.inputElement) this.inputElement.setVisible(false);
+        if (this.submitButton) this.submitButton.setVisible(false);
+      }
+    } catch (error) {
+      console.error("Error loading attempt data:", error);
+    }
+  }
+
+  // Logs an incorrect attempt to Firestore and returns:
+  // - true if the attempt was logged,
+  // - false if the maximum number of attempts has already been reached.
   async logIncorrectAttempt(userInput) {
     try {
       const userId = auth.currentUser.uid;
@@ -205,13 +277,36 @@ export default class AnswerScene extends Phaser.Scene {
       if (docSnap.exists()) {
         const existingData = docSnap.data();
         const incorrectAttempts = existingData.incorrectAttempts || {};
-        incorrectAttempts[this.currentLevel] = incorrectAttempts[this.currentLevel] || [];
-        incorrectAttempts[this.currentLevel].push({
-          answer: userInput,
-          timestamp: new Date().toISOString(),
-        });
-        await setDoc(docRef, { incorrectAttempts }, { merge: true });
-        console.log("Incorrect attempt logged for level", this.currentLevel);
+        if (!incorrectAttempts[this.currentLevel]) {
+          incorrectAttempts[this.currentLevel] = [];
+        }
+        const currentCount = incorrectAttempts[this.currentLevel].length;
+
+        if (currentCount >= this.maxAttempts) {
+          console.log(`Maximum incorrect attempts reached for level ${this.currentLevel}.`);
+          if (this.attemptsText) {
+            this.attemptsText.setText("No attempts left!");
+          }
+          return false; // Do not log any new attempt.
+        } else {
+          incorrectAttempts[this.currentLevel].push({
+            answer: userInput,
+            timestamp: new Date().toISOString(),
+          });
+          await setDoc(docRef, { incorrectAttempts }, { merge: true });
+          console.log("Incorrect attempt logged for level", this.currentLevel);
+          const attemptsLeft = this.maxAttempts - (currentCount + 1);
+          console.log(`You have ${attemptsLeft} attempt(s) left.`);
+          if (this.attemptsText) {
+            this.attemptsText.setText(`Attempts left: ${attemptsLeft}`);
+          }
+          // If attemptsLeft becomes 0 after this logging, hide the input field.
+          if (attemptsLeft <= 0) {
+            if (this.inputElement) this.inputElement.setVisible(false);
+            if (this.submitButton) this.submitButton.setVisible(false);
+          }
+          return true;
+        }
       }
     } catch (error) {
       console.error("Error logging incorrect attempt:", error);

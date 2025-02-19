@@ -128,6 +128,39 @@ async function addInstructionsToFirestore() {
   }
 }
 
-// Run the functions
+const newImages = [
+  {
+    key: "wiseman",
+    url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2Fwiseman.png?alt=media",
+  },
+  {
+    key: "forest",
+    url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2Fforest.png?alt=media",
+  },
+  {
+    key: "ktilestest",
+    url: "https://firebasestorage.googleapis.com/v0/b/karoka-game.firebasestorage.app/o/Compet1test%2Fktilestest.png?alt=media",
+  }
+];
 
-addInstructionsToFirestore();
+// Update the document by adding the new images to the existing 'images' array
+function addData(){
+  db.collection("competitions")
+  .doc("compet1Test")
+  .update({
+    images: admin.firestore.FieldValue.arrayUnion(...newImages)
+  })
+  .then(() => {
+    console.log("New images added successfully!");
+  })
+  .catch((error) => {
+    console.error("Error adding images:", error);
+  });
+}
+
+
+
+
+
+
+
