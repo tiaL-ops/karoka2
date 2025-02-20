@@ -1,14 +1,12 @@
 // game.js
-
-// Use absolute paths starting from the root of the public folder.
-import { getFirestore, doc, getDoc } from "/game/scripts/firebase.js";
-import WorldScene from "/game/scripts/scenes/WorldScene.js"; 
-import RiddleScene from "/game/scripts/scenes/RiddleScene.js";
-import AnswerScene from "/game/scripts/AnswerScene.js";
-import UIPanelScene from "/game/scripts/scenes/UIPanelScene.js";
-import MainMenuScene from "/game/scripts/scenes/MainMenuScene.js";
-import AvatarScene from "/game/scripts/scenes/AvatarScene.js";
-import InstructionsScene from "/game/scripts/scenes/InstructionScene.js";
+import { getFirestore, doc, getDoc } from "./firebase.js";
+import WorldScene from './scenes/WorldScene.js'; 
+import RiddleScene from "./scenes/RiddleScene.js";
+import AnswerScene from "./scenes/AnswerScene.js";
+import UIPanelScene from "./scenes/UIPanelScene.js";
+import MainMenuScene from "./scenes/MainMenuScene.js";
+import AvatarScene from "./scenes/AvatarScene.js";
+import InstructionsScene from "./scenes/InstructionScene.js";
 
 async function fetchCompetitionData() {
     console.log("Fetching doc");
@@ -67,6 +65,7 @@ async function startGame() {
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH,
         },
+        
     };
 
     const game = new Phaser.Game(config);
