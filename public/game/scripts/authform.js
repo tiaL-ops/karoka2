@@ -7,6 +7,23 @@ import {
 import { getDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
 import { db } from './firebase.js'; // Ensure you have db initialized
 
+// Helper function to convert Firebase errors into user-friendly messages.
+function getFriendlyErrorMessage(error) {
+  const errorCode = error.code;
+  const errorMessages = {
+    "auth/invalid-email": "The email address is not valid. Please check and try again.",
+    "auth/user-disabled": "This account has been disabled. Please contact support.",
+    "auth/user-not-found": "No account found with this email. Please sign up first.",
+    "auth/wrong-password": "Incorrect password. Please try again or reset your password.",
+    "auth/email-already-in-use": "This email is already in use. Try logging in instead.",
+    "auth/weak-password": "Your password is too weak. Use at least 6 characters.",
+    "auth/popup-closed-by-user": "Google login was canceled. Please try again.",
+    "auth/network-request-failed": "Network error. Check your connection and try again.",
+  };
+
+  return errorMessages[errorCode] || "An unexpected error occurred. Please try again.";
+}
+
 export function createAuthForm(loadMainMenu) {
   // Create the container and form elements
   const container = document.createElement('div');
@@ -72,8 +89,14 @@ export function createAuthForm(loadMainMenu) {
   // Email/Password Login
   // --------------------
   loginButton.addEventListener('click', async () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!email || !password) {
+      errorMessage.classList.remove('hidden');
+      errorMessage.innerText = "Please enter both email and password.";
+      return;
+    }
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
@@ -83,7 +106,7 @@ export function createAuthForm(loadMainMenu) {
     } catch (error) {
       console.error('Login failed:', error.message);
       errorMessage.classList.remove('hidden');
-      errorMessage.innerText = 'Login failed: ' + error.message;
+      errorMessage.innerText = getFriendlyErrorMessage(error);
     }
   });
 
@@ -95,14 +118,13 @@ export function createAuthForm(loadMainMenu) {
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
 
-    if (!email || !password || !name) {
+    if (!name || !email || !password) {
       errorMessage.classList.remove('hidden');
-      errorMessage.innerText = 'Name, email, and password are required.';
+      errorMessage.innerText = "Name, email, and password are required.";
       return;
     }
 
     try {
-      // Create user with email and password
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
@@ -116,7 +138,6 @@ export function createAuthForm(loadMainMenu) {
           email,
           uid: user.uid,
         });
-        
       } else {
         console.log('Profile already exists for this user. Skipping creation.');
       }
@@ -126,8 +147,7 @@ export function createAuthForm(loadMainMenu) {
     } catch (error) {
       console.error('Signup failed:', error.message);
       errorMessage.classList.remove('hidden');
-      errorMessage.innerText = 'Signup failed: ' + error.message;
-      // Keep the container so the user can correct their input and try again.
+      errorMessage.innerText = getFriendlyErrorMessage(error);
     }
   });
 
@@ -136,7 +156,6 @@ export function createAuthForm(loadMainMenu) {
   // --------------------
   googleButton.addEventListener('click', async () => {
     try {
-      // Sign in with Google popup
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
@@ -150,7 +169,6 @@ export function createAuthForm(loadMainMenu) {
           email: user.email,
           uid: user.uid,
         });
-        //console.log('Google login successful and new profile created:', user);
       } else {
         console.log('Profile already exists for this user. No changes made.');
       }
@@ -160,8 +178,7 @@ export function createAuthForm(loadMainMenu) {
     } catch (error) {
       console.error('Google login failed:', error.message);
       errorMessage.classList.remove('hidden');
-      errorMessage.innerText = 'Google login failed: ' + error.message;
-      // Keep the container visible for the user to try again.
+      errorMessage.innerText = getFriendlyErrorMessage(error);
     }
   });
 
