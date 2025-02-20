@@ -8,3 +8,8 @@ import { getFirestore, doc, getDocs, setDoc, collection, getDoc } from '../publi
 firbedae deploy:
 import { auth, signOut } from '/game/scripts/firebase.js';
 import { getFirestore, doc, getDocs, setDoc, collection, getDoc } from '/game/scripts/firebase.js';
+
+
+
+
+script type="module" src="/game/scripts/game.js"> i wront in game.html
