@@ -112,7 +112,7 @@ export default class UIPanelScene extends Phaser.Scene {
     this.levelTexts = [];
 
     // Listen for Firebase profile updates (points, solvedLevels)
-    const docRef = doc(db, "profiles", this.currentUserId);
+    const docRef = doc(db, "competition1Test", this.currentUserId);
     onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
