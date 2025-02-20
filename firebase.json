@@ -24,6 +24,10 @@
         "source": "**/*.js",
         "headers": [
           {
+            "key": "Content-Type",
+            "value": "application/javascript"
+          },
+          {
             "key": "Cache-Control",
             "value": "no-cache"
           }
@@ -56,7 +60,7 @@
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "max-age=31536000" 
+            "value": "max-age=31536000"
           }
         ]
       }
@@ -65,10 +69,6 @@
       {
         "source": "/assets/**",
         "destination": "/assets"
-      },
-      {
-        "source": "**",
-        "destination": "/index.html"
       }
     ]
   }
