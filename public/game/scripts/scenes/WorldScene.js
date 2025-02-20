@@ -119,7 +119,7 @@ const toggleButton = this.add.text(10, 10, "Show Panel", {
     
     this.scene.launch("UIPanelScene", {
       currentUserId: this.currentUserId,
-      playerPosition: this.playerPosition,
+      playerPosition: { x: this.player.x, y: this.player.y } ,
     });
     toggleButton.setText("Hide Panel");
   } else {
