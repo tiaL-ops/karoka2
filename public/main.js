@@ -14,7 +14,7 @@ let currentUserId = '';
 
 // Ensure DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-  usernameElement = document.getElementById('username');
+  usernameElement = document.getElementById('username'); 
   profileSection = document.getElementById('profile-section');
   competitionContainer = document.getElementById('competition-container');
   authButton = document.getElementById('auth-button');
@@ -173,7 +173,7 @@ async function displayCompetitions() {
       // Competition name header
       const nameHeader = document.createElement("h3");
       nameHeader.textContent = name;
-      competitionDiv.appendChild(nameHeader);
+      //competitionDiv.appendChild(nameHeader);
 
       // Thumbnail image if available
       if (thumbnail) {
@@ -281,5 +281,19 @@ document.addEventListener('click', (event) => {
     ) {
       profile.style.display = 'none';
     }
+  }
+
+});
+
+function redirectFeedback() {
+  // Redirect the browser to the specified URL
+  window.location.href = "https://forms.gle/hdwpx64Z7xYwmMKU9";
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const button = document.getElementById("feedback");
+  if (button) {
+    button.addEventListener("click", redirectFeedback);
+  } else {
+    console.error("Feedback button not found!");
   }
 });

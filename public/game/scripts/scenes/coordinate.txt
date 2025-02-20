@@ -21,7 +21,6 @@ Level 7:X: 1647.5018679950113, Y: 743.84940255922
 
 
 
-
 Original pos: 3368.12, 1375.78
 WorldScene.js:254 Adjusted pos: 105.25375, 42.993125
 WorldScene.js:253 Original pos: 3236.96, 853.997

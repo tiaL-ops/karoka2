@@ -72,8 +72,7 @@ export default class ProfileScene extends Phaser.Scene {
         const docRef = doc(db, 'profiles', this.currentUserId); // Use user ID as document ID
         await setDoc(docRef, profileData, { merge: true }); // Merge updates
         //console.log('Profile updated successfully:', profileData);
-        console.log("Kname"+localStorage.getItem('Kname'));
-
+        
 
         this.add.text(centerX, centerY + 200, 'Profile updated successfully!', {
           fontSize: '18px',
@@ -81,7 +80,7 @@ export default class ProfileScene extends Phaser.Scene {
           fontFamily: 'Arial',
         }).setOrigin(0.5);
       } catch (error) {
-        console.error('Error saving profile:', error);
+        //console.error('Error saving profile:', error);
         this.add.text(centerX, centerY + 200, 'Error saving profile. Please try again.', {
           fontSize: '18px',
           color: '#ff0000',
@@ -131,7 +130,7 @@ export default class ProfileScene extends Phaser.Scene {
         //console.log('No profile found for user ID:', userId);
       }
     } catch (error) {
-      console.error('Error loading profile:', error);
+      //console.error('Error loading profile:', error);
     }
   }
 
