@@ -116,7 +116,7 @@ export function createAuthForm(loadMainMenu) {
           email,
           uid: user.uid,
         });
-        console.log('Signup successful and new profile created:', user);
+        
       } else {
         console.log('Profile already exists for this user. Skipping creation.');
       }
@@ -150,7 +150,7 @@ export function createAuthForm(loadMainMenu) {
           email: user.email,
           uid: user.uid,
         });
-        console.log('Google login successful and new profile created:', user);
+        //console.log('Google login successful and new profile created:', user);
       } else {
         console.log('Profile already exists for this user. No changes made.');
       }
