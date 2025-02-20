@@ -32,7 +32,7 @@ export default class WorldScene extends Phaser.Scene {
     }
 
     const data = this.competitionData;
-    console.log("Competition data loaded:", data);
+    
 
     if (Array.isArray(data.spritesheet)) {
       data.spritesheet.forEach((sprites) => {
@@ -47,7 +47,7 @@ export default class WorldScene extends Phaser.Scene {
     if (Array.isArray(data.images)) {
       data.images.forEach(image => {
         this.load.image(image.key, image.url);
-        console.log("Here is image key", image.key);
+       
       });
     }
 
@@ -55,7 +55,7 @@ export default class WorldScene extends Phaser.Scene {
     // We use the key "riddles" for caching. (Assumes data.riddles is an array with at least one URL.)
     const riddleKey = "riddles";
     const riddleDataLink = data.riddles; 
-    console.log(typeof data.riddles, data.riddles); 
+   
     this.load.json(riddleKey, riddleDataLink[0]);
     
     // Load tilemap
@@ -98,7 +98,7 @@ export default class WorldScene extends Phaser.Scene {
 
     this.input.keyboard.on("keydown-G", () => {
       this.input.once("pointerdown", (pointer) => {
-        console.log(`Mouse clicked at X: ${pointer.worldX}, Y: ${pointer.worldY}`);
+      
       });
     });
   
@@ -144,7 +144,7 @@ toggleButton.setScrollFactor(0);
     if (defaultSpawn && defaultSpawn.objects.length > 0) {
       const spawnX = defaultSpawn.objects[0].x;  
       const spawnY = defaultSpawn.objects[0].y;
-      console.log(`Spawn X Coordinate: ${spawnX}`);
+      //console.log(`Spawn X Coordinate: ${spawnX}`);
     } else {
       console.log("No spawn point found!");
     }
@@ -153,12 +153,12 @@ toggleButton.setScrollFactor(0);
     const selectedAvatar = localStorage.getItem("selectedAvatar") || "boi";
 
     if (playerSpawn) {
-      console.log("There is a playerSpawn", playerSpawn);
+      
       const startX = 1; 
-      console.log("Start X: ", startX);
+     
       const startY = playerSpawn.y; 
     } else {
-      console.error("No valid spawn point found for the player.");
+    
     }
 
     this.physics.world.setBounds(0, 0, backgroundLayer.width, backgroundLayer.height);
@@ -215,13 +215,13 @@ toggleButton.setScrollFactor(0);
       riddle.setOrigin(0);
       riddle.body.setSize(obj.width, obj.height).setOffset(0, 0);
       riddle.name = obj.name; 
-      console.log("Created riddle with name:", riddle.name);
+      
     });
 
     // Retrieve the riddles JSON data from cache.
     // Retrieve the riddles JSON data from cache (an array of riddle objects)
 const riddlesData = this.cache.json.get("riddles");
-console.log("Riddles data loaded:", riddlesData);
+
 
 this.physics.add.overlap(this.player, riddleGroup, (player, riddle) => {
   if (riddle && riddle.name) {
@@ -239,7 +239,7 @@ this.physics.add.overlap(this.player, riddleGroup, (player, riddle) => {
     const currentRiddle = riddlesData.find(item => item.Level === levelNumber);
     if (currentRiddle) {
       // Log using the Title property (or fallback to a string including the level)
-      console.log(`Should start: "${currentRiddle.Title || "Level " + currentRiddle.Level}"`);
+      //console.log(`Should start: "${currentRiddle.Title || "Level " + currentRiddle.Level}"`);
       
       // Start the RiddleScene passing the entire currentRiddle object and player position.
       this.scene.start("RiddleScene", { 
