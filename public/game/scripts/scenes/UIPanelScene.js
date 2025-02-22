@@ -159,10 +159,7 @@ export default class UIPanelScene extends Phaser.Scene {
               levelText.on("pointerdown", () => {
                 console.log(`Level ${level} clicked in UIPanelScene`);
                 // Launch AnswerScene so the user can enter their answer.
-                this.scene.start("AnswerScene", {
-                  riddle: currentRiddle,
-                  playerPosition: this.playerPosition,
-                });
+                
               });
             }
             this.panelContainer.add(levelText);
