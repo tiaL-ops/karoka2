@@ -36,12 +36,13 @@ export default class InstructionsScene extends Phaser.Scene {
 
     // Instruction layout with pop-up images
     const instructions = [
-      { text: "1. You need to find the answer to a riddle, like in the panel:", image: 'PI' },
-      { text: "2. The riddle will lead you to answers and Python tutorials.", image: 'RI' },
-      { text: "4. Now, where will you find the riddle?", image: null },
-      { text: "Inside the game! Search for it and solve it!", image: null },
-      { text: "Good luck!", image: null }
+      { text: "1. The riddle is inside the quotes.", image: 'RI' },
+      { text: "2. If you need help, click the hint button to visit helpful websites.", image: null },
+      { text: "3. Now, where do you find the riddle?", image: null },
+      { text: "4. Inside the game! Search for it and solve it!", image: null },
+      { text: "5. Good luck!", image: null }
     ];
+    
 
     let yOffset = 120;
     let popupImage = this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, '').setVisible(false);
