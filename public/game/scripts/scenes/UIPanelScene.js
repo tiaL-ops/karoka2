@@ -3,6 +3,7 @@ import { db, auth } from "../firebase.js";
 import {
   doc,
   onSnapshot,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
@@ -64,6 +65,7 @@ export default class UIPanelScene extends Phaser.Scene {
     this.panelContainer.add(graphics);
 
     // Add Username text
+    /*
     const Kname = localStorage.getItem("Kname") || localStorage.getItem("Name") || "Unknown";
     const usernameText = this.add.text(20, 20, "Username: " + Kname, {
       font: "18px 'Press Start 2P', cursive",
@@ -72,9 +74,10 @@ export default class UIPanelScene extends Phaser.Scene {
       strokeThickness: 2,
     });
     this.panelContainer.add(usernameText);
+    */
 
     // Points text (initially 0; will update via Firebase)
-    this.pointsText = this.add.text(20, 60, "Points: 0", {
+    this.pointsText = this.add.text(20, 20, "Points: 0", {
       font: "18px 'Press Start 2P', cursive",
       fill: "#ffffff",
       stroke: "#000000",
@@ -83,7 +86,7 @@ export default class UIPanelScene extends Phaser.Scene {
     this.panelContainer.add(this.pointsText);
 
     // Header for the Levels list
-    const levelsText = this.add.text(20, 100, "Levels:", {
+    const levelsText = this.add.text(20, 60, "Levels:", {
       font: "18px 'Press Start 2P', cursive",
       fill: "#ffffff",
       stroke: "#000000",
@@ -111,15 +114,16 @@ export default class UIPanelScene extends Phaser.Scene {
     const totalLevels = riddlesData.length;
     this.levelTexts = [];
 
-    // Listen for Firebase profile updates (points, solvedLevels)
-    const docRef = doc(db, "competition1Test", this.currentUserId);
-    onSnapshot(docRef, (docSnap) => {
+    const compDocRef = doc(db, "competition1Test", this.currentUserId);
+
+    // Listen for changes in competition1Test
+    onSnapshot(compDocRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         // solvedLevels: an array of level numbers that are solved.
         const solvedLevels = new Set(Array.isArray(data.solvedLevels) ? data.solvedLevels : []);
         this.pointsText.setText(`Points: ${data.points || 0}`);
-
+    
         // Loop through every level from the JSON
         for (let i = 0; i < totalLevels; i++) {
           const currentRiddle = riddlesData[i];
@@ -132,7 +136,7 @@ export default class UIPanelScene extends Phaser.Scene {
           const levelTextContent = isSolved
             ? `${displayTitle} ✅`
             : `${displayTitle} 🔓`;
-
+    
           if (this.levelTexts[i]) {
             // Update existing level text
             this.levelTexts[i].setText(levelTextContent);
@@ -144,7 +148,7 @@ export default class UIPanelScene extends Phaser.Scene {
             }
           } else {
             // Create new level text
-            const levelText = this.add.text(20, 140 + i * 30, levelTextContent, {
+            const levelText = this.add.text(20, 100 + i * 30, levelTextContent, {
               font: "16px 'Press Start 2P', cursive",
               fill: isSolved ? "#00ff00" : "#ff0000",
               stroke: "#000000",
@@ -159,7 +163,6 @@ export default class UIPanelScene extends Phaser.Scene {
               levelText.on("pointerdown", () => {
                 console.log(`Level ${level} clicked in UIPanelScene`);
                 // Launch AnswerScene so the user can enter their answer.
-                
               });
             }
             this.panelContainer.add(levelText);
@@ -167,7 +170,23 @@ export default class UIPanelScene extends Phaser.Scene {
           }
         }
       } else {
-        console.error("Profile data not found in UIPanelScene");
+        // If competition1Test doc doesn't exist, check the profiles collection.
+        const profileDocRef = doc(db, "profiles", this.currentUserId);
+        onSnapshot(profileDocRef, (profileSnap) => {
+          if (profileSnap.exists()) {
+            // Create a default competition1Test document for this user.
+            const defaultData = { points: 0, solvedLevels: [] };
+            setDoc(compDocRef, defaultData)
+              .then(() => {
+                console.log("Created competition1Test doc for user", this.currentUserId);
+              })
+              .catch((error) => {
+                console.error("Error creating competition1Test doc:", error);
+              });
+          } else {
+            console.error("User not found in profiles collection");
+          }
+        });
       }
     });
 
