@@ -36,8 +36,8 @@ export default class InstructionsScene extends Phaser.Scene {
 
     // Instruction layout with pop-up images
     const instructions = [
-      { text: "1. The riddle is inside the quotes.", image: 'RI' },
-      { text: "2. If you need help, click the hint button to visit helpful websites.", image: null },
+      { text: "1. The riddle is inside the quotes. Here is a screenshot :)", image: 'RI' },
+      { text: "2. If you need help, click the hint button to visit helpful websites", image: null },
       { text: "3. Now, where do you find the riddle?", image: null },
       { text: "4. Inside the game! Search for it and solve it!", image: null },
       { text: "5. Good luck!", image: null }
