@@ -1,4 +1,5 @@
-const questions = [
+export function initQuiz() {
+  const questions = [
     { text: "I like learning by doing, not reading.", type: "finisher" },
     { text: "I often copy how others do things.", type: "mirror" },
     { text: "I feel better when I follow a plan.", type: "strategist" },
@@ -14,60 +15,85 @@ const questions = [
     { text: "I recognize talent in others.", type: "visionary" },
     { text: "I grow through hard work.", type: "climber" }
   ];
-  
-  const scores = {
-    finisher: 0,
-    mirror: 0,
-    strategist: 0,
-    shadow: 0,
-    giant: 0,
-    visionary: 0,
-    climber: 0
-  };
-  
-  const form = document.getElementById("quiz-form");
+
+  // Dynamically initialize scores for each unique type
+  const scores = questions.reduce((acc, q) => {
+    if (!(q.type in acc)) {
+      acc[q.type] = 0;
+    }
+    return acc;
+  }, {});
+
+  // Cache DOM elements
   const container = document.getElementById("quiz-questions");
-  const results = document.getElementById("results");
-  
-  // Render quiz
+  const form = document.getElementById("quiz-form");
+
+  // Render questions using DOM methods
   questions.forEach((q, index) => {
     const block = document.createElement("div");
-    block.innerHTML = `
-      <label><strong>Q${index + 1}:</strong> ${q.text}</label><br/>
-      <input type="range" min="1" max="5" value="3" name="q${index}" data-type="${q.type}">
-      <br><br>
-    `;
+
+    const label = document.createElement("label");
+    label.innerHTML = `<strong>Q${index + 1}:</strong> ${q.text}`;
+    block.appendChild(label);
+    block.appendChild(document.createElement("br"));
+
+    const input = document.createElement("input");
+    input.type = "range";
+    input.min = "1";
+    input.max = "5";
+    input.value = "3";
+    input.name = `q${index}`;
+    input.dataset.type = q.type;
+    block.appendChild(input);
+
+    block.appendChild(document.createElement("br"));
+    block.appendChild(document.createElement("br"));
+
     container.appendChild(block);
   });
-  
-  // Handle submit
+
+  // Form submission handler
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    // Reset scores
-    for (let type in scores) scores[type] = 0;
-  
-    const inputs = document.querySelectorAll("input[type='range']");
+
+    // Reset scores for each type
+    Object.keys(scores).forEach(key => (scores[key] = 0));
+
+    // Calculate scores based on range inputs in the form
+    const inputs = form.querySelectorAll("input[type='range']");
     inputs.forEach(input => {
       const type = input.dataset.type;
-      scores[type] += parseInt(input.value);
+      const value = Number(input.value);
+      scores[type] += value;
     });
-  
-    // Sort and pick top 3
-    const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-    const top3 = sorted.slice(0, 3).map(([type, score]) => ({
-      type,
-      score,
-      percent: Math.round((score / 10) * 100)
-    }));
-  
-    // Call GPT via Firebase Function
-    const response = await fetch("https://YOUR_PROJECT.cloudfunctions.net/generateKarokaProfile", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ top3 })
-    });
-  
-    const data = await response.json();
-    results.innerText = data.result;
+
+    // Compute top 3 types
+    const top3 = Object.entries(scores)
+      .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
+      .slice(0, 3)
+      .map(([type, score]) => ({
+        type,
+        score,
+        percent: Math.round((score / 10) * 100) // Assuming a max score of 10 per type
+      }));
+
+    try {
+      
+      const response = await fetch("https://us-central1-<your-project-id>.cloudfunctions.net/generate_karoka_profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ top3 })
+      });
+
+      const data = await response.json();
+
+      // Save the result in localStorage (optional for your result page)
+      localStorage.setItem("karoka_result", data.result);
+
+      // Redirect to results page
+      window.location.hash = "/results";
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
   });
-  
+}
