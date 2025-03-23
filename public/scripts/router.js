@@ -8,25 +8,14 @@ const routes = {
   };
   
   const appView = document.getElementById("app-view");
-  const staticSection = document.querySelector("section");
-  const competitionGrid = document.getElementById("competition-container");
-  const filterButtons = document.getElementById("filter-buttons");
+  const indexContent = document.getElementById("index-content");
+
+  
   
   async function loadRoute() {
     const path = window.location.hash.replace("#", "") || "/";
     console.log("Current route:", path);
   
-    if (path !== "/") {
-      console.log("Hiding static components.");
-      staticSection?.classList.add("hidden");
-      competitionGrid?.classList.add("hidden");
-      filterButtons?.classList.add("hidden");
-    } else {
-      console.log("Showing static components.");
-      staticSection?.classList.remove("hidden");
-      competitionGrid?.classList.remove("hidden");
-      filterButtons?.classList.remove("hidden");
-    }
   
     const file = routes[path];
     if (!file) {
@@ -50,6 +39,8 @@ const routes = {
     }
   
     if (path === "/quiz") {
+      console.log("path is not main");
+      indexContent?.classList.add("hidden");
       import("./quiz.js").then(module => {
         if (module.initQuiz) module.initQuiz();
       });
