@@ -1,20 +1,20 @@
 // main.js
 //deploy
-/*
-import { createAuthForm } from './game/scripts/authform.js';
-import { auth, signOut } from '/game/scripts/firebase.js';
-import { getFirestore, doc, getDocs, setDoc, collection, getDoc } from '/game/scripts/firebase.js';
+
+import { createAuthForm } from '/scripts/authform.js';
+import { auth, signOut } from '/scripts/firebase.js';
+import { getFirestore, doc, getDocs, setDoc, collection, getDoc } from '/scripts/firebase.js';
 
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
-*/
+
 
 //locally
-
+/*
 import { createAuthForm } from './scripts/authform.js';
 import { auth, signOut } from './scripts/firebase.js';
 import { getFirestore, doc, getDocs, setDoc, collection, getDoc } from '../public/scripts/firebase.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
-
+*/
 // Initialize Firestore
 const db = getFirestore();
 
@@ -136,7 +136,7 @@ async function loadProfileData(userId) {
 
     if (profileSnap.exists()) {
       const data = profileSnap.data();
-      console.log("Profile data loaded:", data);
+      //console.log("Profile data loaded:", data);
 
       // Update the profile form inputs using placeholders (or you can update .value if preferred)
       document.getElementById('kname').placeholder = data.kname || 'Enter your name';
@@ -250,7 +250,7 @@ async function saveProfileData(userId) {
     }
 
     await setDoc(profileRef, profileData, { merge: true });
-    console.log('Profile data saved to Firestore:', profileData);
+    
     alert('Profile saved successfully!');
   } catch (error) {
     console.error('Error saving profile data:', error);
@@ -322,7 +322,7 @@ export async function saveKarokaResult(userId, resultData) {
 
     await setDoc(profileRef, updatedData, { merge: true });
 
-    console.log("Karoka result saved to profile:", resultData);
+    //console.log("Karoka result saved to profile:", resultData);
   } catch (error) {
     console.error("Error saving Karoka result:", error);
   }

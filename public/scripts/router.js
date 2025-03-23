@@ -11,7 +11,7 @@ const indexContent = document.getElementById("index-content");
 async function loadRoute() {
   const path = window.location.hash.replace("#", "") || "/";
 
-  console.log("Current route:", path);
+
 
   // Show or hide homepage content
   if (path === "/") {
