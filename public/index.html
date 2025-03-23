@@ -23,7 +23,7 @@
 
   <!-- App Container for Dynamic Routes -->
   <div id="app-view" class="w-full max-w-6xl mx-auto px-4"></div>
-
+  <div id="index-content">
   <!-- The rest of your static content can go below -->
   <section class="w-full max-w-4xl mx-auto text-center mb-12">
     <h1 class="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-4">
@@ -34,6 +34,10 @@
     </p>
   </section>
 
+
+  
+
+  
   <!-- Other static sections, e.g., filter buttons, competition container, etc. -->
   <div id="filter-buttons" class="flex justify-center gap-4 mb-10">
     <button onclick="filterCompetitions('open')" class="px-6 py-2 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg shadow-md transition">
@@ -48,7 +52,7 @@
   </div>
 
   <div id="competition-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 max-w-6xl mx-auto"></div>
-
+</div>
   <!-- Scripts -->
   <script type="module" src="scripts/router.js"></script>
   <script type="module" src="main.js"></script>
