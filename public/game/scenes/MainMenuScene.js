@@ -1,7 +1,9 @@
-import { auth } from "../firebase.js";
+import {db, auth } from '../../scripts/firebase.js';
 import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 import WorldScene from "./WorldScene.js";
-import game from "../game.js";
+
+import game from '../../scripts/game.js';
+
 import AvatarScene from "./AvatarScene.js";
 import ProfileScene from "./ProfileScene.js";
 import InstructionsScene from "./InstructionScene.js";

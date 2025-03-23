@@ -1,7 +1,7 @@
-import { db, auth } from '../firebase.js'; // Import Firebase configuration and auth
+import {db, auth } from '../../scripts/firebase.js'; // Import Firebase configuration and auth
 import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
-import game from '../game.js';
+import game from '../../scripts/game.js';
 import MainMenuScene from './MainMenuScene.js';
 
 export default class ProfileScene extends Phaser.Scene {
