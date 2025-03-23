@@ -71,5 +71,19 @@
         "destination": "/assets"
       }
     ]
-  }
+  },
+  "functions": [
+   
+    {
+      "source": "karoka_type",
+      "codebase": "karoka_type",
+      "ignore": [
+        "venv",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
 }
