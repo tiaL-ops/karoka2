@@ -1,5 +1,5 @@
 // Riddle.js
-import { db, auth } from "../firebase.js"; // Firebase configuration and auth
+import {db, auth } from '../../scripts/firebase.js'; // Firebase configuration and auth
 import {
   doc,
   setDoc,

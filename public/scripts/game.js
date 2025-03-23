@@ -1,12 +1,12 @@
 // game.js
 import { getFirestore, doc, getDoc } from "./firebase.js";
-import WorldScene from './scenes/WorldScene.js'; 
-import RiddleScene from "./scenes/RiddleScene.js";
-import AnswerScene from "./scenes/AnswerScene.js";
-import UIPanelScene from "./scenes/UIPanelScene.js";
-import MainMenuScene from "./scenes/MainMenuScene.js";
-import AvatarScene from "./scenes/AvatarScene.js";
-import InstructionsScene from "./scenes/InstructionScene.js";
+import WorldScene from '../game/scenes/WorldScene.js'; 
+import RiddleScene from "../game/scenes/RiddleScene.js";
+import AnswerScene from "../game/scenes/AnswerScene.js";
+import UIPanelScene from "../game/scenes/UIPanelScene.js";
+import MainMenuScene from "../game/scenes/MainMenuScene.js";
+import AvatarScene from "../game/scenes/AvatarScene.js";
+import InstructionsScene from "../game/scenes/InstructionScene.js";
 
 async function fetchCompetitionData() {
     console.log("Fetching doc");

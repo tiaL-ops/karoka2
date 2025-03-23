@@ -1,5 +1,5 @@
 // UIPanelScene.js
-import { db, auth } from "../firebase.js";
+import {db, auth } from '../../scripts/firebase.js';
 import {
   doc,
   onSnapshot,

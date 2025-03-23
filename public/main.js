@@ -10,9 +10,9 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/fi
 
 //locally
 
-import { createAuthForm } from './game/scripts/authform.js';
-import { auth, signOut } from './game/scripts/firebase.js';
-import { getFirestore, doc, getDocs, setDoc, collection, getDoc } from '../public/game/scripts/firebase.js';
+import { createAuthForm } from './scripts/authform.js';
+import { auth, signOut } from './scripts/firebase.js';
+import { getFirestore, doc, getDocs, setDoc, collection, getDoc } from '../public/scripts/firebase.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
 // Initialize Firestore

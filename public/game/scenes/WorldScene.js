@@ -1,13 +1,15 @@
 import Player from "./Player.js";
 import AvatarScene from "./AvatarScene.js";
-import config from "../game.js";
+
 import ProfileScene from "./ProfileScene.js";
-import game from "../game.js";
+
 import MainMenuScene from "./MainMenuScene.js";
 import RiddleScene from "./RiddleScene.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
-import { db, auth } from "../firebase.js"; 
+
+import {db, auth } from '../../scripts/firebase.js';
+
 import {
   doc,
   setDoc,
