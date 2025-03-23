@@ -45,6 +45,9 @@ const routes = {
         if (module.initQuiz) module.initQuiz();
       });
     } else if (path === "/results") {
+      console.log("path is result ");
+      indexContent?.classList.add("hidden");
+
       import("./results.js").then(module => {
         if (module.initResults) module.initResults();
       });

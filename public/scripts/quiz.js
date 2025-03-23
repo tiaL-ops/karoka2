@@ -16,19 +16,14 @@ export function initQuiz() {
     { text: "I grow through hard work.", type: "climber" }
   ];
 
-  // Dynamically initialize scores for each unique type
   const scores = questions.reduce((acc, q) => {
-    if (!(q.type in acc)) {
-      acc[q.type] = 0;
-    }
+    if (!(q.type in acc)) acc[q.type] = 0;
     return acc;
   }, {});
 
-  // Cache DOM elements
   const container = document.getElementById("quiz-questions");
   const form = document.getElementById("quiz-form");
 
-  // Render questions using DOM methods
   questions.forEach((q, index) => {
     const block = document.createElement("div");
 
@@ -52,14 +47,11 @@ export function initQuiz() {
     container.appendChild(block);
   });
 
-  // Form submission handler
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // Reset scores for each type
     Object.keys(scores).forEach(key => (scores[key] = 0));
 
-    // Calculate scores based on range inputs in the form
     const inputs = form.querySelectorAll("input[type='range']");
     inputs.forEach(input => {
       const type = input.dataset.type;
@@ -67,31 +59,34 @@ export function initQuiz() {
       scores[type] += value;
     });
 
-    // Compute top 3 types
-    const top3 = Object.entries(scores)
-      .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
-      .slice(0, 3)
-      .map(([type, score]) => ({
-        type,
-        score,
-        percent: Math.round((score / 10) * 100) // Assuming a max score of 10 per type
-      }));
+    // Get top 3 types
+    const rawTop3 = Object.entries(scores)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3);
+
+    const total = rawTop3.reduce((sum, [, score]) => sum + score, 0) || 1;
+
+    const top3 = rawTop3.map(([type, score]) => ({
+      type,
+      score,
+      percent: Math.round((score / total) * 100)
+    }));
+
+    console.log("Top 3 normalized:", top3);
 
     try {
-      
-      const response = await fetch("https://us-central1-<your-project-id>.cloudfunctions.net/generate_karoka_profile", {
+      const response = await fetch("https://us-central1-karoka-game.cloudfunctions.net/generate_karoka_profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ top3 })
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      console.log("AI Response:", text);
 
-      // Save the result in localStorage (optional for your result page)
-      localStorage.setItem("karoka_result", data.result);
-
-      // Redirect to results page
+      localStorage.setItem("karoka_result", text);
       window.location.hash = "/results";
+
     } catch (error) {
       console.error("Error fetching profile:", error);
     }
