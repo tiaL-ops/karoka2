@@ -328,3 +328,21 @@ export async function saveKarokaResult(userId, resultData) {
   }
 }
 
+export async function getKarokaResult(userId) {
+  try {
+    const profileRef = doc(db, 'profiles', userId);
+    const profileSnap = await getDoc(profileRef);
+
+    if (profileSnap.exists()) {
+      const data = profileSnap.data();
+      return data.karokaResult || null;
+    } else {
+      console.warn("No profile found for user:", userId);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching Karoka result:", error);
+    return null;
+  }
+}
+
