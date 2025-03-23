@@ -10,9 +10,9 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/fi
 
 //locally
 
-import { createAuthForm } from './game/scripts/authform.js';
-import { auth, signOut } from './game/scripts/firebase.js';
-import { getFirestore, doc, getDocs, setDoc, collection, getDoc } from '../public/game/scripts/firebase.js';
+import { createAuthForm } from './scripts/authform.js';
+import { auth, signOut } from './scripts/firebase.js';
+import { getFirestore, doc, getDocs, setDoc, collection, getDoc } from '../public/scripts/firebase.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
 // Initialize Firestore
@@ -307,3 +307,42 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Feedback button not found!");
   }
 });
+
+export async function saveKarokaResult(userId, resultData) {
+  try {
+    const profileRef = doc(db, 'profiles', userId);
+    const profileSnap = await getDoc(profileRef);
+
+    const existingData = profileSnap.exists() ? profileSnap.data() : {};
+
+    const updatedData = {
+      ...existingData,
+      karokaResult: resultData
+    };
+
+    await setDoc(profileRef, updatedData, { merge: true });
+
+    console.log("Karoka result saved to profile:", resultData);
+  } catch (error) {
+    console.error("Error saving Karoka result:", error);
+  }
+}
+
+export async function getKarokaResult(userId) {
+  try {
+    const profileRef = doc(db, 'profiles', userId);
+    const profileSnap = await getDoc(profileRef);
+
+    if (profileSnap.exists()) {
+      const data = profileSnap.data();
+      return data.karokaResult || null;
+    } else {
+      console.warn("No profile found for user:", userId);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching Karoka result:", error);
+    return null;
+  }
+}
+
