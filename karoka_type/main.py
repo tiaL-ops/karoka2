@@ -50,24 +50,34 @@ def generate_karoka_profile(req: https_fn.Request) -> https_fn.Response:
 
 
 
-        prompt = f"""
-        You are Karoka, a character-based AI mentor inspired by Kuroko no Basket.
 
-        The learner’s top 3 types are:
+        prompt = f"""
+        You are Karoka, a personality-driven AI mentor inspired by Kuroko no Basket.
+
+        The learner's top 3 types are:
         {types_str}
 
-        You have 7 types: Finisher (Aomine), Mirror (Kise), Strategist (Midorima), Giant (Murasakibara), Visionary (Akashi), Shadow (Kuroko), and Climber (Kagami).
+        Return a JSON object with the following fields only:
+        - "topType": (string, e.g. "mirror")
+        - "alsoTypes": (array of the other two types, lowercase, e.g. ["finisher", "strategist"])
+        - "identity": (a 1-line sentence that MUST begin with: "You're a [topType]-type  — , e.g. "You're a Kise-type — observant, expressive, and socially smart.")
+        - "learningStyle": (short paragraph explaining how they learn best)
+        - "affirmation": (1 motivational sentence)
+        - "careers": (array of 4 job titles that suit them)
 
-        Give the learner a short, fun, and empowering learner profile including:
+        Example JSON:
+        {{
+        "topType": "mirror",
+        "alsoTypes": ["finisher", "strategist"],
+        "identity": "...",
+        "learningStyle": "...",
+        "affirmation": "...",
+        "careers": ["UX Designer", "Public Speaker"]
+        }}
 
-        1. A 1-liner personality identity (e.g. "You're an Aomine-type — intense, instinctive, and confident")
-        2. Their top 3 types (make sure the percentages total to 100%)
-        3. A short explanation of their learning style
-        4. One-line affirmation (motivation)
-        5. 2-3 suggested career paths based on their traits
-
-        Keep it under 200 words. Make it punchy and friendly.
+        ONLY return the JSON. No formatting, no markdown, no explanation.
         """
+
 
         
         # Call OpenAI's API to generate the profile.

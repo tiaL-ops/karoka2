@@ -1,4 +1,7 @@
-export function initQuiz() {
+import { saveKarokaResult } from '../main.js';
+import { auth } from './firebase.js';
+
+export async function initQuiz() {
   const questions = [
     { text: "I like learning by doing, not reading.", type: "finisher" },
     { text: "I often copy how others do things.", type: "mirror" },
@@ -21,8 +24,11 @@ export function initQuiz() {
     return acc;
   }, {});
 
+  
   const container = document.getElementById("quiz-questions");
   const form = document.getElementById("quiz-form");
+
+
 
   questions.forEach((q, index) => {
     const block = document.createElement("div");
@@ -49,46 +55,64 @@ export function initQuiz() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
+  
+    const submitButton = document.getElementById("submit-button");
+    const submitText = document.getElementById("submit-text");
+    const spinner = document.getElementById("loading-spinner");
+  
+    // Show spinner and disable button
+    submitButton.disabled = true;
+    spinner.classList.remove("hidden");
+    submitText.textContent = "Thinking...";
+  
+    // Score processing
     Object.keys(scores).forEach(key => (scores[key] = 0));
-
+  
     const inputs = form.querySelectorAll("input[type='range']");
     inputs.forEach(input => {
       const type = input.dataset.type;
       const value = Number(input.value);
       scores[type] += value;
     });
-
-    // Get top 3 types
+  
     const rawTop3 = Object.entries(scores)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 3);
-
+  
     const total = rawTop3.reduce((sum, [, score]) => sum + score, 0) || 1;
-
+  
     const top3 = rawTop3.map(([type, score]) => ({
       type,
       score,
       percent: Math.round((score / total) * 100)
     }));
-
-    console.log("Top 3 normalized:", top3);
-
+  
     try {
       const response = await fetch("https://us-central1-karoka-game.cloudfunctions.net/generate_karoka_profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ top3 })
       });
-
-      const text = await response.text();
-      console.log("AI Response:", text);
-
-      localStorage.setItem("karoka_result", text);
+  
+      const text = await response.json();
+      localStorage.setItem("karoka_result", JSON.stringify(text));
+  
+      const user = auth.currentUser;
+      if (user) {
+        await saveKarokaResult(user.uid, text);
+      }
+  
       window.location.hash = "/results";
-
+  
     } catch (error) {
       console.error("Error fetching profile:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      // Hide spinner and reset button
+      submitButton.disabled = false;
+      spinner.classList.add("hidden");
+      submitText.textContent = "Show me who I am!";
     }
   });
+  
 }

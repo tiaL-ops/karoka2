@@ -307,3 +307,24 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Feedback button not found!");
   }
 });
+
+export async function saveKarokaResult(userId, resultData) {
+  try {
+    const profileRef = doc(db, 'profiles', userId);
+    const profileSnap = await getDoc(profileRef);
+
+    const existingData = profileSnap.exists() ? profileSnap.data() : {};
+
+    const updatedData = {
+      ...existingData,
+      karokaResult: resultData
+    };
+
+    await setDoc(profileRef, updatedData, { merge: true });
+
+    console.log("Karoka result saved to profile:", resultData);
+  } catch (error) {
+    console.error("Error saving Karoka result:", error);
+  }
+}
+
