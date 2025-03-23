@@ -121,7 +121,9 @@ function openAuthForm() {
 // Handle Logout
 function handleLogout() {
   signOut(auth)
+
     .then(() => {
+      localStorage.removeItem("karoka_result");
       console.log('User logged out successfully.');
       updateUIForUser(null);
     })

@@ -91,7 +91,7 @@ export async function initQuiz() {
       const profile = await response.json();
 
       // Save locally
-      localStorage.setItem("karoka_result", JSON.stringify(profile));
+      
 
       const user = auth.currentUser;
 
@@ -100,7 +100,8 @@ export async function initQuiz() {
         await saveKarokaResult(user.uid, profile);
       } else {
         // If guest, mark it for later
-        localStorage.setItem("pending_save", "true");
+        localStorage.setItem("karoka_result", JSON.stringify(profile));
+        
       }
 
       // Redirect to result
